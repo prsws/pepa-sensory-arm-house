@@ -3,10 +3,12 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 
 from custom_components.home_agent import (
+    CONFIG_SCHEMA,
     async_reload_entry,
     async_remove_services,
     async_setup,
@@ -134,6 +136,29 @@ class TestAsyncSetup:
 
         assert result is True
         assert mock_hass.data[DOMAIN]["yaml_config"][CONF_TOOLS_CUSTOM] == custom_tools
+
+
+class TestConfigSchema:
+    """Test CONFIG_SCHEMA, which Home Assistant requires next to async_setup."""
+
+    def test_accepts_no_section(self):
+        """Configurations without our section are untouched."""
+        assert CONFIG_SCHEMA({}) == {}
+
+    def test_accepts_custom_tools_list(self):
+        """A section carrying custom tools validates and is returned unchanged."""
+        config = {DOMAIN: {CONF_TOOLS_CUSTOM: [{"name": "tool1"}, {"name": "tool2"}]}}
+        assert CONFIG_SCHEMA(config) == config
+
+    def test_accepts_other_keys_in_section(self):
+        """Other keys in the section are left for the code that reads them."""
+        config = {DOMAIN: {CONF_TOOLS_CUSTOM: [], "something_else": 1}}
+        assert CONFIG_SCHEMA(config) == config
+
+    def test_rejects_custom_tools_that_is_not_a_list(self):
+        """tools_custom must be a list."""
+        with pytest.raises(vol.Invalid):
+            CONFIG_SCHEMA({DOMAIN: {CONF_TOOLS_CUSTOM: "not-a-list"}})
 
 
 class TestAsyncSetupEntry:
