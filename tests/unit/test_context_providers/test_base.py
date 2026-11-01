@@ -905,9 +905,18 @@ class TestGetEntityStateAreaLookup:
         mock_dr = Mock()
 
         with (
-            patch("custom_components.home_agent.context_providers.base.er.async_get", return_value=mock_er),
-            patch("custom_components.home_agent.context_providers.base.ar.async_get", return_value=mock_ar),
-            patch("custom_components.home_agent.context_providers.base.dr.async_get", return_value=mock_dr),
+            patch(
+                "custom_components.home_agent.context_providers.base.er.async_get",
+                return_value=mock_er,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.ar.async_get",
+                return_value=mock_ar,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.dr.async_get",
+                return_value=mock_dr,
+            ),
         ):
             result = provider._get_entity_state("light.bedroom")
 
@@ -945,9 +954,18 @@ class TestGetEntityStateAreaLookup:
         mock_dr.async_get.return_value = mock_device_entry
 
         with (
-            patch("custom_components.home_agent.context_providers.base.er.async_get", return_value=mock_er),
-            patch("custom_components.home_agent.context_providers.base.ar.async_get", return_value=mock_ar),
-            patch("custom_components.home_agent.context_providers.base.dr.async_get", return_value=mock_dr),
+            patch(
+                "custom_components.home_agent.context_providers.base.er.async_get",
+                return_value=mock_er,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.ar.async_get",
+                return_value=mock_ar,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.dr.async_get",
+                return_value=mock_dr,
+            ),
         ):
             result = provider._get_entity_state("sensor.kitchen_temp")
 
@@ -987,9 +1005,18 @@ class TestGetEntityStateAreaLookup:
         mock_dr.async_get.return_value = mock_device_entry
 
         with (
-            patch("custom_components.home_agent.context_providers.base.er.async_get", return_value=mock_er),
-            patch("custom_components.home_agent.context_providers.base.ar.async_get", return_value=mock_ar),
-            patch("custom_components.home_agent.context_providers.base.dr.async_get", return_value=mock_dr),
+            patch(
+                "custom_components.home_agent.context_providers.base.er.async_get",
+                return_value=mock_er,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.ar.async_get",
+                return_value=mock_ar,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.dr.async_get",
+                return_value=mock_dr,
+            ),
         ):
             result = provider._get_entity_state("light.office")
 
@@ -1011,9 +1038,18 @@ class TestGetEntityStateAreaLookup:
         mock_er.async_get.return_value = None
 
         with (
-            patch("custom_components.home_agent.context_providers.base.er.async_get", return_value=mock_er),
-            patch("custom_components.home_agent.context_providers.base.ar.async_get", return_value=Mock()),
-            patch("custom_components.home_agent.context_providers.base.dr.async_get", return_value=Mock()),
+            patch(
+                "custom_components.home_agent.context_providers.base.er.async_get",
+                return_value=mock_er,
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.ar.async_get",
+                return_value=Mock(),
+            ),
+            patch(
+                "custom_components.home_agent.context_providers.base.dr.async_get",
+                return_value=Mock(),
+            ),
         ):
             result = provider._get_entity_state("sensor.unknown")
 

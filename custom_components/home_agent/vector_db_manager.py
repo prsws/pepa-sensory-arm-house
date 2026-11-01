@@ -20,13 +20,10 @@ from homeassistant.components import conversation as ha_conversation
 from homeassistant.components.homeassistant.exposed_entities import async_should_expose
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import Event, HomeAssistant, State, callback
+from homeassistant.helpers import area_registry as ar
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_time_interval
-
-from homeassistant.helpers import (
-    area_registry as ar,
-    device_registry as dr,
-    entity_registry as er,
-)
 
 if TYPE_CHECKING:
     from chromadb.api import ClientAPI
