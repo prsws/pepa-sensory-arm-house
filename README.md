@@ -1,118 +1,135 @@
-# Home Agent
+# Pepa Sensory Arm — House
 
-[![Version](https://img.shields.io/badge/version-0.9.5-blue.svg)](https://github.com/aradlein/hass-agent-llm/releases)
-[![Build Status](https://github.com/aradlein/hass-agent-llm/workflows/CI/badge.svg)](https://github.com/aradlein/hass-agent-llm/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.3.1+-blue.svg)](https://www.home-assistant.io/)
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.11%2B-blue.svg)](https://www.home-assistant.io/)
+[![Marketplace](https://img.shields.io/badge/Marketplace-custom%20repository-orange.svg)](#installation)
 
-A highly customizable Home Assistant custom component that provides intelligent conversational AI capabilities with advanced tool calling, context injection, and conversation history management.
+The house scope of the Pepa Sensory Arm: a Home Assistant (HA) conversation agent that gives Pepa its senses, muscles and voice inside the home. Reflex-first, local-first.
 
-## What's New in v0.9.5
+> **Status: rebuild in progress.** This repository was restarted from a clean copy of upstream [Home Agent](https://github.com/aradlein/hass-agent-llm) by Anton Radlein (version 0.9.5, tagged here as the `radlein-base` pre-release). Pepa-specific changes from the earlier `pepa-sensory-arm` repository are being brought over one at a time, each judged against the scope framing below, not replayed mechanically. The code behaves like upstream Home Agent except for the changes listed under [Added in this repository](#added-in-this-repository), and it still carries upstream's name: the integration appears as "Home Agent" and its domain and service names start with `home_agent`. They will be renamed to `pepa_sensory_arm_house`, which will be a breaking change for anyone who installs before then.
 
-- **Vector Reindex Optimization** - Skip reindexing entities when state and attributes are unchanged, reducing unnecessary re-embeddings
-- **Datetime Serialization Fix** - Properly handle datetime objects in tool results and vector DB context provider
-- **Area Lookup Fix** - Use entity/device registry for area resolution instead of state.attributes for more reliable room detection
+## Where this fits
 
-[View Full Changelog](https://github.com/aradlein/hass-agent-llm/releases)
+[Pepa](https://ai4aging.org) is a self-hosted, no-cloud assistant that helps an older adult stay independent in their own home, in English and español. Its architecture is octopus-inspired: a central Head and several semi-autonomous arms.
 
----
+The **Sensory Arm** (PSA) is the boundary between Pepa and the physical world. It perceives, delivers and collects raw data, and it does not decide what that data means. It has two scopes so far:
 
-### Previous Release: v0.9.4
+- **House** (this repository): the senses, muscles and voice. It perceives the house, acts on it, and speaks in it. Real time, with parts deliberately exposed to Pepa's conversation.
+- **Human telemetry**: the internal organs. Collection only, inward only, never exposed to conversation. It lives in a separate repository (name not yet settled) and runs on its own Home Assistant instance. It will never run this code.
 
-- **Embedding Cache Memory Leak Fix** - Fixed a memory leak where the embedding cache accumulated stale entries for frequently-changing entities
-- **CI Fixes** - Fixed version validation workflow, flake8, and black formatting issues
+Read more: [The Sensory Arm](https://ai4aging.org/arms/sensory/the-sensory-arm/) · [House Sensing](https://ai4aging.org/arms/sensory/house-sensing/) · [Decision Register](https://ai4aging.org/arms/sensory/decisions/)
 
-## Overview
+## What the house scope does, and what it never does
 
-Home Agent extends Home Assistant's native conversation platform to enable natural language control and monitoring of your smart home. It works with any OpenAI-compatible LLM provider, giving you flexibility to use cloud services or run models locally.
+This repository is the house scope's front end: voice conversation, the ReAct (reason-and-act) tool loop, and the actuation tools. The rules it is built to follow come from the [Decision Register](https://ai4aging.org/arms/sensory/decisions/) (cited here by ID, such as D-05):
 
-**Key Capabilities:**
-- Natural language home control through any OpenAI-compatible LLM
-- Automatic context injection - LLM knows your home's current state
-- Persistent conversation memory across interactions
-- Extensible tool system for custom integrations
-- Streaming responses for voice assistants
-- Long-term memory system for personalized experiences
+- **Reflexes only.** It acts on its own only through direct, requested house actions, using explicit, declared and guardrailed rules, never beyond them (D-05). *"Apaga el abanico de la oficina"* is a reflex. Nothing upstream is consulted.
+- **Anything else goes up.** A request that is not about the house is handed on rather than improvised. Health information spoken to Pepa is not housework: the house scope punts it and voices only whatever reply comes back (D-11).
+- **Alarms are delivered, not decided.** Shower safety and similar signals are observations, not conclusions. The house scope can deliver an alarm. Deciding that one is warranted is not its job (D-12).
+- **Raw and declared.** What it collects is kept as received, and whatever it receives must be declared (D-06).
+- **No cameras.** Pepa does not use cameras until a compelling use case appears. Any cameras in the house belong to a security plane outside Pepa (D-13).
+- **No moving sensors.** A sensing device that moves on its own, such as a robot, is its own arm, not part of this one (D-03).
+- **Only exposed entities.** The conversation sees only the entities exposed to it in Home Assistant.
+- **Loud failures.** When the house scope cannot confirm that an action happened, it says so; it never fails silently.
 
 ## Features
 
-### Core Features
+### Added in this repository
 
-- **LLM Integration** - Works with OpenAI, Azure OpenAI, Ollama, LocalAI, LM Studio, or any OpenAI-compatible endpoint
-- **Entity Context** - Automatically provides relevant entity states to the LLM
-- **Conversation History** - Maintains context across multiple interactions with persistent storage
-- **Native Tools** - Built-in `ha_control` and `ha_query` tools for home automation
-- **Custom Tools** - Define REST API and Home Assistant service tools in configuration
-- **Event System** - Rich events for automation triggers and monitoring
-- **Streaming Responses** - Low-latency streaming for voice assistant integration (~10x faster)
+- **Exposed-entity allow-list refreshed every turn.** Entities that appear after a cold boot (late Zigbee or MQTT discovery) are no longer locked out until a reload, on the voice path and through the integration's own service. From upstream pull request #44, extended here.
+- **House catalog.** One shared answer to "what does the house expose?": the entities exposed to Assist, published as `sensor.pepa_entity_context` (state = entity count, attribute `csv` = a table of entity_id, name, area, aliases, domain, services, volatile, verify). The CSV stays byte-identical between turns so a prompt that includes it stays cacheable, and the tools' allow-list reads the same answer.
+- **`verify` for slow-acting devices.** Give an entity the Home Assistant label `verify` (a carport gate, a lock). After a command, the agent does not claim success: it checks within 60 seconds that the entity reached the state the command implies. A failure is loud: spoken on the satellite that took the request when it can announce, and always a Home Assistant notification. Every outcome fires a `pepa_verify` event.
+- **Memory extraction through the external LLM** stores what it extracts instead of silently dropping it (upstream pull request #43).
+- **Optional follow-up listening** (`continue_conversation`, off by default): the satellite reopens its microphone after a reply (upstream pull request #51).
 
-### Advanced Features
+See [NOTICE.md](NOTICE.md) for credits.
 
-- **Vector Database Integration** - Semantic entity search using ChromaDB for efficient context management
-- **Multi-LLM Support** - Use a fast local model for control + powerful cloud model for analysis
-- **Memory System** - Automatic extraction and recall of facts, preferences, and context
-- **Context Optimization** - Intelligent compression to stay within token limits
-- **Tool Progress Indicators** - Real-time feedback during tool execution
+### Inherited from upstream Home Agent
+
+These work because the code base is upstream's. As each is re-adopted into Pepa, it will be reviewed against the rules above.
+
+- **Any OpenAI-compatible LLM endpoint** (LLM = large language model). Works with Ollama, LM Studio, LocalAI and similar. See the note on local-first below.
+- **Entity context**: relevant entity states are provided to the model automatically.
+- **Conversation history** with persistent storage, kept per user and device.
+- **Native tools**: `ha_control` and `ha_query` for acting on and reading the house.
+- **Custom tools**: REST API and Home Assistant service tools, defined in YAML configuration.
+- **External LLM tool**: hands a request that is beyond the house to another model.
+- **Streaming responses** for low-latency voice, using the Wyoming protocol text-to-speech (TTS).
+- **Vector database context** (optional): semantic entity search with ChromaDB.
+- **Memory system** (optional): automatic extraction and recall of facts, using ChromaDB.
+- **Events** for automation triggers and monitoring.
+
+### Local-first
+
+Pepa's rule is that nothing leaves the house. The inherited code can talk to cloud providers (OpenAI, Azure OpenAI), but a Pepa installation should point it at a model served on your own network. Cloud endpoints remain a technical option here, not a supported Pepa configuration.
 
 ## Requirements
 
-### Required
-- **Home Assistant** - Version 2026.3.1 or later (for Python 3.14 support)
-- **Python Dependencies** - `aiohttp >= 3.9.0` (included with Home Assistant)
+**Required**
 
-### Optional (Enable Advanced Features)
-- **ChromaDB** - For vector database context mode
-  - `chromadb-client == 1.5.3`
-  - Required for: Vector DB context injection and memory system
-- **OpenAI** - For embeddings in vector DB mode
-  - `openai >= 1.3.8`
-  - Required for: Vector DB entity indexing (alternative: use Ollama)
-- **Wyoming Protocol TTS** - For streaming responses
-  - Required for: Low-latency voice assistant integration
+- Home Assistant 2025.11 or later (the minimum declared in `hacs.json` and the version the tests run against, on Python 3.13 and 3.14)
+- `aiohttp >= 3.9.0` (included with Home Assistant)
+- To install from the Marketplace: Home Assistant 2026.11 or later. On earlier versions, use HACS or a manual install.
+
+**Optional**
+
+- ChromaDB (`chromadb-client == 1.5.3`): vector database context and the memory system
+- Embeddings: `openai >= 1.3.8`, or use Ollama
+- Wyoming protocol TTS: streaming voice responses
+
+**If you ran the earlier `pepa-sensory-arm`**: remove its `entities_list` pyscript before installing this. Both publish `sensor.pepa_entity_context` and would overwrite each other.
 
 ## Installation
 
-### HACS (Recommended)
+This repository is not in the community catalog, so it is installed as a *custom repository*. Community content is made and supported by its authors, not by the Home Assistant project; Home Assistant shows a warning saying so before you install.
 
-1. In HACS, go to **Integrations** → **⋮** → **Custom repositories**
-2. Add repository: `https://github.com/aradlein/hass-agent-llm`
-3. Category: **Integration**
-4. Click **Add**
-5. Search for "Home Agent" in HACS
-6. Click **Install**
-7. Restart Home Assistant
-8. Go to Settings > Devices & Services > Add Integration
-9. Search for "Home Agent" and follow the setup wizard
+### Marketplace (Home Assistant 2026.11 and later)
 
-### Manual Installation
+Starting with 2026.11, the Home Assistant Community Store (HACS) is built into Home Assistant as the **Marketplace** (**Settings** → **Marketplace**). If you already had HACS, Home Assistant migrates it on first start, including your custom repositories. HACS can no longer be installed on 2026.11 or later.
 
-1. Download the latest release from GitHub
-2. Copy the `custom_components/home_agent` directory to your Home Assistant `config/custom_components` folder
-3. Restart Home Assistant
-4. Go to Settings > Devices & Services > Add Integration
-5. Search for "Home Agent" and complete the configuration
+1. Open this link from a browser that can reach your Home Assistant instance. It opens this repository in your Marketplace and offers to add it as a custom repository:
+   [![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=prsws&repository=pepa-sensory-arm-house&category=integration)
+2. Adding a custom repository needs a GitHub connection (a GitHub account). Browsing and installing from the main catalog does not.
+3. Install it. An integration with a setup flow that was not loaded before starts right away; otherwise a repair notice offers a restart.
+4. Go to **Settings** → **Devices & Services** → **Add Integration**, search for "Home Agent" (the name will change with the rename), and follow the wizard.
 
-**For detailed installation instructions, see [Installation Guide](docs/INSTALLATION.md)**
+Updates appear under **Settings** → **Updates**, next to Home Assistant's own.
 
-## Quick Start
+### HACS (before 2026.11)
 
-### 1. Add the Integration
+1. In HACS, go to **Integrations** → **⋮** → **Custom repositories**.
+2. Add `https://github.com/prsws/pepa-sensory-arm-house` with category **Integration**.
+3. Search for "Home Agent" in HACS and click **Install**, then restart Home Assistant.
+4. Add the integration as in step 4 above.
 
-Navigate to Settings > Devices & Services > Add Integration, search for "Home Agent", and configure:
+The link above also works on these versions: it opens HACS.
 
-- **Name**: Friendly name (e.g., "Home Agent")
-- **LLM Base URL**: Your OpenAI-compatible endpoint
-  - OpenAI: `https://api.openai.com/v1`
-  - Azure OpenAI: `https://<resource>.openai.azure.com/openai/deployments/<deployment>`
-  - Ollama (local): `http://localhost:11434/v1`
-  - LocalAI: Your LocalAI URL
-- **API Key**: Your API key (if required)
-- **Model**: Model name (e.g., `gpt-4o-mini`, `llama3.2`, etc.)
-- **Temperature**: 0.7 (recommended for most use cases)
-- **Max Tokens**: 500 (adjust based on your needs)
+### Manual (any version)
 
-### 2. Test Basic Functionality
+1. Download the latest release from this repository.
+2. Copy `custom_components/home_agent` into your Home Assistant `config/custom_components` folder.
+3. Restart Home Assistant and add the integration as above.
+
+### One repository per integration name
+
+Home Assistant allows only one installed repository for each integration domain (the internal name, here `home_agent`). Until the rename, if you already have upstream Home Agent or another copy of it installed, the Marketplace will refuse to install this one. Back up, then remove the other copy first.
+
+Details: [Installation Guide](docs/INSTALLATION.md)
+
+## Quick start
+
+### 1. Add the integration
+
+In **Settings** → **Devices & Services** → **Add Integration**, configure:
+
+- **Name**: a friendly name
+- **LLM Base URL**: your OpenAI-compatible endpoint, for example Ollama on your network at `http://<your-server>:11434/v1`
+- **API Key**: only if your endpoint requires one
+- **Model**: the model name your endpoint serves
+- **Temperature**: 0.7 is a reasonable start
+- **Max Tokens**: 500, adjusted to your needs
+
+### 2. Try it
 
 Call the conversation service:
 
@@ -122,52 +139,27 @@ data:
   text: "Turn on the living room lights"
 ```
 
-### 3. Explore Advanced Configuration
+(Service names will change with the rename; new code and documentation will key on the integration's domain constant rather than the literal name.)
 
-Access Settings > Devices & Services > Home Agent > Configure to:
-- Configure context injection mode (direct or vector DB)
-- Enable conversation history
-- Set up custom tools
-- Configure external LLM for complex queries
-- Enable memory system
-- Enable streaming for voice assistants
+### 3. Go further
 
-**For detailed configuration options, see [Configuration Reference](docs/CONFIGURATION.md)**
+Open **Settings** → **Devices & Services** → this integration → **Configure** to set the context mode, conversation history, custom tools, external LLM, memory, and streaming.
 
-## Documentation
+To have slow devices checked after each command, add the label `verify` to them in Home Assistant (**Settings** → **Labels**, then on the entity).
 
-### Quick Start Guides
-- [Installation](docs/INSTALLATION.md) - Get up and running in minutes
-- [Configuration](docs/CONFIGURATION.md) - Essential settings explained
-- [Example Configurations](docs/EXAMPLE_CONFIGS.md) - Ready-to-use configs for common providers
-- [FAQ](docs/FAQ.md) - Top 20 questions answered
+Details: [Configuration Reference](docs/CONFIGURATION.md)
 
-### Feature Guides
-- [Memory System](docs/MEMORY_SYSTEM.md) - Enable long-term memory
-- [Vector DB Setup](docs/VECTOR_DB_SETUP.md) - Semantic entity search
-- [Custom Tools](docs/CUSTOM_TOOLS.md) - Extend with REST APIs and services
-- [External LLM](docs/EXTERNAL_LLM.md) - Multi-LLM workflows
+## Usage examples
 
-### Reference
-- [Architecture Overview](docs/ARCHITECTURE.md) - Component diagrams and system design
-- [API Reference](docs/API_REFERENCE.md) - Services, events, and tools
-- [Troubleshooting](docs/TROUBLESHOOTING.md) - Quick fixes for common issues
-- [Examples](docs/EXAMPLES.md) - 10 ready-to-use examples
-- [Migration Guide](docs/MIGRATION.md) - Moving from extended_openai_conversation
+### Voice
 
-## Usage Examples
-
-### Voice Control
-
-```yaml
-# Use with Home Assistant voice assistant
-# Just speak naturally to your voice assistant
+```
 "Turn on the kitchen lights to 50%"
-"What's the temperature in the living room?"
 "Is the front door locked?"
+"Apaga el abanico de la oficina"
 ```
 
-### Automation Integration
+### Automation
 
 ```yaml
 automation:
@@ -182,195 +174,126 @@ automation:
           conversation_id: "morning_routine"
 ```
 
-### Custom Tool Example
+### React to a failed verification
 
 ```yaml
-# configuration.yaml
+automation:
+  - alias: "Gate did not confirm"
+    trigger:
+      - platform: event
+        event_type: pepa_verify
+        event_data:
+          outcome: failed
+    action:
+      - service: notify.notify
+        data:
+          message: "{{ trigger.event.data.entity_id }} did not reach {{ trigger.event.data.expected }}"
+```
+
+### Custom tool
+
+Custom tools are defined in YAML (`configuration.yaml`). Point REST tools at services on your own network; a call that leaves the house goes against Pepa's no-cloud rule.
+
+```yaml
 home_agent:
   tools_custom:
     - name: check_weather
       description: "Get weather forecast"
       handler:
         type: rest
-        url: "https://api.open-meteo.com/v1/forecast"
+        url: "http://<your-weather-service>/forecast"
         method: GET
-        query_params:
-          latitude: "47.6062"
-          longitude: "-122.3321"
-          current: "temperature_2m,precipitation"
 ```
 
-**For more examples, see [Examples Documentation](docs/EXAMPLES.md)**
+More: [Examples](docs/EXAMPLES.md)
 
-## Voice Conversation Persistence
+## Voice conversation persistence
 
-Home Agent automatically maintains conversation context across multiple voice interactions, enabling natural multi-turn conversations with your voice assistant.
+The agent keeps conversation context across voice interactions, so follow-up questions work.
 
-### How It Works
+- Each user and device combination has its own session.
+- Sessions expire after one hour of inactivity by default. The timeout is configurable from 1 minute to 2 hours (set in minutes).
+- Each device has an independent context: the kitchen satellite remembers kitchen conversations, and the same person on a different device starts a new one.
 
-- Each user/device combination maintains a persistent conversation session
-- Sessions automatically expire after 1 hour of inactivity (configurable)
-- Conversation history is preserved within each session
-- Different devices maintain independent conversation contexts
-
-### Example
-
-**Before (without persistence):**
 ```
-User: "What's the temperature in the living room?"
+User:  "What's the temperature in the living room?"
 Agent: "The living room is 72°F"
-
 [Later]
-User: "What about the bedroom?"
-Agent: "I don't have context about what you're asking about"
-```
-
-**After (with persistence):**
-```
-User: "What's the temperature in the living room?"
-Agent: "The living room is 72°F"
-
-[Later]
-User: "What about the bedroom?"
+User:  "What about the bedroom?"
 Agent: "The bedroom temperature is 68°F"
 ```
 
-### Configuration
-
-Configure the session timeout in integration settings:
-- Minimum: 60 seconds (1 minute)
-- Maximum: 86400 seconds (24 hours)
-- Default: 3600 seconds (1 hour)
-
-### Clearing Conversations
-
-Reset your conversation context using the `clear_conversation` service:
+Reset a conversation with the `clear_conversation` service:
 
 ```yaml
-# Clear conversation for current user/device
+# Current user and device
 service: home_agent.clear_conversation
 
-# Clear conversation for specific device
+# A specific device
 service: home_agent.clear_conversation
 data:
   device_id: "kitchen_satellite"
-
-# Clear all conversations
-service: home_agent.clear_conversation
 ```
 
-### Multi-Device Behavior
+## Documentation
 
-Each device maintains its own conversation context:
-- Kitchen satellite remembers kitchen-related conversations
-- Bedroom satellite has independent context
-- Same user on different devices = different conversations
+The `docs/` files are inherited from upstream and still say "Home Agent" until they are revised.
+
+- **Start here**: [Installation](docs/INSTALLATION.md) · [Configuration](docs/CONFIGURATION.md) · [Example configurations](docs/EXAMPLE_CONFIGS.md) · [FAQ](docs/FAQ.md)
+- **Features**: [Memory system](docs/MEMORY_SYSTEM.md) · [Vector DB setup](docs/VECTOR_DB_SETUP.md) · [Custom tools](docs/CUSTOM_TOOLS.md) · [External LLM](docs/EXTERNAL_LLM.md)
+- **Reference**: [Architecture](docs/ARCHITECTURE.md) · [API reference](docs/API_REFERENCE.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [Examples](docs/EXAMPLES.md) · [Migration guide](docs/MIGRATION.md)
 
 ## Contributing
 
-Contributions are welcome! Please:
+Contributions are welcome. The `main` branch is protected: changes arrive by pull request, with linear history and no force-pushes.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Write tests for new functionality
-4. Ensure all tests pass (`pytest tests/`)
-5. Follow the coding standards in [Development Guide](docs/DEVELOPMENT.md)
-6. Submit a pull request
+1. Fork the repository and create a feature branch.
+2. Write tests for new functionality.
+3. Make sure the tests pass (see [Testing](#testing)).
+4. Follow the [contributing guide](CONTRIBUTING.md) (inherited from upstream).
+5. Open a pull request.
+
+Because history is linear, merge commits are not allowed: pull requests are merged with **Squash** or **Rebase and merge**. Contributions harvested from upstream are merged with **Rebase and merge**, so their authors stay the commit authors.
+
+To stay installable from the Marketplace, the repository needs a valid `hacs.json` at its root (the Marketplace cannot install or update without it), a `version` in `manifest.json` that matches the release tag, and an `issue_tracker` entry. (`manifest.json`'s `issue_tracker`, `documentation` and `codeowners` still point to upstream; they change with the rename.) The HACS validation action and `hassfest` (Home Assistant's own manifest checker) run on every pull request and must pass.
+
+Changes should respect the rules in [What the house scope does, and what it never does](#what-the-house-scope-does-and-what-it-never-does). If a decision in the [Decision Register](https://ai4aging.org/arms/sensory/decisions/) looks wrong, raise it as a question rather than working around it in code.
 
 ## Testing
 
-Home Agent maintains >80% code coverage with comprehensive unit and integration tests:
+Python 3.13 or 3.14.
 
 ```bash
-# Set up environment
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements_dev.txt
 
-# Run tests
-pytest tests/unit/ -v
+# What CI runs (tests that need a live LLM or ChromaDB are left out)
+pytest tests/unit/ tests/integration/ \
+  --ignore=tests/integration/test_real_llm.py \
+  --ignore=tests/integration/test_real_memory.py \
+  --ignore=tests/integration/test_real_vector_db.py \
+  --ignore=tests/integration/test_real_ttft_metrics.py
 
-# Run with coverage
-pytest tests/ --cov=custom_components.home_agent --cov-report=html
+# Unit tests only, with coverage
+pytest tests/unit/ --cov=custom_components.home_agent --cov-report=html
 ```
-
-**Test Status**: 400+ passing tests across core functionality, vector DB, memory system, custom tools, and streaming.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/aradlein/hass-agent-llm/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/aradlein/hass-agent-llm/discussions)
-- **Documentation**: See [docs/](docs/) directory
+- **Issues with this integration**: [GitHub Issues](https://github.com/prsws/pepa-sensory-arm-house/issues)
+- **Issues with the Marketplace itself** (installing, updating, custom repositories): the [Home Assistant core issue tracker](https://github.com/home-assistant/core/issues), not this repository.
+- **Pepa documentation**: [ai4aging.org](https://ai4aging.org)
 
-## License
+## License and credits
 
-MIT License
+MIT License: see [LICENSE](LICENSE), which carries both the Pepa Sensory Arm contributors' copyright and upstream's. Pepa is experimental software and a personal research project. It is not a medical device, an alarm, or an emergency system. In an emergency, call 911.
 
-## Credits
-
-Built with inspiration from the extended_openai_conversation integration. Special thanks to the Home Assistant community.
+This repository is derived from [Home Agent](https://github.com/aradlein/hass-agent-llm) by Anton Radlein (MIT), which was itself inspired by the `extended_openai_conversation` integration. Upstream is no longer actively maintained; selected upstream pull requests are merged here, and development otherwise goes its own way. Credits for merged upstream work are in [NOTICE.md](NOTICE.md). Thanks to the Home Assistant community.
 
 ## Changelog
 
-### v0.9.5 (Latest)
-- **Fix**: Skip vector reindex when entity state and attributes unchanged — reduces unnecessary re-embeddings
-- **Fix**: Handle datetime serialization in tool results and vector DB context
-- **Fix**: Use entity/device registry for area lookup instead of state.attributes
+**Unreleased**: rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; renaming to `pepa_sensory_arm_house` still to come; Pepa changes being re-adopted one at a time.
 
-### v0.9.4
-- **Fix**: Evict stale embedding cache entries on entity state change — prevents memory leak from frequently-changing entities (#111)
-- **Fix**: Version validation CI workflow grep pattern anchored to avoid false mismatches
-- **Fix**: Black formatting and flake8 compliance
-
-### v0.9.3
-> **Compatibility Notice:** This release targets **Home Assistant 2026.3.1** and **Python 3.14**. It may have backwards compatibility issues with older HA versions or Python 3.12/3.13. If you experience problems, please try a previous release.
-- **Fix**: Upgraded `chromadb-client` to `1.5.3` to resolve Python 3.14 incompatibility (removal of `imghdr` standard library module)
-- **Fix**: Updated dev requirements and test mocks to align with chromadb-client 1.5.3 API
-- **Changed**: Minimum supported Home Assistant version updated to 2026.3.1
-
-### v0.9.2
-- **Fix**: Move initial entity indexing to background task to prevent setup timeout on large installations
-
-### v0.9.1
-- **Fix**: Resolve multiple memory leaks causing ~6GB growth over time — LRU eviction for embedding caches, debounced batch reindexing, HTTP session reuse, conversation history enforcement, and proper resource cleanup on shutdown
-
-### v0.9.0
-- **Feature**: Azure OpenAI support - native integration with Azure OpenAI deployments including API versioning and endpoint handling (#9)
-- **Feature**: Universal language support - works with any Home Assistant language setting via MATCH_ALL (#15)
-- **Feature**: Jinja template support for API key fields - use Home Assistant templates for dynamic secrets (#14)
-- **Fix**: Improved compatibility with proxy gateways like Cloudflare AI Gateway (#17)
-
-### v0.8.8
-- **Feature**: Include entity/device labels in system prompt for better LLM context (contributed by @zopanix)
-- **Testing**: Comprehensive test coverage for labels feature
-
-### v0.8.7
-- **Feature**: Custom service tools now support `return_response: true` for services that return data (like `calendar.get_events`)
-
-### v0.8.6
-- **Feature**: TTFT (Time To First Token) and voice pipeline metrics for performance monitoring
-- **Feature**: Configurable max context tokens option (fixes #65)
-- **Fix**: Memory retrieval no longer creates transient memories or duplicates
-- **Enhancement**: Comprehensive testing improvements and GitHub issue fixes
-
-### v0.8.5
-- **Feature**: OpenAI-compatible embedding endpoints - Vector DB now respects configured `embedding_base_url` for OpenAI provider (fixes #6)
-- **Enhancement**: Switched to async OpenAI client using Home Assistant's native HTTP client
-- **Enhancement**: Improved retry logic with proper exponential backoff for embedding requests
-
-### v0.8.4
-- **Feature**: Reasoning model support - Filter `<think>...</think>` blocks from LLM output, enabling support for reasoning models like Qwen3, DeepSeek R1, and o1/o3
-- **Fix**: Only send `keep_alive` parameter to Ollama backends; prevents 400 errors with OpenAI and other cloud APIs
-
-### v0.8.3
-- **Enhancement**: Updated minimum Home Assistant version to 2025.11.0 for improved compatibility
-- **Fix**: CI test environment now uses pinned Home Assistant dependencies
-- **Docs**: Successfully submitted to HACS for official community store listing
-
-### v0.8.2
-- **Feature**: Feature-based service filtering with intelligent parameter hints
-- **Enhancement**: Brightness parameter standardization (brightness_pct 0-100 instead of brightness 0-255)
-- **Fix**: Move play_media to base services for all media_player entities
-- **Enhancement**: Comprehensive entity services reference documentation
-- **Enhancement**: Improved system prompts with standardized parameter rules
+**0.9.5 and earlier**: upstream Home Agent history. See the [upstream releases](https://github.com/aradlein/hass-agent-llm/releases). This repository's own version numbering has not been set yet.
