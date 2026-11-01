@@ -23,7 +23,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_AZURE_API_VERSION,
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
@@ -70,7 +70,7 @@ class TestIsAzureOpenAIBackendHelper:
     )
     def test_is_azure_openai_backend_detection(self, base_url, expected):
         """Test that Azure OpenAI backends are correctly detected by URL."""
-        from custom_components.home_agent.helpers import is_azure_openai_backend
+        from custom_components.pepa_sensory_arm_house.helpers import is_azure_openai_backend
 
         result = is_azure_openai_backend(base_url)
         assert (
@@ -83,21 +83,21 @@ class TestBuildApiUrl:
 
     def test_standard_openai_url(self):
         """Test URL construction for standard OpenAI endpoint."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("https://api.openai.com/v1", "gpt-4")
         assert result == "https://api.openai.com/v1/chat/completions"
 
     def test_ollama_url(self):
         """Test URL construction for Ollama endpoint."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("http://localhost:11434/v1", "llama3")
         assert result == "http://localhost:11434/v1/chat/completions"
 
     def test_azure_url_default_api_version(self):
         """Test URL construction for Azure OpenAI with default API version."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("https://myresource.openai.azure.com", "gpt-4o-mini")
         expected = (
@@ -108,7 +108,7 @@ class TestBuildApiUrl:
 
     def test_azure_url_trailing_slash_stripped(self):
         """Test that trailing slash on Azure URL is stripped before constructing path."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("https://myresource.openai.azure.com/", "gpt-4o-mini")
         expected = (
@@ -119,7 +119,7 @@ class TestBuildApiUrl:
 
     def test_azure_url_custom_api_version(self):
         """Test URL construction for Azure OpenAI with custom API version."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url(
             "https://myresource.openai.azure.com",
@@ -134,7 +134,7 @@ class TestBuildApiUrl:
 
     def test_standard_url_ignores_azure_api_version(self):
         """Test that azure_api_version is ignored for non-Azure URLs."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url(
             "https://api.openai.com/v1",
@@ -145,7 +145,7 @@ class TestBuildApiUrl:
 
     def test_azure_url_case_insensitive(self):
         """Test that Azure detection in build_api_url is case-insensitive."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("https://MYRESOURCE.OPENAI.AZURE.COM", "gpt-4o")
         assert "/openai/deployments/gpt-4o/chat/completions" in result
@@ -153,7 +153,7 @@ class TestBuildApiUrl:
 
     def test_together_url(self):
         """Test URL construction for Together AI endpoint."""
-        from custom_components.home_agent.helpers import build_api_url
+        from custom_components.pepa_sensory_arm_house.helpers import build_api_url
 
         result = build_api_url("https://api.together.xyz/v1", "meta-llama/Llama-3-70b")
         assert result == "https://api.together.xyz/v1/chat/completions"
@@ -164,63 +164,63 @@ class TestBuildAuthHeaders:
 
     def test_standard_with_key(self):
         """Test auth headers for standard OpenAI with API key."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://api.openai.com/v1", "test-key")
         assert result == {"Authorization": "Bearer test-key"}
 
     def test_standard_without_key(self):
         """Test auth headers for standard OpenAI without API key (local LLM)."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://api.openai.com/v1", "")
         assert result == {}
 
     def test_standard_with_none_key(self):
         """Test auth headers for standard OpenAI with None API key."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("http://localhost:11434/v1", None)
         assert result == {}
 
     def test_azure_with_key(self):
         """Test auth headers for Azure OpenAI with API key."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://myresource.openai.azure.com", "test-key")
         assert result == {"api-key": "test-key"}
 
     def test_azure_without_key(self):
         """Test auth headers for Azure OpenAI without API key."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://myresource.openai.azure.com", "")
         assert result == {}
 
     def test_azure_with_none_key(self):
         """Test auth headers for Azure OpenAI with None API key."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://myresource.openai.azure.com", None)
         assert result == {}
 
     def test_azure_case_insensitive(self):
         """Test that Azure detection for auth headers is case-insensitive."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://MYRESOURCE.OPENAI.AZURE.COM", "test-key")
         assert result == {"api-key": "test-key"}
 
     def test_ollama_with_key(self):
         """Test auth headers for Ollama with API key (uses standard Bearer)."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("http://localhost:11434/v1", "test-key")
         assert result == {"Authorization": "Bearer test-key"}
 
     def test_azure_no_bearer_prefix(self):
         """Test that Azure auth headers do NOT use Bearer prefix."""
-        from custom_components.home_agent.helpers import build_auth_headers
+        from custom_components.pepa_sensory_arm_house.helpers import build_auth_headers
 
         result = build_auth_headers("https://myresource.openai.azure.com", "test-key")
         assert "Authorization" not in result
@@ -247,7 +247,7 @@ class TestAzureOpenAIPrimaryLLM:
     @pytest.fixture
     def session_manager(self, mock_hass):
         """Create a session manager."""
-        from custom_components.home_agent.conversation_session import (
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
             ConversationSessionManager,
         )
 
@@ -255,7 +255,7 @@ class TestAzureOpenAIPrimaryLLM:
 
     def _create_agent(self, mock_hass, session_manager, base_url: str, api_key: str = "test-key"):
         """Create a HomeAgent with the given base URL."""
-        from custom_components.home_agent.agent import HomeAgent
+        from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 
         config = {
             CONF_LLM_BASE_URL: base_url,
@@ -270,7 +270,7 @@ class TestAzureOpenAIPrimaryLLM:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             return HomeAgent(mock_hass, config, session_manager)
@@ -378,7 +378,7 @@ class TestAzureOpenAIStreaming:
     @pytest.fixture
     def session_manager(self, mock_hass):
         """Create a session manager."""
-        from custom_components.home_agent.conversation_session import (
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
             ConversationSessionManager,
         )
 
@@ -386,7 +386,7 @@ class TestAzureOpenAIStreaming:
 
     def _create_agent(self, mock_hass, session_manager, base_url: str, api_key: str = "test-key"):
         """Create a HomeAgent with the given base URL."""
-        from custom_components.home_agent.agent import HomeAgent
+        from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 
         config = {
             CONF_LLM_BASE_URL: base_url,
@@ -401,7 +401,7 @@ class TestAzureOpenAIStreaming:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             return HomeAgent(mock_hass, config, session_manager)
@@ -503,7 +503,7 @@ class TestAzureOpenAIExternalLLM:
     @pytest.mark.asyncio
     async def test_external_llm_azure_uses_deployment_url(self, mock_hass):
         """Test that external LLM tool uses Azure deployment URL format."""
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: "https://myresource.openai.azure.com",
@@ -549,7 +549,7 @@ class TestAzureOpenAIExternalLLM:
     @pytest.mark.asyncio
     async def test_external_llm_azure_uses_api_key_header(self, mock_hass):
         """Test that external LLM tool uses api-key header for Azure."""
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: "https://myresource.openai.azure.com",
@@ -598,7 +598,7 @@ class TestAzureOpenAIExternalLLM:
     @pytest.mark.asyncio
     async def test_external_llm_standard_still_uses_bearer(self, mock_hass):
         """Test that external LLM tool still uses Bearer auth for standard endpoints."""
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: "https://api.openai.com/v1",
@@ -669,7 +669,7 @@ class TestNonAzureBackendsUnchanged:
     @pytest.fixture
     def session_manager(self, mock_hass):
         """Create a session manager."""
-        from custom_components.home_agent.conversation_session import (
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
             ConversationSessionManager,
         )
 
@@ -677,7 +677,7 @@ class TestNonAzureBackendsUnchanged:
 
     def _create_agent(self, mock_hass, session_manager, base_url: str, api_key: str = "test-key"):
         """Create a HomeAgent with the given base URL."""
-        from custom_components.home_agent.agent import HomeAgent
+        from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 
         config = {
             CONF_LLM_BASE_URL: base_url,
@@ -692,7 +692,7 @@ class TestNonAzureBackendsUnchanged:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             return HomeAgent(mock_hass, config, session_manager)

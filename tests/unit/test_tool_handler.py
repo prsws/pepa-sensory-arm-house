@@ -5,15 +5,15 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_EMIT_EVENTS,
     CONF_TOOLS_MAX_CALLS_PER_TURN,
     CONF_TOOLS_TIMEOUT,
     EVENT_TOOL_EXECUTED,
     EVENT_TOOL_PROGRESS,
 )
-from custom_components.home_agent.exceptions import ToolExecutionError, ValidationError
-from custom_components.home_agent.tool_handler import ToolHandler
+from custom_components.pepa_sensory_arm_house.exceptions import ToolExecutionError, ValidationError
+from custom_components.pepa_sensory_arm_house.tool_handler import ToolHandler
 
 
 class MockTool:

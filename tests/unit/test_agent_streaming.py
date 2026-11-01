@@ -6,8 +6,8 @@ import pytest
 from homeassistant.components import conversation as ha_conversation
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_LLM_API_KEY,
     CONF_LLM_BASE_URL,
     CONF_LLM_MODEL,
@@ -45,7 +45,9 @@ def agent_config():
 @pytest.fixture
 def agent(mock_hass, agent_config):
     """Create HomeAgent instance."""
-    from custom_components.home_agent.conversation_session import ConversationSessionManager
+    from custom_components.pepa_sensory_arm_house.conversation_session import (
+        ConversationSessionManager,
+    )
 
     session_manager = ConversationSessionManager(mock_hass)
     return HomeAgent(mock_hass, agent_config, session_manager)
@@ -390,7 +392,7 @@ class TestStreamingMemoryExtraction:
     @pytest.mark.asyncio
     async def test_memory_extraction_triggered_after_streaming(self, agent, mock_hass):
         """Test that memory extraction is triggered after streaming completes."""
-        from custom_components.home_agent.const import (
+        from custom_components.pepa_sensory_arm_house.const import (
             CONF_MEMORY_ENABLED,
             CONF_MEMORY_EXTRACTION_ENABLED,
         )
@@ -417,7 +419,7 @@ class TestStreamingMemoryExtraction:
         from homeassistant.components.conversation import AssistantContent
 
         mock_content = AssistantContent(
-            agent_id="home_agent", content="I'll remember that you like pizza!"
+            agent_id="pepa_sensory_arm_house", content="I'll remember that you like pizza!"
         )
 
         # Mock async_add_delta_content_stream as an async generator
@@ -473,7 +475,7 @@ class TestStreamingMemoryExtraction:
     @pytest.mark.asyncio
     async def test_memory_extraction_skipped_when_disabled(self, agent, mock_hass):
         """Test that memory extraction is skipped when disabled in streaming mode."""
-        from custom_components.home_agent.const import (
+        from custom_components.pepa_sensory_arm_house.const import (
             CONF_MEMORY_ENABLED,
             CONF_MEMORY_EXTRACTION_ENABLED,
         )
@@ -499,7 +501,7 @@ class TestStreamingMemoryExtraction:
         # Mock assistant content
         from homeassistant.components.conversation import AssistantContent
 
-        mock_content = AssistantContent(agent_id="home_agent", content="Hi there!")
+        mock_content = AssistantContent(agent_id="pepa_sensory_arm_house", content="Hi there!")
 
         # Mock async_add_delta_content_stream as an async generator
         async def mock_content_stream(*args, **kwargs):
@@ -589,7 +591,7 @@ class TestStreamingMessageConstruction:
         )
 
         content_item = AssistantContent(
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
             content="Let me turn on the lights for you.",
             tool_calls=[mock_tool_call],
         )
@@ -599,14 +601,14 @@ class TestStreamingMessageConstruction:
             yield content_item
             # Also yield a tool result to complete the flow
             yield ToolResultContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 tool_call_id="call_123",
                 tool_name="ha_control",
                 tool_result={"success": True},
             )
             # Final message to end the loop
             yield AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Done!",
                 tool_calls=None,
             )
@@ -682,7 +684,7 @@ class TestStreamingMessageConstruction:
         from homeassistant.components.conversation import AssistantContent
 
         content_item = AssistantContent(
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
             content="Hello, how can I help?",
         )
 
@@ -725,7 +727,7 @@ class TestStreamingMessageConstruction:
         )
 
         content_item = AssistantContent(
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
             tool_calls=[mock_tool_call],
         )
 
@@ -793,12 +795,12 @@ class TestStreamingToolLoopTermination:
         )
         iteration1_content = [
             AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="I'll turn on the kitchen lights.",
                 tool_calls=[mock_tool_call],
             ),
             ToolResultContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 tool_call_id="call_123",
                 tool_name="HassTurnOn",
                 tool_result={"success": True},
@@ -808,7 +810,7 @@ class TestStreamingToolLoopTermination:
         # Second call: LLM responds to tool result, no more tool calls
         iteration2_content = [
             AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Done! The kitchen lights are now on.",
                 tool_calls=None,
             ),
@@ -861,7 +863,7 @@ class TestStreamingToolLoopTermination:
         from homeassistant.components.conversation import AssistantContent, ToolResultContent
         from homeassistant.helpers.llm import ToolInput
 
-        from custom_components.home_agent.const import CONF_TOOLS_MAX_CALLS_PER_TURN
+        from custom_components.pepa_sensory_arm_house.const import CONF_TOOLS_MAX_CALLS_PER_TURN
 
         agent.config[CONF_STREAMING_ENABLED] = True
         agent.config[CONF_TOOLS_MAX_CALLS_PER_TURN] = 3  # Limit to 3 iterations
@@ -890,12 +892,12 @@ class TestStreamingToolLoopTermination:
                 tool_args={},
             )
             yield AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content=f"Iteration {stream_call_count}",
                 tool_calls=[mock_tool_call],
             )
             yield ToolResultContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 tool_call_id=f"call_{stream_call_count}",
                 tool_name="SomeTool",
                 tool_result={"result": "ok"},
@@ -953,7 +955,7 @@ class TestStreamingToolLoopTermination:
             nonlocal stream_call_count
             stream_call_count += 1
             yield AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Hello! How can I help?",
                 tool_calls=[],  # Empty list, not None
             )
@@ -1031,13 +1033,13 @@ class TestStreamingToolLoopTermination:
                     tool_args={"entity_id": "light.kitchen"},
                 )
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="I'll turn that on.",
                     tool_calls=[mock_tool_call],
                 )
                 # Then: Tool result
                 yield ToolResultContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_1",
                     tool_name="HassTurnOn",
                     tool_result={"success": True},
@@ -1046,14 +1048,14 @@ class TestStreamingToolLoopTermination:
                 # with the LLM's response to the tool result IN THE SAME ITERATION
                 # This should be the termination signal
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="Done! The light is now on.",
                     tool_calls=None,  # No more tool calls
                 )
             else:
                 # This should NOT be reached - if it is, we have a bug
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="ERROR: Loop should have terminated!",
                     tool_calls=None,
                 )
@@ -1109,7 +1111,7 @@ class TestStreamingToolLoopTermination:
         Expected behavior: Loop terminates after 1 iteration
         Bug behavior: Loop continues calling LLM with same messages until max_iterations
         """
-        from custom_components.home_agent.const import CONF_TOOLS_MAX_CALLS_PER_TURN
+        from custom_components.pepa_sensory_arm_house.const import CONF_TOOLS_MAX_CALLS_PER_TURN
 
         agent.config[CONF_STREAMING_ENABLED] = True
         agent.config[CONF_TOOLS_MAX_CALLS_PER_TURN] = 5  # Set higher to expose the bug
@@ -1208,7 +1210,7 @@ class TestStreamingToolLoopTermination:
         Expected: Loop terminates after 1 iteration (no progress = should stop)
         Bug: Loop continues because unresponded_tool_results is truthy
         """
-        from custom_components.home_agent.const import CONF_TOOLS_MAX_CALLS_PER_TURN
+        from custom_components.pepa_sensory_arm_house.const import CONF_TOOLS_MAX_CALLS_PER_TURN
 
         agent.config[CONF_STREAMING_ENABLED] = True
         agent.config[CONF_TOOLS_MAX_CALLS_PER_TURN] = 5
@@ -1318,7 +1320,7 @@ class TestStreamingToolLoopTermination:
         """
         from homeassistant.components.conversation import AssistantContent
 
-        from custom_components.home_agent.const import CONF_TOOLS_MAX_CALLS_PER_TURN
+        from custom_components.pepa_sensory_arm_house.const import CONF_TOOLS_MAX_CALLS_PER_TURN
 
         agent.config[CONF_STREAMING_ENABLED] = True
         agent.config[CONF_TOOLS_MAX_CALLS_PER_TURN] = 3
@@ -1350,7 +1352,7 @@ class TestStreamingToolLoopTermination:
             # Return AssistantContent with NO content and NO tool_calls
             # This simulates a broken LLM response
             yield AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="",  # Empty content!
                 tool_calls=None,
             )
@@ -1463,12 +1465,12 @@ class TestStreamingMessageAccumulation:
                 # After yielding tool call, set unresponded_tool_results to simulate HA behavior
                 mock_chat_log_instance.unresponded_tool_results = ["call_123"]
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="I'll turn on the kitchen lights.",
                     tool_calls=[mock_tool_call],
                 )
                 yield ToolResultContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_123",
                     tool_name="HassTurnOn",
                     tool_result={"success": True},
@@ -1477,7 +1479,7 @@ class TestStreamingMessageAccumulation:
                 # Second iteration: Final response - clear unresponded_tool_results
                 mock_chat_log_instance.unresponded_tool_results = []
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="Done! The kitchen lights are now on.",
                     tool_calls=None,
                 )
@@ -1607,12 +1609,12 @@ class TestStreamingMessageAccumulation:
             if iteration_count == 1:
                 # All in ONE iteration:
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="Turning on lights",
                     tool_calls=[mock_tool_call],
                 )
                 yield ToolResultContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_abc",
                     tool_name="HassTurnOn",
                     tool_result={"success": True},
@@ -1620,7 +1622,7 @@ class TestStreamingMessageAccumulation:
                 # HA also yields the final response in the SAME iteration
                 # This should cause loop termination
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="Lights are on!",
                     tool_calls=None,
                 )
@@ -1745,7 +1747,9 @@ class TestStreamingPreprocessing:
     @pytest.fixture
     def streaming_agent_thinking_disabled(self, mock_hass):
         """Create HomeAgent with streaming enabled and thinking disabled."""
-        from custom_components.home_agent.conversation_session import ConversationSessionManager
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
+            ConversationSessionManager,
+        )
 
         config = {
             CONF_LLM_BASE_URL: "http://localhost:11434/v1",
@@ -1760,7 +1764,9 @@ class TestStreamingPreprocessing:
     @pytest.fixture
     def streaming_agent_thinking_enabled(self, mock_hass):
         """Create HomeAgent with streaming enabled and thinking enabled (default)."""
-        from custom_components.home_agent.conversation_session import ConversationSessionManager
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
+            ConversationSessionManager,
+        )
 
         config = {
             CONF_LLM_BASE_URL: "http://localhost:11434/v1",
@@ -1804,7 +1810,7 @@ class TestStreamingPreprocessing:
                 pass
             # Yield a simple assistant response
             yield ha_conversation.AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Done!",
                 tool_calls=None,
             )
@@ -1885,7 +1891,7 @@ class TestStreamingPreprocessing:
             async for delta in delta_generator:
                 pass
             yield ha_conversation.AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Done!",
                 tool_calls=None,
             )
@@ -1960,7 +1966,7 @@ class TestStreamingPreprocessing:
             async for delta in delta_generator:
                 pass
             yield ha_conversation.AssistantContent(
-                agent_id="home_agent",
+                agent_id="pepa_sensory_arm_house",
                 content="Done!",
                 tool_calls=None,
             )
@@ -2055,19 +2061,19 @@ class TestToolResultDatetimeSerialization:
             stream_call_count += 1
             if stream_call_count == 1:
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content=None,
                     tool_calls=[mock_tool_call],
                 )
                 yield ToolResultContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_dt",
                     tool_name="ha_query",
                     tool_result=tool_result_with_datetimes,
                 )
             else:
                 yield AssistantContent(
-                    agent_id="home_agent",
+                    agent_id="pepa_sensory_arm_house",
                     content="The event is tomorrow.",
                     tool_calls=None,
                 )

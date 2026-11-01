@@ -28,7 +28,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_COMPRESSION_LEVEL,
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
@@ -44,10 +44,10 @@ from custom_components.home_agent.const import (
     CONTEXT_FORMAT_JSON,
     CONTEXT_MODE_DIRECT,
 )
-from custom_components.home_agent.context_manager import ContextManager
-from custom_components.home_agent.context_optimizer import ContextOptimizer
-from custom_components.home_agent.exceptions import TokenLimitExceeded
-from custom_components.home_agent.helpers import estimate_tokens
+from custom_components.pepa_sensory_arm_house.context_manager import ContextManager
+from custom_components.pepa_sensory_arm_house.context_optimizer import ContextOptimizer
+from custom_components.pepa_sensory_arm_house.exceptions import TokenLimitExceeded
+from custom_components.pepa_sensory_arm_house.helpers import estimate_tokens
 from tests.integration.helpers import setup_entity_states
 
 
@@ -189,7 +189,7 @@ async def test_context_truncation_when_exceeding_limit(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         setup_entity_states(test_hass, large_entity_set)
@@ -266,7 +266,7 @@ async def test_context_optimization_preserves_relevant_info(
     test_entities = large_entity_set[:20]
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         setup_entity_states(test_hass, test_entities)
@@ -371,7 +371,7 @@ async def test_context_optimization_with_long_attributes(
     3. Context stays within token limits
     """
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         setup_entity_states(test_hass, entity_states_with_long_attributes)
@@ -485,7 +485,7 @@ async def test_context_optimization_with_zero_entities(test_hass, session_manage
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         test_hass.states.async_all = MagicMock(return_value=[])
@@ -534,7 +534,7 @@ async def test_context_metrics_tracking(test_hass, large_entity_set, session_man
     test_entities = large_entity_set[:10]
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         setup_entity_states(test_hass, test_entities)
@@ -651,7 +651,7 @@ async def test_token_limit_exceeded_exception(test_hass, session_manager):
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         setup_entity_states(test_hass, very_large_entities)

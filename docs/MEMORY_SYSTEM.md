@@ -2,7 +2,7 @@
 
 ## What is the Memory System?
 
-The memory system gives Home Agent persistent long-term memory across conversations. It automatically extracts and stores important facts, preferences, and events, then recalls them when relevant.
+The memory system gives Pepa Sensory Arm House persistent long-term memory across conversations. It automatically extracts and stores important facts, preferences, and events, then recalls them when relevant.
 
 **Think of it as:** Giving your home agent a memory that improves over time, remembering your preferences, past interactions, and important information.
 
@@ -32,7 +32,7 @@ Agent: "Based on your preferences, you like the bedroom at 68°F for sleeping"
 
 ### Enable Memory
 
-1. Navigate to **Settings** > **Devices & Services** > **Home Agent** > **Configure**
+1. Navigate to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure**
 2. Select **Memory Settings**
 3. Configure:
 
@@ -44,7 +44,7 @@ Agent: "Based on your preferences, you like the bedroom at 68°F for sleeping"
 | Max Memories | `100` |
 | Minimum Importance | `0.3` |
 | Context Top K | `5` |
-| Collection Name | `home_agent_memories` |
+| Collection Name | `pepa_sensory_arm_house_memories` |
 
 4. Save configuration
 
@@ -117,7 +117,7 @@ Agent: "Max is allergic to chicken, so avoid chicken-based foods..."
 
 **List all memories:**
 ```yaml
-service: home_agent.list_memories
+service: pepa_sensory_arm_house.list_memories
 data:
   memory_type: preference  # Optional: fact, preference, context, event
   limit: 50                # Optional
@@ -125,7 +125,7 @@ data:
 
 **Search memories:**
 ```yaml
-service: home_agent.search_memories
+service: pepa_sensory_arm_house.search_memories
 data:
   query: "temperature preferences"
   limit: 10
@@ -134,7 +134,7 @@ data:
 
 **Add memory manually:**
 ```yaml
-service: home_agent.add_memory
+service: pepa_sensory_arm_house.add_memory
 data:
   content: "User's cat Felix is on a prescription diet"
   type: fact
@@ -143,14 +143,14 @@ data:
 
 **Delete specific memory:**
 ```yaml
-service: home_agent.delete_memory
+service: pepa_sensory_arm_house.delete_memory
 data:
   memory_id: "abc-123-def-456"  # Get from list_memories
 ```
 
 **Clear all memories:**
 ```yaml
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true  # Required
 ```
@@ -181,7 +181,7 @@ data:
 - No full conversation transcripts
 
 **Where it's stored:**
-- Locally in `.storage/home_agent.memories`
+- Locally in `.storage/pepa_sensory_arm_house.memories`
 - ChromaDB collection (local)
 - Never sent to cloud except for embedding generation (if using OpenAI)
 
@@ -198,20 +198,20 @@ data:
 
 **Complete deletion:**
 ```yaml
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true
 ```
 
 Or manually delete:
 ```bash
-rm /config/.storage/home_agent.memories
+rm /config/.storage/pepa_sensory_arm_house.memories
 ```
 
 ## Automatic Behavior
 
 **Memory extraction happens automatically:**
-1. You have a conversation with Home Agent
+1. You have a conversation with Pepa Sensory Arm House
 2. Conversation completes successfully
 3. Extraction LLM analyzes the conversation
 4. Important information extracted as structured memories

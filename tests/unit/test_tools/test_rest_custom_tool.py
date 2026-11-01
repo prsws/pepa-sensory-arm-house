@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
-from custom_components.home_agent.exceptions import ValidationError
-from custom_components.home_agent.tools.custom import RestCustomTool
+from custom_components.pepa_sensory_arm_house.exceptions import ValidationError
+from custom_components.pepa_sensory_arm_house.tools.custom import RestCustomTool
 
 
 class TestRestCustomToolExecution:
@@ -137,7 +137,9 @@ class TestRestCustomToolExecution:
         mock_session.request = MagicMock(return_value=mock_response)
 
         # Mock template rendering
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(side_effect=lambda x: x.get("query", "json"))
             mock_template_class.return_value = mock_template
@@ -190,7 +192,9 @@ class TestRestCustomToolExecution:
         mock_session.request = MagicMock(return_value=mock_response)
 
         # Mock template rendering
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(
                 side_effect=lambda x: (
@@ -274,7 +278,9 @@ class TestRestCustomToolExecution:
     @pytest.mark.asyncio
     async def test_template_rendering_error(self, tool_with_query_params):
         """Test handling of template rendering errors."""
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(side_effect=Exception("Template error"))
             mock_template_class.return_value = mock_template
@@ -313,7 +319,9 @@ class TestRestCustomToolTemplateRendering:
         """Test successful template rendering."""
         variables = {"location": "San Francisco", "units": "metric"}
 
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(return_value="San Francisco")
             mock_template_class.return_value = mock_template
@@ -332,7 +340,9 @@ class TestRestCustomToolTemplateRendering:
     @pytest.mark.asyncio
     async def test_render_template_failure(self, tool_with_templates):
         """Test template rendering failure."""
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(side_effect=Exception("Render error"))
             mock_template_class.return_value = mock_template

@@ -1,14 +1,14 @@
-# Contributing to Home Agent
+# Contributing to Pepa Sensory Arm House
 
-Thank you for your interest in contributing to Home Agent. This guide covers everything you need to get started.
+Thank you for your interest in contributing to Pepa Sensory Arm House. This guide covers everything you need to get started.
 
 ## Getting Started
 
-1. Fork the repository at [github.com/aradlein/hass-agent-llm](https://github.com/aradlein/hass-agent-llm)
+1. Fork the repository at [github.com/prsws/pepa-sensory-arm-house](https://github.com/prsws/pepa-sensory-arm-house)
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/<your-username>/hass-agent-llm.git
-   cd hass-agent-llm
+   git clone https://github.com/<your-username>/pepa-sensory-arm-house.git
+   cd pepa-sensory-arm-house
    ```
 3. Create a feature branch from `main`:
    ```bash
@@ -68,7 +68,7 @@ pytest tests/unit/ tests/integration/ \
   --ignore=tests/integration/test_real_memory.py \
   --ignore=tests/integration/test_real_vector_db.py \
   --ignore=tests/integration/test_real_ttft_metrics.py \
-  --cov=custom_components.home_agent
+  --cov=custom_components.pepa_sensory_arm_house
 ```
 
 ## Test Requirements for Pull Requests
@@ -139,9 +139,11 @@ chore: Update dependency versions
 
 The `main` branch has the following protections:
 
-- All CI status checks must pass (unit tests, mocked integration tests, linting, hassfest, HACS validation).
-- Branches must be up to date with `main` before merging.
+- Changes arrive by pull request; nobody pushes to `main` directly.
+- Linear history: merge with **Squash** or **Rebase and merge** (merge commits are blocked). Contributions harvested from upstream use Rebase and merge so their authors stay the commit authors.
+- No force-pushes and no deletion of `main`.
+- CI (unit tests, mocked integration tests, linting, hassfest, HACS validation) runs on every pull request and is expected to pass before merging.
 
 ## Questions?
 
-Open a [Discussion](https://github.com/aradlein/hass-agent-llm/discussions) or check existing [Issues](https://github.com/aradlein/hass-agent-llm/issues).
+Check existing [Issues](https://github.com/prsws/pepa-sensory-arm-house/issues) or open a new one.

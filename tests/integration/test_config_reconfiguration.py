@@ -26,12 +26,12 @@ import pytest
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent import (
+from custom_components.pepa_sensory_arm_house import (
     async_reload_entry,
     async_setup_entry,
     async_unload_entry,
 )
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
     CONF_DEBUG_LOGGING,
@@ -89,7 +89,7 @@ def base_config_entry_data() -> dict[str, Any]:
     This represents the data stored in config_entry.data (LLM settings).
     """
     return {
-        "name": "Home Agent Test",
+        "name": "Pepa Sensory Arm House Test",
         CONF_LLM_BASE_URL: "http://localhost:11434/v1",
         CONF_LLM_API_KEY: "test-key",
         CONF_LLM_MODEL: DEFAULT_LLM_MODEL,
@@ -142,7 +142,7 @@ def mock_config_entry(
     entry = MagicMock(spec=ConfigEntry)
     entry.entry_id = "test_entry_123"
     entry.domain = DOMAIN
-    entry.title = "Home Agent Test"
+    entry.title = "Pepa Sensory Arm House Test"
     entry.data = base_config_entry_data.copy()
     entry.options = base_config_entry_options.copy()
     entry.state = "loaded"
@@ -190,14 +190,14 @@ class TestOptionsFlowReconfiguration:
         4. Agent uses new settings after reload
         """
         # Set up initial config entry
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             # Mock conversation manager
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -251,13 +251,13 @@ class TestOptionsFlowReconfiguration:
         3. Direct entities list can be updated
         4. Vector DB settings can be modified
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -309,13 +309,13 @@ class TestOptionsFlowReconfiguration:
         3. Memory extraction LLM can be switched (local <-> external)
         4. Memory parameters can be adjusted
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -372,13 +372,13 @@ class TestOptionsFlowReconfiguration:
         2. Session timeout can be adjusted
         3. Changes take effect on reload
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -431,7 +431,7 @@ class TestIntegrationReload:
         2. Integration entry exists before reload
         3. Entry data is preserved across reload
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent.conversation_manager = MagicMock()
@@ -440,7 +440,7 @@ class TestIntegrationReload:
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -491,13 +491,13 @@ class TestIntegrationReload:
         test_hass.data.setdefault(DOMAIN, {})
         test_hass.data[DOMAIN]["yaml_config"] = yaml_config
 
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -537,7 +537,7 @@ class TestServiceRegistration:
         3. Services remain functional after reload
         4. Service handlers use new config
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent.process_message = AsyncMock(return_value="Test response")
@@ -546,7 +546,7 @@ class TestServiceRegistration:
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -583,7 +583,7 @@ class TestServiceRegistration:
         2. Services are removed when entry is unloaded
         3. No lingering services remain
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent.conversation_manager = MagicMock()
@@ -591,7 +591,7 @@ class TestServiceRegistration:
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
@@ -679,7 +679,7 @@ class TestStatePreservation:
         3. History is accessible after reload
         4. Session IDs remain valid
         """
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             # Create mock agent with conversation manager
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
@@ -695,7 +695,7 @@ class TestStatePreservation:
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 # Mock session manager with persistent storage
                 mock_session = MagicMock()
@@ -739,21 +739,21 @@ class TestStatePreservation:
         # Enable memory
         mock_config_entry.options[CONF_MEMORY_ENABLED] = True
 
-        with patch("custom_components.home_agent.agent.HomeAgent") as mock_agent_class:
+        with patch("custom_components.pepa_sensory_arm_house.agent.HomeAgent") as mock_agent_class:
             # Mock agent with memory manager
             mock_agent = MagicMock()
             mock_agent.close = AsyncMock()
             mock_agent_class.return_value = mock_agent
 
             with patch(
-                "custom_components.home_agent.ConversationSessionManager"
+                "custom_components.pepa_sensory_arm_house.ConversationSessionManager"
             ) as mock_session_class:
                 mock_session = MagicMock()
                 mock_session.async_load = AsyncMock()
                 mock_session_class.return_value = mock_session
 
                 # Mock memory manager (would be created by agent)
-                with patch("custom_components.home_agent.memory_manager.MemoryManager"):
+                with patch("custom_components.pepa_sensory_arm_house.memory_manager.MemoryManager"):
                     # Initial setup
                     result = await async_setup_entry(test_hass, mock_config_entry)
                     assert result is True

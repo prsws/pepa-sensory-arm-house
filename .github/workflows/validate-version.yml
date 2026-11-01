@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - 'custom_components/home_agent/manifest.json'
-      - 'custom_components/home_agent/const.py'
+      - 'custom_components/pepa_sensory_arm_house/manifest.json'
+      - 'custom_components/pepa_sensory_arm_house/const.py'
   push:
     branches:
       - main
     paths:
-      - 'custom_components/home_agent/manifest.json'
-      - 'custom_components/home_agent/const.py'
+      - 'custom_components/pepa_sensory_arm_house/manifest.json'
+      - 'custom_components/pepa_sensory_arm_house/const.py'
 
 jobs:
   validate-version:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Validate version in manifest.json
         run: |
-          VERSION=$(jq -r '.version' custom_components/home_agent/manifest.json)
+          VERSION=$(jq -r '.version' custom_components/pepa_sensory_arm_house/manifest.json)
           echo "Version in manifest.json: $VERSION"
 
           # Validate version format (semantic versioning with optional -beta, -alpha, -rc suffixes)
@@ -37,8 +37,8 @@ jobs:
 
       - name: Validate manifest.json and const.py versions match
         run: |
-          MANIFEST_VERSION=$(jq -r '.version' custom_components/home_agent/manifest.json)
-          CONST_VERSION=$(grep -oP '^VERSION:\s*Final\s*=\s*"\K[^"]+' custom_components/home_agent/const.py)
+          MANIFEST_VERSION=$(jq -r '.version' custom_components/pepa_sensory_arm_house/manifest.json)
+          CONST_VERSION=$(grep -oP '^VERSION:\s*Final\s*=\s*"\K[^"]+' custom_components/pepa_sensory_arm_house/const.py)
 
           echo "manifest.json version: $MANIFEST_VERSION"
           echo "const.py version:      $CONST_VERSION"
@@ -55,8 +55,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           git fetch origin main
-          OLD_VERSION=$(git show origin/main:custom_components/home_agent/manifest.json | jq -r '.version')
-          NEW_VERSION=$(jq -r '.version' custom_components/home_agent/manifest.json)
+          OLD_VERSION=$(git show origin/main:custom_components/pepa_sensory_arm_house/manifest.json | jq -r '.version')
+          NEW_VERSION=$(jq -r '.version' custom_components/pepa_sensory_arm_house/manifest.json)
 
           echo "Old version: $OLD_VERSION"
           echo "New version: $NEW_VERSION"

@@ -10,7 +10,7 @@ def mock_hass():
     """Create a mock Home Assistant instance."""
     hass = MagicMock()
     hass.data = {
-        "home_agent": {
+        "pepa_sensory_arm_house": {
             "test_entry": {
                 "memory_manager": MagicMock(),
             }
@@ -22,7 +22,7 @@ def mock_hass():
 @pytest.fixture
 def mock_memory_manager(mock_hass):
     """Get the mock memory manager."""
-    return mock_hass.data["home_agent"]["test_entry"]["memory_manager"]
+    return mock_hass.data["pepa_sensory_arm_house"]["test_entry"]["memory_manager"]
 
 
 class TestListMemoriesService:
@@ -47,7 +47,7 @@ class TestListMemoriesService:
 
         # Get entry data helper
         def _get_entry_data(target_entry_id):
-            return mock_hass.data["home_agent"].get(target_entry_id, {})
+            return mock_hass.data["pepa_sensory_arm_house"].get(target_entry_id, {})
 
         entry_data = _get_entry_data("test_entry")
         memory_manager = entry_data.get("memory_manager")
@@ -96,10 +96,10 @@ class TestListMemoriesService:
     async def test_list_memories_no_manager(self, mock_hass):
         """Test list memories when manager not enabled."""
         # Remove memory manager
-        mock_hass.data["home_agent"]["test_entry"] = {}
+        mock_hass.data["pepa_sensory_arm_house"]["test_entry"] = {}
 
         def _get_entry_data(target_entry_id):
-            return mock_hass.data["home_agent"].get(target_entry_id, {})
+            return mock_hass.data["pepa_sensory_arm_house"].get(target_entry_id, {})
 
         entry_data = _get_entry_data("test_entry")
         memory_manager = entry_data.get("memory_manager")
@@ -341,10 +341,10 @@ class TestServiceIntegration:
     async def test_all_services_check_memory_manager(self, mock_hass):
         """Test that all services check for memory manager availability."""
         # Remove memory manager
-        mock_hass.data["home_agent"]["test_entry"] = {}
+        mock_hass.data["pepa_sensory_arm_house"]["test_entry"] = {}
 
         def _get_entry_data(target_entry_id):
-            return mock_hass.data["home_agent"].get(target_entry_id, {})
+            return mock_hass.data["pepa_sensory_arm_house"].get(target_entry_id, {})
 
         entry_data = _get_entry_data("test_entry")
         memory_manager = entry_data.get("memory_manager")

@@ -221,8 +221,8 @@ class MockChromaDBClient:
         return 1234567890
 
 
-def create_mock_llm_for_home_agent() -> MockLLMServer:
-    """Create a MockLLMServer pre-configured for Home Agent testing.
+def create_mock_llm_for_pepa_sensory_arm_house() -> MockLLMServer:
+    """Create a MockLLMServer pre-configured for Pepa Sensory Arm House testing.
 
     This server is configured to:
     - Respond to greetings appropriately
@@ -338,7 +338,7 @@ def create_mock_llm_for_home_agent() -> MockLLMServer:
 @pytest.fixture
 def mock_llm_server():
     """Provide a pre-configured mock LLM server for testing."""
-    return create_mock_llm_for_home_agent()
+    return create_mock_llm_for_pepa_sensory_arm_house()
 
 
 @pytest.fixture

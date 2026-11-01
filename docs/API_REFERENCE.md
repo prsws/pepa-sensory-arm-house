@@ -1,26 +1,26 @@
 # API Reference
 
-Quick reference for Home Agent services, events, and tools.
+Quick reference for Pepa Sensory Arm House services, events, and tools.
 
 ## Core Services
 
 | Service | Description | Key Parameters |
 |---------|-------------|----------------|
-| **home_agent.process** | Process a conversation message | `text` (required), `conversation_id` (optional) |
-| **home_agent.clear_history** | Clear conversation history | `conversation_id` (optional - omit to clear all) |
-| **home_agent.execute_tool** | Manually execute a tool for testing | `tool_name`, `parameters` |
-| **home_agent.add_memory** | Manually add a memory | `content`, `type`, `importance` |
-| **home_agent.search_memories** | Search memories semantically | `query`, `limit`, `min_importance` |
+| **pepa_sensory_arm_house.process** | Process a conversation message | `text` (required), `conversation_id` (optional) |
+| **pepa_sensory_arm_house.clear_history** | Clear conversation history | `conversation_id` (optional - omit to clear all) |
+| **pepa_sensory_arm_house.execute_tool** | Manually execute a tool for testing | `tool_name`, `parameters` |
+| **pepa_sensory_arm_house.add_memory** | Manually add a memory | `content`, `type`, `importance` |
+| **pepa_sensory_arm_house.search_memories** | Search memories semantically | `query`, `limit`, `min_importance` |
 
 ## Key Events
 
 | Event | Triggered When | Key Data Fields |
 |-------|----------------|-----------------|
-| **home_agent.conversation.finished** | Conversation completes | `tool_calls`, `tokens`, `duration_ms`, `performance` |
-| **home_agent.tool.executed** | Tool execution completes | `tool_name`, `parameters`, `result`, `success`, `duration_ms` |
-| **home_agent.memory.extracted** | Memories extracted from conversation | `conversation_id`, `memories_extracted`, `extraction_llm` |
-| **home_agent.error** | Error occurs | `error_type`, `error_message`, `component` |
-| **home_agent.context.injected** | Context added to LLM call | `mode`, `entities_included`, `token_count` |
+| **pepa_sensory_arm_house.conversation.finished** | Conversation completes | `tool_calls`, `tokens`, `duration_ms`, `performance` |
+| **pepa_sensory_arm_house.tool.executed** | Tool execution completes | `tool_name`, `parameters`, `result`, `success`, `duration_ms` |
+| **pepa_sensory_arm_house.memory.extracted** | Memories extracted from conversation | `conversation_id`, `memories_extracted`, `extraction_llm` |
+| **pepa_sensory_arm_house.error** | Error occurs | `error_type`, `error_message`, `component` |
+| **pepa_sensory_arm_house.context.injected** | Context added to LLM call | `mode`, `entities_included`, `token_count` |
 
 ## Built-in Tools
 
@@ -39,7 +39,7 @@ Quick reference for Home Agent services, events, and tools.
 Process a conversation:
 
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "Turn on the living room lights and set them to 50% brightness"
   conversation_id: "main_conversation"
@@ -48,7 +48,7 @@ data:
 Search memories:
 
 ```yaml
-service: home_agent.search_memories
+service: pepa_sensory_arm_house.search_memories
 data:
   query: "bedroom temperature preferences"
   limit: 10
@@ -64,7 +64,7 @@ automation:
   - alias: "Track Token Usage"
     trigger:
       - platform: event
-        event_type: home_agent.conversation.finished
+        event_type: pepa_sensory_arm_house.conversation.finished
     action:
       - service: input_number.set_value
         target:
@@ -79,14 +79,14 @@ Alert on errors:
 
 ```yaml
 automation:
-  - alias: "Alert on Home Agent Errors"
+  - alias: "Alert on Pepa Sensory Arm House Errors"
     trigger:
       - platform: event
-        event_type: home_agent.error
+        event_type: pepa_sensory_arm_house.error
     action:
       - service: notify.admin
         data:
-          title: "Home Agent Error"
+          title: "Pepa Sensory Arm House Error"
           message: >
             Type: {{ trigger.event.data.error_type }}
             Message: {{ trigger.event.data.error_message }}
@@ -98,7 +98,7 @@ The LLM automatically calls these tools, but you can test them manually:
 
 **Control a device:**
 ```yaml
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_control
   parameters:
@@ -110,7 +110,7 @@ data:
 
 **Query entity state:**
 ```yaml
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_query
   parameters:
@@ -119,7 +119,7 @@ data:
 
 **Query with history:**
 ```yaml
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_query
   parameters:
@@ -131,7 +131,7 @@ data:
 
 ## Service Details
 
-### home_agent.process
+### pepa_sensory_arm_house.process
 
 Process a conversation message.
 
@@ -142,13 +142,13 @@ Process a conversation message.
 
 **Example:**
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "What's the temperature in the living room?"
   conversation_id: "main_conversation"
 ```
 
-### home_agent.add_memory
+### pepa_sensory_arm_house.add_memory
 
 Manually store a memory.
 
@@ -159,14 +159,14 @@ Manually store a memory.
 
 **Example:**
 ```yaml
-service: home_agent.add_memory
+service: pepa_sensory_arm_house.add_memory
 data:
   content: "User prefers bedroom temperature at 68°F for sleeping"
   type: preference
   importance: 0.8
 ```
 
-### home_agent.clear_history
+### pepa_sensory_arm_house.clear_history
 
 Clear conversation history.
 
@@ -176,17 +176,17 @@ Clear conversation history.
 **Examples:**
 ```yaml
 # Clear specific conversation
-service: home_agent.clear_history
+service: pepa_sensory_arm_house.clear_history
 data:
   conversation_id: "living_room_conversation"
 
 # Clear all conversations
-service: home_agent.clear_history
+service: pepa_sensory_arm_house.clear_history
 ```
 
 ## Event Details
 
-### home_agent.conversation.finished
+### pepa_sensory_arm_house.conversation.finished
 
 Triggered when a conversation completes.
 
@@ -213,7 +213,7 @@ Triggered when a conversation completes.
 }
 ```
 
-### home_agent.tool.executed
+### pepa_sensory_arm_house.tool.executed
 
 Triggered after each tool execution.
 
@@ -239,7 +239,7 @@ Triggered after each tool execution.
 }
 ```
 
-### home_agent.memory.extracted
+### pepa_sensory_arm_house.memory.extracted
 
 Triggered when memories are extracted.
 

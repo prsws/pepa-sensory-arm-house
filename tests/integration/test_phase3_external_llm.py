@@ -14,8 +14,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_EXTERNAL_LLM_API_KEY,
     CONF_EXTERNAL_LLM_BASE_URL,
     CONF_EXTERNAL_LLM_ENABLED,
@@ -30,7 +30,7 @@ from custom_components.home_agent.const import (
     CONF_TOOLS_TIMEOUT,
     TOOL_QUERY_EXTERNAL_LLM,
 )
-from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
 # Mark all tests in this module as integration tests
 pytestmark = pytest.mark.integration
@@ -91,7 +91,9 @@ async def test_external_llm_tool_registration(
     mock_hass_for_integration, external_llm_config, session_manager
 ):
     """Test that external LLM tool is registered when enabled."""
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -121,7 +123,9 @@ async def test_external_llm_tool_not_registered_when_disabled(
         CONF_EXTERNAL_LLM_ENABLED: False,  # Disabled
     }
 
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, config, session_manager)
@@ -140,7 +144,9 @@ async def test_dual_llm_workflow_successful(
     mock_hass_for_integration, external_llm_config, session_manager
 ):
     """Test complete dual-LLM workflow: primary delegates to external LLM."""
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -275,7 +281,9 @@ async def test_external_llm_error_propagation(
     mock_hass_for_integration, external_llm_config, session_manager
 ):
     """Test that external LLM errors are propagated to primary LLM."""
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -382,7 +390,9 @@ async def test_tool_call_counting_includes_external_llm(
     config = external_llm_config.copy()
     config[CONF_TOOLS_MAX_CALLS_PER_TURN] = 2  # Low limit
 
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, config, session_manager)
@@ -482,7 +492,9 @@ async def test_external_llm_context_not_included_automatically(
     mock_hass_for_integration, external_llm_config, session_manager
 ):
     """Test that conversation history is NOT automatically included in external LLM calls."""
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -593,7 +605,9 @@ async def test_external_llm_explicit_context_passing(
     data) in the 'context' parameter, that context is properly formatted and sent to
     the external LLM.
     """
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -761,7 +775,9 @@ async def test_external_llm_context_with_multi_turn_conversation(
     to delegate to the external LLM and explicitly includes relevant conversation
     history in the context parameter.
     """
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, external_llm_config, session_manager)
@@ -924,7 +940,9 @@ async def test_external_llm_configuration_validation(mock_hass_for_integration, 
         # Missing CONF_EXTERNAL_LLM_BASE_URL and CONF_EXTERNAL_LLM_API_KEY
     }
 
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_integration, incomplete_config, session_manager)

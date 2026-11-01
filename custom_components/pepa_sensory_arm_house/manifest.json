@@ -1,0 +1,13 @@
+{
+  "domain": "pepa_sensory_arm_house",
+  "name": "Pepa Sensory Arm House",
+  "after_dependencies": ["recorder"],
+  "codeowners": ["@prsws"],
+  "config_flow": true,
+  "dependencies": ["conversation"],
+  "documentation": "https://github.com/prsws/pepa-sensory-arm-house",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/prsws/pepa-sensory-arm-house/issues",
+  "requirements": ["chromadb-client==1.5.3"],
+  "version": "1.0.0-alpha"
+}

@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from custom_components.home_agent.context_providers.base import (
+from custom_components.pepa_sensory_arm_house.context_providers.base import (
     get_entity_available_services,
 )
 

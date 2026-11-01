@@ -7,19 +7,19 @@ from homeassistant.const import ATTR_ENTITY_ID, SERVICE_TOGGLE, SERVICE_TURN_OFF
 from homeassistant.core import State
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     ACTION_SET_VALUE,
     ACTION_TOGGLE,
     ACTION_TURN_OFF,
     ACTION_TURN_ON,
     TOOL_HA_CONTROL,
 )
-from custom_components.home_agent.exceptions import (
+from custom_components.pepa_sensory_arm_house.exceptions import (
     PermissionDenied,
     ToolExecutionError,
     ValidationError,
 )
-from custom_components.home_agent.tools.ha_control import HomeAssistantControlTool
+from custom_components.pepa_sensory_arm_house.tools.ha_control import HomeAssistantControlTool
 
 
 class TestHomeAssistantControlTool:
@@ -89,7 +89,9 @@ class TestHomeAssistantControlTool:
         tool = HomeAssistantControlTool(mock_hass)
 
         # Mock entity registry
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -144,7 +146,9 @@ class TestHomeAssistantControlTool:
         """Test turning off a switch."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -167,7 +171,9 @@ class TestHomeAssistantControlTool:
         """Test toggling an entity."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -189,7 +195,9 @@ class TestHomeAssistantControlTool:
         """Test executing with additional parameters."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -218,7 +226,9 @@ class TestHomeAssistantControlTool:
         """Test set_value action for light."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -243,7 +253,9 @@ class TestHomeAssistantControlTool:
         """Test set_value action for climate."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -269,7 +281,9 @@ class TestHomeAssistantControlTool:
         """Test setting HVAC mode."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -338,7 +352,9 @@ class TestHomeAssistantControlTool:
         """Test entity access validation when entity is allowed."""
         tool = HomeAssistantControlTool(mock_hass, exposed_entities)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -387,7 +403,9 @@ class TestHomeAssistantControlTool:
         """Test that None exposed_entities allows all access."""
         tool = HomeAssistantControlTool(mock_hass, exposed_entities=None)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -405,7 +423,9 @@ class TestHomeAssistantControlTool:
         """Test that nonexistent entity raises ValidationError."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = None  # Not in registry
             mock_er.return_value = mock_registry
@@ -422,7 +442,9 @@ class TestHomeAssistantControlTool:
         """Test handling entity not in registry but in state machine."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = None  # Not in registry
             mock_er.return_value = mock_registry
@@ -442,7 +464,9 @@ class TestHomeAssistantControlTool:
         """Test that service call failure raises ToolExecutionError."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -462,7 +486,9 @@ class TestHomeAssistantControlTool:
         """Test that response includes relevant attributes."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -483,7 +509,9 @@ class TestHomeAssistantControlTool:
         """Test that climate-specific attributes are extracted."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -623,7 +651,9 @@ class TestHomeAssistantControlTool:
         """Test that service calls are blocking."""
         tool = HomeAssistantControlTool(mock_hass)
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -697,7 +727,9 @@ class TestHomeAssistantControlTool:
             "supported_features": 4,  # CoverEntityFeature.SET_POSITION
         }
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -794,7 +826,7 @@ class TestHomeAssistantControlTool:
 
     def test_cover_binary_position_not_supported(self, mock_hass):
         """Test that binary covers raise error when trying to set position."""
-        from custom_components.home_agent.exceptions import ToolExecutionError
+        from custom_components.pepa_sensory_arm_house.exceptions import ToolExecutionError
 
         tool = HomeAssistantControlTool(mock_hass)
 
@@ -813,7 +845,7 @@ class TestHomeAssistantControlTool:
 
     def test_cover_tilt_not_supported(self, mock_hass):
         """Test that covers without tilt raise error when trying to set tilt."""
-        from custom_components.home_agent.exceptions import ToolExecutionError
+        from custom_components.pepa_sensory_arm_house.exceptions import ToolExecutionError
 
         tool = HomeAssistantControlTool(mock_hass)
 
@@ -848,7 +880,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -886,7 +920,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -925,7 +961,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -961,7 +999,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -995,7 +1035,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -1029,7 +1071,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -1063,7 +1107,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry
@@ -1097,7 +1143,9 @@ class TestHomeAssistantControlTool:
             },
         )
 
-        with patch("custom_components.home_agent.tools.ha_control.er.async_get") as mock_er:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
+        ) as mock_er:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock()
             mock_er.return_value = mock_registry

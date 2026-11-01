@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_MEMORY_COLLECTION_NAME,
     CONF_MEMORY_DEDUP_THRESHOLD,
     CONF_MEMORY_IMPORTANCE_DECAY,
@@ -20,7 +20,7 @@ from custom_components.home_agent.const import (
     CONF_MEMORY_QUALITY_VALIDATION_INTERVAL,
     DEFAULT_MEMORY_COLLECTION_NAME,
 )
-from custom_components.home_agent.memory_manager import (
+from custom_components.pepa_sensory_arm_house.memory_manager import (
     MEMORY_TYPE_CONTEXT,
     MEMORY_TYPE_EVENT,
     MEMORY_TYPE_FACT,
@@ -35,7 +35,7 @@ from custom_components.home_agent.memory_manager import (
 @pytest.fixture
 def mock_store():
     """Create a mock Store instance."""
-    with patch("custom_components.home_agent.memory_manager.Store") as mock:
+    with patch("custom_components.pepa_sensory_arm_house.memory_manager.Store") as mock:
         store = MagicMock()
         store.async_load = AsyncMock(return_value=None)
         store.async_save = AsyncMock()
@@ -83,7 +83,7 @@ def memory_config():
 @pytest.fixture
 async def memory_manager(mock_hass, mock_store, mock_vector_db_manager, memory_config):
     """Create a MemoryManager instance for testing."""
-    with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", True):
+    with patch("custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", True):
         manager = MemoryManager(
             hass=mock_hass,
             vector_db_manager=mock_vector_db_manager,
@@ -99,7 +99,7 @@ class TestMemoryManagerInitialization:
 
     async def test_init_with_config(self, mock_hass, mock_vector_db_manager, memory_config):
         """Test initialization with custom config."""
-        with patch("custom_components.home_agent.memory_manager.Store"):
+        with patch("custom_components.pepa_sensory_arm_house.memory_manager.Store"):
             manager = MemoryManager(
                 hass=mock_hass,
                 vector_db_manager=mock_vector_db_manager,
@@ -125,8 +125,12 @@ class TestMemoryManagerInitialization:
             }
         }
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", True):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", True
+            ):
                 store = MagicMock()
                 store.async_load = AsyncMock(return_value={"memories": existing_memories})
                 store.async_save = AsyncMock()
@@ -147,8 +151,12 @@ class TestMemoryManagerInitialization:
         self, mock_hass, mock_vector_db_manager, memory_config
     ):
         """Test initialization works without ChromaDB."""
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", False):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", False
+            ):
                 store = MagicMock()
                 store.async_load = AsyncMock(return_value=None)
                 store.async_save = AsyncMock()
@@ -716,8 +724,12 @@ class TestStoragePersistence:
             },
         }
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", True):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", True
+            ):
                 store = MagicMock()
                 store.async_load = AsyncMock(return_value=existing_data)
                 store.async_save = AsyncMock()
@@ -765,8 +777,12 @@ class TestDualStorage:
             "ChromaDB error"
         )
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", True):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", True
+            ):
                 store = MagicMock()
                 store.async_load = AsyncMock(return_value=None)
                 store.async_save = AsyncMock()
@@ -803,8 +819,12 @@ class TestTransientMemoryCleanup:
         memory_config[CONF_MEMORY_QUALITY_VALIDATION_ENABLED] = True
         memory_config[CONF_MEMORY_QUALITY_VALIDATION_INTERVAL] = 3600
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", False):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", False
+            ):
                 store = MagicMock()
                 # Pre-populate with transient memories
                 existing_memories = {
@@ -863,8 +883,12 @@ class TestTransientMemoryCleanup:
         """Test that valid memories are preserved during cleanup."""
         memory_config[CONF_MEMORY_QUALITY_VALIDATION_ENABLED] = True
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", False):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", False
+            ):
                 store = MagicMock()
                 existing_memories = {
                     "valid1": {
@@ -911,8 +935,12 @@ class TestTransientMemoryCleanup:
         """Test that quality validation is skipped when disabled."""
         memory_config[CONF_MEMORY_QUALITY_VALIDATION_ENABLED] = False
 
-        with patch("custom_components.home_agent.memory_manager.Store") as mock_store_cls:
-            with patch("custom_components.home_agent.memory_manager.CHROMADB_AVAILABLE", False):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.memory_manager.Store"
+        ) as mock_store_cls:
+            with patch(
+                "custom_components.pepa_sensory_arm_house.memory_manager.CHROMADB_AVAILABLE", False
+            ):
                 store = MagicMock()
                 # Include a transient memory
                 existing_memories = {
@@ -957,7 +985,7 @@ class TestTransientMemoryCleanup:
             CONF_MEMORY_MAX_MEMORIES: 100,
         }
 
-        with patch("custom_components.home_agent.memory_manager.Store"):
+        with patch("custom_components.pepa_sensory_arm_house.memory_manager.Store"):
             manager = MemoryManager(
                 hass=mock_hass,
                 vector_db_manager=mock_vector_db_manager,

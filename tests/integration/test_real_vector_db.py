@@ -13,7 +13,7 @@ import asyncio
 
 import pytest
 
-from custom_components.home_agent.vector_db_manager import VectorDBManager
+from custom_components.pepa_sensory_arm_house.vector_db_manager import VectorDBManager
 
 
 @pytest.mark.integration
@@ -652,15 +652,15 @@ class TestAreaLookupEntityIndexing:
 
             with (
                 patch(
-                    "custom_components.home_agent.vector_db_manager.er.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.er.async_get",
                     return_value=mock_er,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.ar.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.ar.async_get",
                     return_value=mock_ar,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.dr.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.dr.async_get",
                     return_value=mock_dr,
                 ),
             ):
@@ -729,15 +729,15 @@ class TestAreaLookupEntityIndexing:
 
             with (
                 patch(
-                    "custom_components.home_agent.vector_db_manager.er.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.er.async_get",
                     return_value=mock_er,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.ar.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.ar.async_get",
                     return_value=mock_ar,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.dr.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.dr.async_get",
                     return_value=mock_dr,
                 ),
             ):
@@ -798,15 +798,15 @@ class TestAreaLookupEntityIndexing:
 
             with (
                 patch(
-                    "custom_components.home_agent.vector_db_manager.er.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.er.async_get",
                     return_value=mock_er,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.ar.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.ar.async_get",
                     return_value=mock_ar,
                 ),
                 patch(
-                    "custom_components.home_agent.vector_db_manager.dr.async_get",
+                    "custom_components.pepa_sensory_arm_house.vector_db_manager.dr.async_get",
                     return_value=mock_dr,
                 ),
             ):

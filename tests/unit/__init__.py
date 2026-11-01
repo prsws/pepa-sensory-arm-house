@@ -1,1 +1,1 @@
-"""Unit tests for Home Agent."""
+"""Unit tests for Pepa Sensory Arm House."""

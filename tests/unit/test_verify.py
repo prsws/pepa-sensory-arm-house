@@ -1,4 +1,4 @@
-"""Tests for post-dispatch verification (custom_components.home_agent.verify)."""
+"""Tests for post-dispatch verification (custom_components.pepa_sensory_arm_house.verify)."""
 
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -6,14 +6,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent import verify
-from custom_components.home_agent.request_origin import (
+from custom_components.pepa_sensory_arm_house import verify
+from custom_components.pepa_sensory_arm_house.request_origin import (
     CHANNEL_SATELLITE,
     RequestOrigin,
     request_origin,
 )
-from custom_components.home_agent.tools.ha_control import HomeAssistantControlTool
-from custom_components.home_agent.verify import (
+from custom_components.pepa_sensory_arm_house.tools.ha_control import HomeAssistantControlTool
+from custom_components.pepa_sensory_arm_house.verify import (
     EVENT_VERIFY,
     OUTCOME_CONFIRMED,
     OUTCOME_FAILED,
@@ -257,7 +257,8 @@ class TestHaControlStartsVerify:
         house.hass.states.get.side_effect = house.states.get
         house.hass.services.async_call = MagicMock(return_value=_done())
         return tool, patch(
-            "custom_components.home_agent.tools.ha_control.er.async_get", return_value=registry
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get",
+            return_value=registry,
         )
 
     async def test_verify_entity_answers_pending_without_state(self, house):

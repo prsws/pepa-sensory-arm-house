@@ -15,13 +15,13 @@ This guide provides comprehensive, ready-to-use configurations for common LLM pr
 
 ## 1. OpenAI Setup
 
-Complete configuration for using OpenAI's GPT models with Home Agent.
+Complete configuration for using OpenAI's GPT models with Pepa Sensory Arm House.
 
 ### Basic Configuration
 
 **Via Home Assistant UI:**
 
-Navigate to **Settings** > **Devices & Services** > **Home Agent** > **Configure**
+Navigate to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure**
 
 **LLM Settings:**
 ```yaml
@@ -133,7 +133,7 @@ Memory Enabled: false  # Faster, lower cost
 1. **Always use secrets.yaml for API keys:**
    ```yaml
    # configuration.yaml
-   home_agent:
+   pepa_sensory_arm_house:
      llm_api_key: !secret openai_api_key
 
    # secrets.yaml
@@ -146,7 +146,7 @@ Memory Enabled: false  # Faster, lower cost
      - alias: "Monitor OpenAI Usage"
        trigger:
          - platform: event
-           event_type: home_agent.conversation.finished
+           event_type: pepa_sensory_arm_house.conversation.finished
        action:
          - service: counter.increment
            target:
@@ -493,7 +493,7 @@ curl http://localhost:8080/v1/chat/completions \
   }'
 ```
 
-### Home Agent Configuration
+### Pepa Sensory Arm House Configuration
 
 **Via Home Assistant UI:**
 
@@ -569,7 +569,7 @@ parameters:
 embeddings: true
 ```
 
-Configure in Home Agent:
+Configure in Pepa Sensory Arm House:
 ```yaml
 Embedding Provider: ollama  # LocalAI uses OpenAI-compatible API
 Embedding Base URL: http://localhost:8080/v1
@@ -637,9 +637,9 @@ curl http://localhost:8080/v1/models
 
 **Integration config file:**
 
-Create `config/integration.yaml` for Home Agent compatibility:
+Create `config/integration.yaml` for Pepa Sensory Arm House compatibility:
 ```yaml
-name: gpt-4o-mini  # Alias for Home Agent
+name: gpt-4o-mini  # Alias for Pepa Sensory Arm House
 backend: llama
 parameters:
   model: mistral-7b-instruct-v0.2.Q4_K_M.gguf
@@ -837,7 +837,7 @@ automation:
   - alias: "Track External LLM Usage"
     trigger:
       - platform: event
-        event_type: home_agent.tool.executed
+        event_type: pepa_sensory_arm_house.tool.executed
         event_data:
           tool_name: query_external_llm
     action:
@@ -935,7 +935,7 @@ curl http://localhost:8000/api/v1/heartbeat
 
 **2. Configure Memory Settings:**
 
-Navigate to **Settings** > **Devices & Services** > **Home Agent** > **Configure** > **Memory Settings**
+Navigate to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure** > **Memory Settings**
 
 ```yaml
 # Memory Settings
@@ -945,7 +945,7 @@ Memory Extraction LLM: external  # Options: external, local
 Memory Max Memories: 100
 Memory Min Importance: 0.3
 Memory Context Top K: 5
-Memory Collection Name: home_agent_memories
+Memory Collection Name: pepa_sensory_arm_house_memories
 ```
 
 **3. Configure Embedding Provider (if not already done):**
@@ -1085,20 +1085,20 @@ Embedding Model: text-embedding-3-large  # Better embeddings
 
 **1. Store a preference:**
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "I prefer the bedroom at 68°F for sleeping"
 ```
 
 Check logs for extraction:
 ```
-[home_agent.memory] Extracted 1 memories from conversation
-[home_agent.memory] Stored memory: User prefers bedroom at 68°F for sleeping (type=preference, importance=0.8)
+[pepa_sensory_arm_house.memory] Extracted 1 memories from conversation
+[pepa_sensory_arm_house.memory] Stored memory: User prefers bedroom at 68°F for sleeping (type=preference, importance=0.8)
 ```
 
 **2. Later, test recall:**
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "What temperature should I set for the bedroom?"
 ```
@@ -1110,7 +1110,7 @@ Expected response:
 
 **3. Manually check memories:**
 ```yaml
-service: home_agent.list_memories
+service: pepa_sensory_arm_house.list_memories
 data:
   limit: 10
 ```
@@ -1119,7 +1119,7 @@ data:
 
 **Add memory directly:**
 ```yaml
-service: home_agent.add_memory
+service: pepa_sensory_arm_house.add_memory
 data:
   content: "Garbage pickup is every Thursday morning"
   type: fact
@@ -1128,7 +1128,7 @@ data:
 
 **Search memories:**
 ```yaml
-service: home_agent.search_memories
+service: pepa_sensory_arm_house.search_memories
 data:
   query: "temperature preferences"
   limit: 5
@@ -1137,21 +1137,21 @@ data:
 
 **Delete specific memory:**
 ```yaml
-service: home_agent.delete_memory
+service: pepa_sensory_arm_house.delete_memory
 data:
   memory_id: "abc-123-def-456"  # From list_memories
 ```
 
 **Clear all memories:**
 ```yaml
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true  # Required safety check
 ```
 
 ### Memory Types and TTL
 
-Home Agent supports four memory types with different retention:
+Pepa Sensory Arm House supports four memory types with different retention:
 
 | Type | Description | Default TTL | Example |
 |------|-------------|-------------|---------|
@@ -1164,7 +1164,7 @@ Home Agent supports four memory types with different retention:
 
 Via `configuration.yaml`:
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   memory_event_ttl: 300          # 5 minutes (default)
   memory_fact_ttl: null          # Never expire (default)
   memory_preference_ttl: 7776000 # 90 days (default)
@@ -1182,10 +1182,10 @@ home_agent:
 
 **Memories not recalled:**
 - Verify `Memory Enabled: true`
-- Check memories exist: `service: home_agent.list_memories`
+- Check memories exist: `service: pepa_sensory_arm_house.list_memories`
 - Increase `Memory Context Top K`
 - Lower `Memory Min Importance` threshold
-- Test search: `service: home_agent.search_memories`
+- Test search: `service: pepa_sensory_arm_house.search_memories`
 
 **Poor extraction quality:**
 - Use `Memory Extraction LLM: external` with good model (gpt-4o-mini or better)
@@ -1218,7 +1218,7 @@ curl http://localhost:11434/api/embeddings \
 ```
 
 **Storage location:**
-- Memories: `.storage/home_agent.memories`
+- Memories: `.storage/pepa_sensory_arm_house.memories`
 - Vectors: ChromaDB volume (configured in Docker)
 
 ### Best Practices
@@ -1249,7 +1249,7 @@ automation:
       - platform: time
         at: "00:00:00"  # Daily at midnight
     action:
-      - service: home_agent.list_memories
+      - service: pepa_sensory_arm_house.list_memories
         response_variable: memories
       - service: notify.admin
         data:
@@ -1267,7 +1267,7 @@ automation:
       - condition: template
         value_template: "{{ now().day == 1 }}"  # First of month
     action:
-      - service: home_agent.search_memories
+      - service: pepa_sensory_arm_house.search_memories
         data:
           query: "outdated temporary"
           min_importance: 0.0
@@ -1396,11 +1396,11 @@ Get API key from [OpenAI Platform](https://platform.openai.com/api-keys)
 
 Cost: ~$0.02 per 1M tokens (~$0.01-0.05/month for typical home automation)
 
-### Configure Home Agent
+### Configure Pepa Sensory Arm House
 
 **1. Configure Vector DB Connection:**
 
-Navigate to **Settings** > **Devices & Services** > **Home Agent** > **Configure** > **Vector DB Settings**
+Navigate to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure** > **Vector DB Settings**
 
 **For Ollama (Local):**
 ```yaml
@@ -1446,19 +1446,19 @@ After configuration, index your Home Assistant entities:
 
 **Via Developer Tools:**
 1. Open **Developer Tools** > **Services**
-2. Select `home_agent.reindex_entities`
+2. Select `pepa_sensory_arm_house.reindex_entities`
 3. Click **Call Service**
 
 **Via YAML:**
 ```yaml
-service: home_agent.reindex_entities
+service: pepa_sensory_arm_house.reindex_entities
 ```
 
 **Monitor progress in logs:**
 ```
-[home_agent.vector_db] Starting entity indexing...
-[home_agent.vector_db] Indexing 127 entities...
-[home_agent.vector_db] Successfully indexed 127 entities in 12.4 seconds
+[pepa_sensory_arm_house.vector_db] Starting entity indexing...
+[pepa_sensory_arm_house.vector_db] Indexing 127 entities...
+[pepa_sensory_arm_house.vector_db] Successfully indexed 127 entities in 12.4 seconds
 ```
 
 **When to reindex:**
@@ -1471,16 +1471,16 @@ service: home_agent.reindex_entities
 
 **Test query:**
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "What's the temperature in the bedroom?"
 ```
 
 **Check logs for vector search:**
 ```
-[home_agent.vector_db] Searching for entities related to: "bedroom temperature"
-[home_agent.vector_db] Retrieved 3 entities (scores: 45.2, 87.4, 123.6)
-[home_agent.vector_db] Entities: sensor.bedroom_temperature, climate.bedroom_ac, sensor.bedroom_humidity
+[pepa_sensory_arm_house.vector_db] Searching for entities related to: "bedroom temperature"
+[pepa_sensory_arm_house.vector_db] Retrieved 3 entities (scores: 45.2, 87.4, 123.6)
+[pepa_sensory_arm_house.vector_db] Entities: sensor.bedroom_temperature, climate.bedroom_ac, sensor.bedroom_humidity
 ```
 
 **Expected behavior:**
@@ -1537,7 +1537,7 @@ Similarity Threshold: 1000.0 # Very lenient (debugging)
 # In configuration.yaml (enable debug logging)
 logger:
   logs:
-    custom_components.home_agent.vector_db: debug
+    custom_components.pepa_sensory_arm_house.vector_db: debug
 ```
 
 Check logs for actual distance scores and adjust threshold accordingly.
@@ -1672,7 +1672,7 @@ curl https://api.openai.com/v1/embeddings \
 
 **No entities retrieved:**
 1. Verify entities indexed: Check logs for "Successfully indexed X entities"
-2. Re-run indexing: `service: home_agent.reindex_entities`
+2. Re-run indexing: `service: pepa_sensory_arm_house.reindex_entities`
 3. Increase `Top K` or `Similarity Threshold`
 4. Check embedding model working
 5. Enable debug logging and review distance scores
@@ -1696,7 +1696,7 @@ curl https://api.openai.com/v1/embeddings \
 curl http://localhost:8000/api/v1/collections
 
 # Reset and reindex
-service: home_agent.reindex_entities
+service: pepa_sensory_arm_house.reindex_entities
 ```
 
 **Indexing fails:**
@@ -1704,7 +1704,7 @@ service: home_agent.reindex_entities
 2. Verify embedding provider configured correctly
 3. Test embedding generation separately
 4. Check disk space for ChromaDB volume
-5. Review Home Agent logs for specific error
+5. Review Pepa Sensory Arm House logs for specific error
 
 ### Backup and Restore
 
@@ -1783,14 +1783,14 @@ collection.add(
 )
 ```
 
-**Configure Home Agent to query:**
+**Configure Pepa Sensory Arm House to query:**
 ```yaml
 # In Vector DB Settings
 Additional Collections: custom_knowledge
 Additional Top K: 3
 ```
 
-**Result:** Home Agent will search both `home_entities` and `custom_knowledge` collections.
+**Result:** Pepa Sensory Arm House will search both `home_entities` and `custom_knowledge` collections.
 
 ---
 
@@ -1829,9 +1829,9 @@ After setting up your configuration:
 ## Contributing
 
 Found an issue with these examples or have a suggestion? Please:
-- Open an issue on [GitHub](https://github.com/aradlein/hass-agent-llm/issues)
+- Open an issue on [GitHub](https://github.com/prsws/pepa-sensory-arm-house/issues)
 - Submit a pull request with improvements
-- Share your configuration in [Discussions](https://github.com/aradlein/hass-agent-llm/discussions)
+- Share your configuration in a [GitHub issue](https://github.com/prsws/pepa-sensory-arm-house/issues)
 
 ---
 

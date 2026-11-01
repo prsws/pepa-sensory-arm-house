@@ -1,6 +1,6 @@
-# Home Agent Tool Mappings Reference
+# Pepa Sensory Arm House Tool Mappings Reference
 
-This document provides a complete reference for the domain service mappings and parameter handling used by the Home Agent LLM integration. These mappings define how generic actions (`turn_on`, `turn_off`, `toggle`, `set_value`) are translated to Home Assistant service calls.
+This document provides a complete reference for the domain service mappings and parameter handling used by the Pepa Sensory Arm House LLM integration. These mappings define how generic actions (`turn_on`, `turn_off`, `toggle`, `set_value`) are translated to Home Assistant service calls.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ This document provides a complete reference for the domain service mappings and 
 
 ## Overview
 
-The Home Agent uses a unified action interface for LLM tool calls:
+The Pepa Sensory Arm House uses a unified action interface for LLM tool calls:
 
 | Action | Description |
 |--------|-------------|
@@ -570,9 +570,9 @@ For domains not explicitly mapped in `DOMAIN_SERVICE_MAPPINGS`, the tool falls b
 
 ## File References
 
-- **Domain Mappings**: `custom_components/home_agent/const.py` (DOMAIN_SERVICE_MAPPINGS)
-- **Parameter Handling**: `custom_components/home_agent/tools/ha_control.py` (HomeAssistantControlTool)
+- **Domain Mappings**: `custom_components/pepa_sensory_arm_house/const.py` (DOMAIN_SERVICE_MAPPINGS)
+- **Parameter Handling**: `custom_components/pepa_sensory_arm_house/tools/ha_control.py` (HomeAssistantControlTool)
 
 ---
 
-*Last Updated: Based on home-agent version 0.8.4*
+*Last Updated: based on upstream Home Agent version 0.8.4*

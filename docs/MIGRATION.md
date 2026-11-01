@@ -1,10 +1,10 @@
 # Migration Guide
 
-Quick guide to migrating from extended_openai_conversation to Home Agent.
+Quick guide to migrating from extended_openai_conversation to Pepa Sensory Arm House.
 
 ## Should You Migrate?
 
-| Feature | extended_openai_conversation | Home Agent |
+| Feature | extended_openai_conversation | Pepa Sensory Arm House |
 |---------|------------------------------|------------|
 | **OpenAI/Local LLMs** | ✅ Yes | ✅ Yes |
 | **Custom Functions** | ✅ REST, Service, Script | ✅ REST, Service (no script) |
@@ -17,20 +17,20 @@ Quick guide to migrating from extended_openai_conversation to Home Agent.
 
 ## Quick Migration (5 Steps)
 
-### Step 1: Install Home Agent
+### Step 1: Install Pepa Sensory Arm House
 
 **Via HACS (when available):**
-1. Open HACS > Search "Home Agent" > Install
+1. Open HACS > Search "Pepa Sensory Arm House" > Install
 2. Restart Home Assistant
 
 **Manual:**
 1. Download latest release from GitHub
-2. Copy `custom_components/home_agent` to config folder
+2. Copy `custom_components/pepa_sensory_arm_house` to config folder
 3. Restart Home Assistant
 
 ### Step 2: Configure LLM Settings
 
-1. Go to **Settings > Devices & Services > Add Integration > Home Agent**
+1. Go to **Settings > Devices & Services > Add Integration > Pepa Sensory Arm House**
 2. Enter configuration:
    - **LLM Base URL**: Your endpoint (OpenAI: `https://api.openai.com/v1`, Ollama: `http://localhost:11434/v1`)
    - **API Key**: Your API key (if required)
@@ -44,7 +44,7 @@ Edit `configuration.yaml` and convert your functions using the table below.
 
 ### Step 4: Configure Context
 
-1. Go to **Settings > Home Agent > Configure > Context Settings**
+1. Go to **Settings > Pepa Sensory Arm House > Configure > Context Settings**
 2. Enter same entities from your old integration
 3. Use wildcards for groups: `light.*` instead of listing each light
 
@@ -78,10 +78,10 @@ functions:
           Authorization: "Bearer {{ api_key }}"
 ```
 
-**After (Home Agent):**
+**After (Pepa Sensory Arm House):**
 ```yaml
 # configuration.yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: get_weather
       description: "Get weather forecast"
@@ -119,7 +119,7 @@ functions:
 
 **After:**
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: trigger_routine
       description: "Trigger morning routine automation"
@@ -171,7 +171,7 @@ custom_sequence:
 
 Reference in `configuration.yaml`:
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: run_custom_sequence
       description: "Run custom light sequence"
@@ -201,7 +201,7 @@ Create automation in `automations.yaml`:
 
 Reference in `configuration.yaml`:
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: trigger_custom_sequence
       description: "Trigger custom light sequence"
@@ -252,7 +252,7 @@ After migration, verify:
 1. Check YAML syntax: Settings > System > Configuration Validation
 2. Verify configuration is at root of `configuration.yaml`:
    ```yaml
-   home_agent:  # Correct location at root
+   pepa_sensory_arm_house:  # Correct location at root
      tools_custom:
        - name: my_tool
    ```
@@ -260,7 +260,7 @@ After migration, verify:
    ```yaml
    logger:
      logs:
-       custom_components.home_agent: debug
+       custom_components.pepa_sensory_arm_house: debug
    ```
 4. Verify secrets are defined in `secrets.yaml`
 
@@ -321,7 +321,7 @@ After migration, verify:
    ```
 3. Test explicitly:
    ```yaml
-   service: home_agent.execute_tool
+   service: pepa_sensory_arm_house.execute_tool
    data:
      tool_name: query_external_llm
      parameters:

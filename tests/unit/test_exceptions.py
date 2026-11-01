@@ -6,7 +6,7 @@ properly raised, caught, and inherit from the correct base classes.
 
 import pytest
 
-from custom_components.home_agent.exceptions import (
+from custom_components.pepa_sensory_arm_house.exceptions import (
     AuthenticationError,
     ContextInjectionError,
     HomeAgentError,
@@ -21,12 +21,12 @@ from custom_components.home_agent.exceptions import (
 class TestHomeAgentError:
     """Tests for HomeAgentError base exception."""
 
-    def test_raise_home_agent_error(self):
+    def test_raise_pepa_sensory_arm_house_error(self):
         """Test that HomeAgentError can be raised."""
         with pytest.raises(HomeAgentError):
             raise HomeAgentError("Test error")
 
-    def test_home_agent_error_message(self):
+    def test_pepa_sensory_arm_house_error_message(self):
         """Test that HomeAgentError preserves message."""
         message = "This is a test error message"
         with pytest.raises(HomeAgentError) as exc_info:
@@ -34,11 +34,11 @@ class TestHomeAgentError:
 
         assert str(exc_info.value) == message
 
-    def test_home_agent_error_inherits_from_exception(self):
+    def test_pepa_sensory_arm_house_error_inherits_from_exception(self):
         """Test that HomeAgentError inherits from Exception."""
         assert issubclass(HomeAgentError, Exception)
 
-    def test_catch_home_agent_error(self):
+    def test_catch_pepa_sensory_arm_house_error(self):
         """Test catching HomeAgentError."""
         try:
             raise HomeAgentError("Test")
@@ -47,7 +47,7 @@ class TestHomeAgentError:
         else:
             pytest.fail("HomeAgentError was not caught")
 
-    def test_home_agent_error_no_message(self):
+    def test_pepa_sensory_arm_house_error_no_message(self):
         """Test HomeAgentError with no message."""
         with pytest.raises(HomeAgentError):
             raise HomeAgentError()
@@ -69,11 +69,11 @@ class TestContextInjectionError:
 
         assert str(exc_info.value) == message
 
-    def test_context_injection_error_inherits_from_home_agent_error(self):
+    def test_context_injection_error_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that ContextInjectionError inherits from HomeAgentError."""
         assert issubclass(ContextInjectionError, HomeAgentError)
 
-    def test_catch_context_injection_error_as_home_agent_error(self):
+    def test_catch_context_injection_error_as_pepa_sensory_arm_house_error(self):
         """Test catching ContextInjectionError as HomeAgentError."""
         try:
             raise ContextInjectionError("Test")
@@ -111,11 +111,11 @@ class TestToolExecutionError:
 
         assert str(exc_info.value) == message
 
-    def test_tool_execution_error_inherits_from_home_agent_error(self):
+    def test_tool_execution_error_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that ToolExecutionError inherits from HomeAgentError."""
         assert issubclass(ToolExecutionError, HomeAgentError)
 
-    def test_catch_tool_execution_error_as_home_agent_error(self):
+    def test_catch_tool_execution_error_as_pepa_sensory_arm_house_error(self):
         """Test catching ToolExecutionError as HomeAgentError."""
         try:
             raise ToolExecutionError("Test")
@@ -157,11 +157,11 @@ class TestAuthenticationError:
 
         assert str(exc_info.value) == message
 
-    def test_authentication_error_inherits_from_home_agent_error(self):
+    def test_authentication_error_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that AuthenticationError inherits from HomeAgentError."""
         assert issubclass(AuthenticationError, HomeAgentError)
 
-    def test_catch_authentication_error_as_home_agent_error(self):
+    def test_catch_authentication_error_as_pepa_sensory_arm_house_error(self):
         """Test catching AuthenticationError as HomeAgentError."""
         try:
             raise AuthenticationError("Test")
@@ -197,11 +197,11 @@ class TestTokenLimitExceeded:
 
         assert str(exc_info.value) == message
 
-    def test_token_limit_exceeded_inherits_from_home_agent_error(self):
+    def test_token_limit_exceeded_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that TokenLimitExceeded inherits from HomeAgentError."""
         assert issubclass(TokenLimitExceeded, HomeAgentError)
 
-    def test_catch_token_limit_exceeded_as_home_agent_error(self):
+    def test_catch_token_limit_exceeded_as_pepa_sensory_arm_house_error(self):
         """Test catching TokenLimitExceeded as HomeAgentError."""
         try:
             raise TokenLimitExceeded("Test")
@@ -242,11 +242,11 @@ class TestRateLimitExceeded:
 
         assert str(exc_info.value) == message
 
-    def test_rate_limit_exceeded_inherits_from_home_agent_error(self):
+    def test_rate_limit_exceeded_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that RateLimitExceeded inherits from HomeAgentError."""
         assert issubclass(RateLimitExceeded, HomeAgentError)
 
-    def test_catch_rate_limit_exceeded_as_home_agent_error(self):
+    def test_catch_rate_limit_exceeded_as_pepa_sensory_arm_house_error(self):
         """Test catching RateLimitExceeded as HomeAgentError."""
         try:
             raise RateLimitExceeded("Test")
@@ -284,11 +284,11 @@ class TestPermissionDenied:
 
         assert str(exc_info.value) == message
 
-    def test_permission_denied_inherits_from_home_agent_error(self):
+    def test_permission_denied_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that PermissionDenied inherits from HomeAgentError."""
         assert issubclass(PermissionDenied, HomeAgentError)
 
-    def test_catch_permission_denied_as_home_agent_error(self):
+    def test_catch_permission_denied_as_pepa_sensory_arm_house_error(self):
         """Test catching PermissionDenied as HomeAgentError."""
         try:
             raise PermissionDenied("Test")
@@ -327,11 +327,11 @@ class TestValidationError:
 
         assert str(exc_info.value) == message
 
-    def test_validation_error_inherits_from_home_agent_error(self):
+    def test_validation_error_inherits_from_pepa_sensory_arm_house_error(self):
         """Test that ValidationError inherits from HomeAgentError."""
         assert issubclass(ValidationError, HomeAgentError)
 
-    def test_catch_validation_error_as_home_agent_error(self):
+    def test_catch_validation_error_as_pepa_sensory_arm_house_error(self):
         """Test catching ValidationError as HomeAgentError."""
         try:
             raise ValidationError("Test")
@@ -355,7 +355,7 @@ class TestValidationError:
 class TestExceptionHierarchy:
     """Tests for exception hierarchy and catching behavior."""
 
-    def test_catch_all_exceptions_with_home_agent_error(self):
+    def test_catch_all_exceptions_with_pepa_sensory_arm_house_error(self):
         """Test that all custom exceptions can be caught as HomeAgentError."""
         exceptions = [
             ContextInjectionError("test"),

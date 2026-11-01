@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_DEBUG_LOGGING,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -98,7 +98,7 @@ async def test_ttft_metric_with_real_llm(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -175,7 +175,7 @@ async def test_ttft_streaming_less_than_total_latency(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -265,7 +265,7 @@ async def test_ttft_non_streaming_equals_llm_latency(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)

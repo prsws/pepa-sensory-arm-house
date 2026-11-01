@@ -9,7 +9,7 @@ Tests the declarative validation logic including:
 - Batch validation and statistics
 """
 
-from custom_components.home_agent.memory.validator import MemoryValidator
+from custom_components.pepa_sensory_arm_house.memory.validator import MemoryValidator
 
 
 class TestMemoryValidatorInitialization:

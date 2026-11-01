@@ -1,6 +1,6 @@
 """Integration tests for edge cases and stress testing.
 
-These tests verify that the Home Agent handles edge cases correctly:
+These tests verify that the Pepa Sensory Arm House handles edge cases correctly:
 - Unicode and internationalization (RTL languages, emojis, mixed scripts)
 - Large payloads (long messages, large context, large history)
 - Concurrency (simultaneous conversations, concurrent memory access)
@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.core import HomeAssistant, State
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_DEBUG_LOGGING,
     CONF_EMIT_EVENTS,
@@ -76,7 +76,7 @@ async def test_rtl_language_arabic(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -143,7 +143,7 @@ async def test_emoji_in_user_input(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -206,7 +206,7 @@ async def test_mixed_script_text(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -269,7 +269,7 @@ async def test_zero_width_characters(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -335,7 +335,7 @@ async def test_very_long_user_message(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -412,7 +412,7 @@ async def test_large_context_many_entities(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         # Setup test states
@@ -475,7 +475,7 @@ async def test_large_conversation_history(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -543,7 +543,7 @@ async def test_concurrent_conversations(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -622,7 +622,7 @@ async def test_malformed_utf8_sequences(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -685,7 +685,7 @@ async def test_hebrew_rtl_text(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)

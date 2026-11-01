@@ -1,6 +1,6 @@
 # Custom Tools Guide
 
-This guide explains how to create and configure custom tools for Home Agent, allowing you to extend the LLM's capabilities with external REST APIs and Home Assistant services.
+This guide explains how to create and configure custom tools for Pepa Sensory Arm House, allowing you to extend the LLM's capabilities with external REST APIs and Home Assistant services.
 
 ## Table of Contents
 
@@ -29,14 +29,14 @@ Custom tools allow the LLM to interact with external systems and Home Assistant 
 - Activate scenes
 - Call any Home Assistant service
 
-All custom tools are defined in your `configuration.yaml` file and are automatically registered when Home Agent starts.
+All custom tools are defined in your `configuration.yaml` file and are automatically registered when Pepa Sensory Arm House starts.
 
 ## Configuration Location
 
-Custom tools are configured in your Home Assistant `configuration.yaml` file under the `home_agent` integration:
+Custom tools are configured in your Home Assistant `configuration.yaml` file under the `pepa_sensory_arm_house` integration:
 
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: my_custom_tool
       description: "Description of what this tool does"
@@ -49,7 +49,7 @@ home_agent:
 
 ## Tool Types
 
-Home Agent supports two types of custom tool handlers:
+Pepa Sensory Arm House supports two types of custom tool handlers:
 
 ### REST Handler
 
@@ -540,7 +540,7 @@ automation:
   - alias: "Log Custom Tool Usage"
     trigger:
       - platform: event
-        event_type: home_agent.tool.executed
+        event_type: pepa_sensory_arm_house.tool.executed
         event_data:
           tool_name: check_weather
     action:
@@ -692,7 +692,7 @@ automation:
       title: "Home Assistant"
       data:
         priority: "{{ 'high' if urgent else 'normal' }}"
-        tag: "home_agent"
+        tag: "pepa_sensory_arm_house"
         group: "{{ who }}"
 ```
 
@@ -757,16 +757,16 @@ Enable debug logging for detailed troubleshooting:
 logger:
   default: info
   logs:
-    custom_components.home_agent: debug
-    custom_components.home_agent.tools.custom: debug
+    custom_components.pepa_sensory_arm_house: debug
+    custom_components.pepa_sensory_arm_house.tools.custom: debug
 ```
 
 ### Testing Tools Manually
 
-Test custom tools using the `home_agent.execute_tool` service:
+Test custom tools using the `pepa_sensory_arm_house.execute_tool` service:
 
 ```yaml
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: check_weather
   parameters:

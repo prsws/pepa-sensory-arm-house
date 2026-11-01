@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
     CONF_DEBUG_LOGGING,
@@ -362,7 +362,7 @@ async def test_context_with_no_entities(test_hass, llm_config, session_manager, 
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         test_hass.states.async_all = MagicMock(return_value=[])

@@ -1,4 +1,4 @@
-"""Unit tests for Home Agent's language support.
+"""Unit tests for Pepa Sensory Arm House's language support.
 
 This module tests the supported_languages property and ensures that the agent
 correctly declares support for all languages via MATCH_ALL, since the underlying
@@ -10,11 +10,11 @@ from unittest.mock import MagicMock
 import pytest
 from homeassistant.const import MATCH_ALL
 
-from custom_components.home_agent.agent.core import HomeAgent
+from custom_components.pepa_sensory_arm_house.agent.core import HomeAgent
 
 
 @pytest.fixture
-def mock_home_agent(mock_hass, sample_config):
+def mock_pepa_sensory_arm_house(mock_hass, sample_config):
     """Create a HomeAgent instance for testing.
 
     Args:
@@ -41,33 +41,33 @@ def mock_home_agent(mock_hass, sample_config):
 class TestSupportedLanguages:
     """Tests for the supported_languages property."""
 
-    def test_supported_languages_returns_match_all(self, mock_home_agent):
+    def test_supported_languages_returns_match_all(self, mock_pepa_sensory_arm_house):
         """Test that supported_languages returns MATCH_ALL.
 
-        Since Home Agent delegates to an LLM for natural language understanding,
+        Since Pepa Sensory Arm House delegates to an LLM for natural language understanding,
         it should support all languages by returning MATCH_ALL ("*").
         """
-        assert mock_home_agent.supported_languages == MATCH_ALL
+        assert mock_pepa_sensory_arm_house.supported_languages == MATCH_ALL
 
-    def test_supported_languages_is_wildcard_string(self, mock_home_agent):
+    def test_supported_languages_is_wildcard_string(self, mock_pepa_sensory_arm_house):
         """Test that MATCH_ALL is the expected wildcard string.
 
         Home Assistant uses "*" as the wildcard to indicate all languages
         are supported.
         """
-        supported = mock_home_agent.supported_languages
+        supported = mock_pepa_sensory_arm_house.supported_languages
         assert supported == "*"
         assert isinstance(supported, str)
 
-    def test_supported_languages_returns_same_value(self, mock_home_agent):
+    def test_supported_languages_returns_same_value(self, mock_pepa_sensory_arm_house):
         """Test that the property is deterministic and returns consistent results.
 
         Ensures that multiple calls to supported_languages return the same
         value, maintaining consistency throughout the agent's lifecycle.
         """
-        first_call = mock_home_agent.supported_languages
-        second_call = mock_home_agent.supported_languages
-        third_call = mock_home_agent.supported_languages
+        first_call = mock_pepa_sensory_arm_house.supported_languages
+        second_call = mock_pepa_sensory_arm_house.supported_languages
+        third_call = mock_pepa_sensory_arm_house.supported_languages
 
         assert (
             first_call == second_call

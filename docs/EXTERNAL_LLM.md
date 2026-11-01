@@ -1,6 +1,6 @@
 # External LLM Guide
 
-This guide explains how to configure and use the External LLM feature in Home Agent, which enables a dual-LLM strategy where a fast primary LLM can delegate complex queries to a more powerful external LLM.
+This guide explains how to configure and use the External LLM feature in Pepa Sensory Arm House, which enables a dual-LLM strategy where a fast primary LLM can delegate complex queries to a more powerful external LLM.
 
 ## Table of Contents
 
@@ -131,7 +131,7 @@ Configure via Home Assistant UI or `configuration.yaml`:
 
 #### UI Configuration
 
-1. Go to **Settings** > **Devices & Services** > **Home Agent**
+1. Go to **Settings** > **Devices & Services** > **Pepa Sensory Arm House**
 2. Click **Configure**
 3. Select **External LLM** from the menu
 4. Fill in the configuration:
@@ -146,7 +146,7 @@ Configure via Home Assistant UI or `configuration.yaml`:
 #### YAML Configuration (Alternative)
 
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   external_llm_enabled: true
   external_llm_base_url: "https://api.openai.com/v1"
   external_llm_api_key: !secret openai_api_key
@@ -240,7 +240,7 @@ When you enable External LLM, the primary LLM gains access to a new tool:
 
 ### Conversation Flow
 
-1. **User sends query** to Home Agent
+1. **User sends query** to Pepa Sensory Arm House
 2. **Primary LLM processes** the query
 3. **Primary LLM decides** if external LLM is needed
 4. If needed:
@@ -345,7 +345,7 @@ automation:
   - alias: "Log External LLM Usage"
     trigger:
       - platform: event
-        event_type: home_agent.tool.executed
+        event_type: pepa_sensory_arm_house.tool.executed
         event_data:
           tool_name: query_external_llm
     action:
@@ -362,7 +362,7 @@ automation:
 Configure tool call limits to prevent excessive costs:
 
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_max_calls_per_turn: 3  # Limit tool calls per conversation turn
   tools_timeout: 30  # Timeout for external LLM calls
 ```
@@ -573,8 +573,8 @@ Enable detailed logging for troubleshooting:
 ```yaml
 logger:
   logs:
-    custom_components.home_agent: debug
-    custom_components.home_agent.tools.external_llm: debug
+    custom_components.pepa_sensory_arm_house: debug
+    custom_components.pepa_sensory_arm_house.tools.external_llm: debug
 ```
 
 Check logs for:
@@ -588,6 +588,6 @@ Check logs for:
 
 - [Custom Tools Guide](CUSTOM_TOOLS.md) - Learn about custom tool creation
 - [Project Specification](PROJECT_SPEC.md) - Technical details and architecture
-- [Home Agent README](../README.md) - General setup and usage
+- [Pepa Sensory Arm House README](../README.md) - General setup and usage
 - [OpenAI API Documentation](https://platform.openai.com/docs/api-reference)
 - [Anthropic API Documentation](https://docs.anthropic.com/claude/reference/)

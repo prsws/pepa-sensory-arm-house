@@ -2,7 +2,7 @@
 
 import pytest
 
-from custom_components.home_agent.conversation import ConversationHistoryManager
+from custom_components.pepa_sensory_arm_house.conversation import ConversationHistoryManager
 
 
 class TestConversationHistoryManager:
@@ -642,7 +642,7 @@ class TestConversationPersistence:
         """Test that save_to_storage fires history saved event."""
         from unittest.mock import AsyncMock, MagicMock
 
-        from custom_components.home_agent.const import EVENT_HISTORY_SAVED
+        from custom_components.pepa_sensory_arm_house.const import EVENT_HISTORY_SAVED
 
         mock_hass = MagicMock()
         mock_hass.bus = MagicMock()
@@ -928,7 +928,7 @@ class TestConversationPersistence:
         mock_hass = MagicMock()
 
         with patch(
-            "custom_components.home_agent.conversation.async_track_time_interval"
+            "custom_components.pepa_sensory_arm_house.conversation.async_track_time_interval"
         ) as mock_track:
             manager = ConversationHistoryManager(max_messages=10, hass=mock_hass, persist=True)
 

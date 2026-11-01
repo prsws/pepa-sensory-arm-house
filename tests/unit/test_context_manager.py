@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
     CONF_DIRECT_ENTITIES,
@@ -19,9 +19,15 @@ from custom_components.home_agent.const import (
     MAX_CONTEXT_TOKENS,
     TOKEN_WARNING_THRESHOLD,
 )
-from custom_components.home_agent.context_manager import ContextManager
-from custom_components.home_agent.context_providers import ContextProvider, DirectContextProvider
-from custom_components.home_agent.exceptions import ContextInjectionError, TokenLimitExceeded
+from custom_components.pepa_sensory_arm_house.context_manager import ContextManager
+from custom_components.pepa_sensory_arm_house.context_providers import (
+    ContextProvider,
+    DirectContextProvider,
+)
+from custom_components.pepa_sensory_arm_house.exceptions import (
+    ContextInjectionError,
+    TokenLimitExceeded,
+)
 
 
 class MockContextProvider(ContextProvider):
