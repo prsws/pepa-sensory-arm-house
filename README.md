@@ -12,6 +12,12 @@ The house scope of the Pepa Sensory Arm: a Home Assistant (HA) conversation agen
 
 [Pepa](https://ai4aging.org) is a self-hosted, no-cloud assistant that helps an older adult stay independent in their own home, in English and español. Its architecture is octopus-inspired: a central Head and several semi-autonomous arms.
 
+<p align="center">
+  <img src="docs/images/room-day.jpg" width="640" alt="An older woman in a rattan chair in a sunlit Puerto Rican sunroom, smiling toward a small smart speaker on a side table beside a bowl of mangoes.">
+</p>
+
+<p align="center"><sub><strong>AI Generated.</strong> Illustration, not a photo of a real person. She asks her house to switch off the fan; the house does it, and the voice never leaves it.</sub></p>
+
 The **Sensory Arm** (PSA) is the boundary between Pepa and the physical world. It perceives, delivers and collects raw data, and it does not decide what that data means. It has two scopes so far:
 
 - **House** (this repository): the senses, muscles and voice. It perceives the house, acts on it, and speaks in it. Real time, with parts deliberately exposed to Pepa's conversation.
