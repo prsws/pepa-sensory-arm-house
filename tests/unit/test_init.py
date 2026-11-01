@@ -598,6 +598,44 @@ class TestAsyncReloadEntry:
 class TestAsyncUnloadEntry:
     """Test async_unload_entry function."""
 
+    @patch("custom_components.home_agent.async_get_verify_manager")
+    @patch("custom_components.home_agent.ha_conversation.async_unset_agent")
+    async def test_unload_last_entry_cancels_verify_checks(
+        self,
+        mock_unset_agent,
+        mock_get_verify,
+        mock_hass,
+        mock_config_entry,
+        mock_agent,
+        mock_house_catalog,
+    ):
+        """When the last entry leaves the catalog, running verify checks are cancelled."""
+        mock_hass.data[DOMAIN] = {mock_config_entry.entry_id: {"agent": mock_agent}}
+        mock_house_catalog.active = False
+
+        await async_unload_entry(mock_hass, mock_config_entry)
+
+        mock_get_verify.return_value.async_stop_all.assert_called_once()
+
+    @patch("custom_components.home_agent.async_get_verify_manager")
+    @patch("custom_components.home_agent.ha_conversation.async_unset_agent")
+    async def test_unload_other_entry_keeps_verify_checks(
+        self,
+        mock_unset_agent,
+        mock_get_verify,
+        mock_hass,
+        mock_config_entry,
+        mock_agent,
+        mock_house_catalog,
+    ):
+        """While another entry still uses the catalog, checks keep running."""
+        mock_hass.data[DOMAIN] = {mock_config_entry.entry_id: {"agent": mock_agent}}
+        mock_house_catalog.active = True
+
+        await async_unload_entry(mock_hass, mock_config_entry)
+
+        mock_get_verify.return_value.async_stop_all.assert_not_called()
+
     @patch("custom_components.home_agent.ha_conversation.async_unset_agent")
     async def test_unload_entry_with_agent_only(
         self, mock_unset_agent, mock_hass, mock_config_entry, mock_agent, mock_house_catalog

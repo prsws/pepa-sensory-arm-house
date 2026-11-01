@@ -25,6 +25,14 @@ from ..const import (
     TOOL_HA_CONTROL,
 )
 from ..exceptions import PermissionDenied, ToolExecutionError, ValidationError
+from ..house_catalog import LABEL_VERIFY
+from ..request_origin import current_origin
+from ..verify import (
+    OUTCOME_CONFIRMED,
+    OUTCOME_PENDING,
+    VERIFY_TIMEOUT_SECONDS,
+    async_get_verify_manager,
+)
 from .registry import BaseTool
 
 if TYPE_CHECKING:
@@ -209,7 +217,8 @@ class HomeAssistantControlTool(BaseTool):
 
         # Verify entity exists
         entity_registry = er.async_get(self.hass)
-        if not entity_registry.async_get(entity_id):
+        registry_entry = entity_registry.async_get(entity_id)
+        if not registry_entry:
             # Entity might not be in registry but still exist in state machine
             state = self.hass.states.get(entity_id)
             if not state:
@@ -218,9 +227,17 @@ class HomeAssistantControlTool(BaseTool):
                     f"Use ha_query with wildcards to search for entities."
                 )
 
+        # Slow-acting devices carry the user-declared "verify" label.
+        needs_verify = registry_entry is not None and LABEL_VERIFY in registry_entry.labels
+        previous = self.hass.states.get(entity_id)
+        previous_state = previous.state if previous else None
+
         try:
             # Execute the action
-            await self._execute_action(action, entity_id, parameters)
+            service, service_data = await self._execute_action(action, entity_id, parameters)
+
+            if needs_verify:
+                return self._start_verify(action, entity_id, service, service_data, previous_state)
 
             # Get the new state
             new_state = self.hass.states.get(entity_id)
@@ -300,13 +317,16 @@ class HomeAssistantControlTool(BaseTool):
         action: str,
         entity_id: str,
         parameters: dict[str, Any],
-    ) -> None:
+    ) -> tuple[str, dict[str, Any]]:
         """Execute the specified action on the entity.
 
         Args:
             action: Action to perform
             entity_id: Entity ID to control
             parameters: Additional parameters for the action
+
+        Returns:
+            The service called and the service data sent (used by verify).
 
         Raises:
             ToolExecutionError: If action execution fails
@@ -371,6 +391,7 @@ class HomeAssistantControlTool(BaseTool):
             service_data,
             blocking=True,
         )
+        return service, service_data
 
     def _normalize_parameters(
         self,
@@ -572,6 +593,49 @@ class HomeAssistantControlTool(BaseTool):
         # For now, most other domains don't require strict feature validation
 
         return service_name
+
+    def _start_verify(
+        self,
+        action: str,
+        entity_id: str,
+        service: str,
+        service_data: dict[str, Any],
+        previous_state: str | None,
+    ) -> dict[str, Any]:
+        """Start the post-dispatch check for a verify entity and answer the model.
+
+        Never waits for the device: the check runs in the background. The model
+        is told the outcome is not known yet instead of the misleading state read
+        right after dispatch.
+        """
+        outcome = async_get_verify_manager(self.hass).async_start(
+            entity_id, service, service_data, previous_state, current_origin()
+        )
+        state = self.hass.states.get(entity_id)
+        name = state.attributes.get("friendly_name", entity_id) if state else entity_id
+
+        if outcome == OUTCOME_PENDING:
+            message = (
+                f"Command sent to {name}. This device is slow to act, so its result is not "
+                f"known yet; it will be confirmed within {VERIFY_TIMEOUT_SECONDS} seconds. "
+                f"Tell the user the action has started, not that it is done."
+            )
+        elif outcome == OUTCOME_CONFIRMED:
+            message = f"Command sent to {name} and confirmed: it is already in the expected state."
+        else:
+            message = (
+                f"Command sent to {name}, but this command cannot be verified automatically. "
+                f"Do not claim it succeeded; say it was sent."
+            )
+
+        _LOGGER.info("Executed %s on %s; verification %s", action, entity_id, outcome)
+        return {
+            "success": True,
+            "entity_id": entity_id,
+            "action": action,
+            "verification": outcome,
+            "message": message,
+        }
 
     def _build_success_message(
         self,

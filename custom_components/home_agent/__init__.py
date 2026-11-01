@@ -40,6 +40,7 @@ from .const import (
 from .conversation_session import ConversationSessionManager
 from .helpers import check_chromadb_health, check_ollama_health
 from .house_catalog import async_get_house_catalog
+from .verify import async_get_verify_manager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -249,8 +250,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Unregister conversation agent
     ha_conversation.async_unset_agent(hass, entry)
 
-    # Leave the shared house catalog; the last entry removes the sensor.
-    async_get_house_catalog(hass).async_remove_user(entry.entry_id)
+    # Leave the shared house catalog; the last entry removes the sensor and
+    # cancels any verify checks still running.
+    catalog = async_get_house_catalog(hass)
+    catalog.async_remove_user(entry.entry_id)
+    if not catalog.active:
+        async_get_verify_manager(hass).async_stop_all()
 
     # Clean up agent, memory manager, and vector DB manager
     if entry.entry_id in hass.data[DOMAIN]:
