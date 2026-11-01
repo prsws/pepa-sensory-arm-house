@@ -19,10 +19,17 @@ When it is refreshed:
   coalesced so a burst of registry events causes one rebuild;
 - once Home Assistant has finished starting.
 
-CSV columns: entity_id, name, area, aliases, domain, services, volatile, verify.
-The first seven are PSA's; ``verify`` is new: ``true`` when the entity carries the
-user-declared ``verify`` label (slow-acting devices whose result must be checked
-some time after the action is dispatched).
+CSV columns: entity_id, name, area, aliases, domain, services, volatile, verify,
+reverse. The first seven are PSA's. The last two come from user-declared labels:
+
+- ``verify``: ``true`` when the entity carries the ``verify`` label (slow-acting
+  devices whose result must be checked some time after the action is dispatched).
+- ``reverse``: ``true`` only when the entity carries the ``reverse`` label, meaning
+  its actions can be undone. No label means ``false``: not reversible. That is
+  Pepa's default, so a new or forgotten entity fails closed.
+
+The catalog only informs the model; it enforces nothing. New columns are added at
+the end so prompts that read the table by position keep working.
 """
 
 from __future__ import annotations
@@ -55,6 +62,7 @@ SENSOR_FRIENDLY_NAME: Final = "Pepa Entity Context"
 # User-declared labels (Home Assistant label ids).
 LABEL_VOLATILE: Final = "volatile"
 LABEL_VERIFY: Final = "verify"
+LABEL_REVERSE: Final = "reverse"
 
 CSV_COLUMNS: Final = (
     "entity_id",
@@ -65,6 +73,7 @@ CSV_COLUMNS: Final = (
     "services",
     "volatile",
     "verify",
+    "reverse",
 )
 
 UNASSIGNED_AREA: Final = "Unassigned"
@@ -120,6 +129,7 @@ def build_catalog_csv(hass: HomeAssistant, exposed: frozenset[str]) -> tuple[str
         aliases = ""
         volatile = False
         verify = False
+        reverse = False  # no label: not reversible (fail closed)
 
         entry = entity_reg.async_get(entity_id)
         if entry is not None:
@@ -139,6 +149,7 @@ def build_catalog_csv(hass: HomeAssistant, exposed: frozenset[str]) -> tuple[str
 
             volatile = LABEL_VOLATILE in entry.labels
             verify = LABEL_VERIFY in entry.labels
+            reverse = LABEL_REVERSE in entry.labels
 
         domain = entity_id.split(".", 1)[0]
         rows.append(
@@ -151,6 +162,7 @@ def build_catalog_csv(hass: HomeAssistant, exposed: frozenset[str]) -> tuple[str
                 services_for_domain(domain),
                 _flag(volatile),
                 _flag(verify),
+                _flag(reverse),
             ]
         )
 

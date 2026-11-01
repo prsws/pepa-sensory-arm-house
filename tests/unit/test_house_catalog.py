@@ -79,7 +79,7 @@ def house():
     house.add(
         "light.sala_techo",
         "Luz del techo",
-        entry=_entry(area_id="sala", aliases=["luz de la sala", "techo"]),
+        entry=_entry(area_id="sala", aliases=["luz de la sala", "techo"], labels=["reverse"]),
     )
     house.add(
         "cover.porton",
@@ -121,7 +121,7 @@ class TestBuildCatalogCsv:
         row = next(r for r in text.split("\n") if r.startswith("light.sala_techo"))
         assert row == (
             "light.sala_techo,Luz del techo,Sala,luz de la sala|techo,light,"
-            "turn_on|turn_off|toggle|turn_on[brightness_pct]|turn_on[rgb_color],false,false"
+            "turn_on|turn_off|toggle|turn_on[brightness_pct]|turn_on[rgb_color],false,false,true"
         )
 
     def test_area_from_device_and_verify_label(self, house):
@@ -129,7 +129,7 @@ class TestBuildCatalogCsv:
         row = next(r for r in text.split("\n") if r.startswith("cover.porton"))
         assert row == (
             "cover.porton,Portón,Carport,,cover,"
-            "open_cover|close_cover|set_cover_position|toggle,false,true"
+            "open_cover|close_cover|set_cover_position|toggle,false,true,false"
         )
 
     def test_volatile_label_unassigned_area_and_quoting(self, house):
@@ -137,7 +137,7 @@ class TestBuildCatalogCsv:
         row = next(r for r in text.split("\n") if r.startswith("binary_sensor.puerta"))
         assert row == (
             'binary_sensor.puerta,"Puerta, entrada",Unassigned,,binary_sensor,'
-            "read_only,true,false"
+            "read_only,true,false,false"
         )
 
     def test_entity_area_overrides_device_area(self, house):
@@ -162,6 +162,28 @@ class TestBuildCatalogCsv:
         text, _ = _build(house)
         row = next(r for r in text.split("\n") if r.startswith("light.yaml_only"))
         assert row.split(",")[2:4] == ["Unassigned", ""]
+
+    def test_reverse_column_is_last(self):
+        # Appended, so the first eight columns keep their positions.
+        assert CSV_COLUMNS[-3:] == ("volatile", "verify", "reverse")
+        assert len(CSV_COLUMNS) == 9
+
+    def test_reverse_label_means_reversible(self, house):
+        text, _ = _build(house)
+        row = next(r for r in text.split("\n") if r.startswith("light.sala_techo"))
+        assert row.split(",")[-1] == "true"
+
+    def test_no_reverse_label_fails_closed(self, house):
+        house.entries["cover.porton"].labels.add("verify")
+        text, _ = _build(house)
+        row = next(r for r in text.split("\n") if r.startswith("cover.porton"))
+        assert row.split(",")[-1] == "false"
+
+    def test_entity_without_registry_entry_is_not_reversible(self, house):
+        house.add("light.yaml_only", "YAML light")
+        text, _ = _build(house)
+        row = next(r for r in text.split("\n") if r.startswith("light.yaml_only"))
+        assert row.split(",")[-1] == "false"
 
     def test_same_house_same_bytes(self, house):
         assert _build(house) == _build(house)
@@ -232,7 +254,7 @@ class TestHouseCatalogLifecycle:
         catalog.async_refresh()  # what the debouncer then runs
         assert house.hass.states.async_set.call_count == 2
         row = next(r for r in catalog.csv.split("\n") if r.startswith("light.sala_techo"))
-        assert row.endswith(",true")
+        assert row.split(",")[CSV_COLUMNS.index("verify")] == "true"
 
     def test_listens_for_exposure_and_registry_changes(self, house, started):
         _, listen_mock = started
