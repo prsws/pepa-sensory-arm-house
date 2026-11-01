@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Any, cast
 
+import voluptuous as vol
 from homeassistant.components import conversation as ha_conversation
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -42,6 +43,19 @@ from .helpers import check_chromadb_health, check_ollama_health
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = []  # No additional platforms needed for conversation agent
+
+# The integration is set up from the UI (config flow). The only supported YAML is a
+# top-level section that carries custom tools; everything else is configured in the UI.
+# Keyed on DOMAIN so the schema follows the domain if it is ever renamed.
+CONFIG_SCHEMA = vol.Schema(
+    {
+        DOMAIN: vol.Schema(
+            {vol.Optional(CONF_TOOLS_CUSTOM): list},
+            extra=vol.ALLOW_EXTRA,
+        )
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
