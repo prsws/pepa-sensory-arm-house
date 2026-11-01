@@ -28,8 +28,12 @@ pre-commit>=3.3.0
 # Home Assistant (for testing)
 # Pinned to specific version to ensure dependency compatibility
 homeassistant==2025.11.0
-hassil>=3.4.0
-home-assistant-intents>=2025.11.0
+# hassil and home-assistant-intents must match what homeassistant 2025.11.0 pins in
+# its conversation component (pip does not enforce those pins). Newer releases drop
+# hassil.fuzzy and home_assistant_intents.FuzzyConfig, so importing
+# homeassistant.components.conversation fails and every test errors during collection.
+hassil==3.4.0
+home-assistant-intents==2025.10.28
 
 # Optional dependencies (for testing optional features)
 chromadb-client>=1.5.3
