@@ -21,6 +21,7 @@ their authors stay credited.
 | --- | --- | --- |
 | [#44](https://github.com/aradlein/hass-agent-llm/pull/44) by Ptah-CT | Exposed-entity allow-list refreshed every conversation turn, so entities that appear after a cold boot (late Zigbee/MQTT discovery) are not locked out | #6 |
 | [#43](https://github.com/aradlein/hass-agent-llm/pull/43) by Ptah-CT | Memory extraction through the external LLM unwraps its double-wrapped result, so memories are stored instead of silently dropped | #9 |
+| [#51](https://github.com/aradlein/hass-agent-llm/pull/51) by DoglausSmackerson | Opt-in setting to keep the satellite's microphone open for a follow-up reply (`continue_conversation`), off by default | #10 |
 
 ## Licence
 

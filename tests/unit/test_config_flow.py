@@ -399,14 +399,12 @@ class TestHomeAgentOptionsFlow:
             if hasattr(key, "schema") and key.schema == CONF_CONTINUE_CONVERSATION:
                 continue_conversation_key = key
 
-        assert continue_conversation_key is not None, (
-            "Continue-conversation option not found in schema"
-        )
+        assert (
+            continue_conversation_key is not None
+        ), "Continue-conversation option not found in schema"
         assert "continue_conversation_info" in result["description_placeholders"]
 
-    async def test_continue_conversation_defaults_to_disabled(
-        self, mock_config_entry, mock_hass
-    ):
+    async def test_continue_conversation_defaults_to_disabled(self, mock_config_entry, mock_hass):
         """Test that continue_conversation defaults to False (opt-in)."""
         options_flow = HomeAgentOptionsFlow(mock_config_entry)
         options_flow.hass = mock_hass
