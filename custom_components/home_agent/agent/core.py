@@ -769,6 +769,13 @@ class HomeAgent(
         # Ensure tools are registered (lazy initialization)
         self._ensure_tools_registered()
 
+        # Refresh the exposed-entity allow-list here too: the integration's own
+        # service reaches process_message directly, without passing through
+        # async_process, so it would otherwise keep a stale cold-boot snapshot.
+        # On the synchronous conversation path this runs a second time in the
+        # same turn; the second call finds no change and does nothing.
+        self._refresh_exposed_entities()
+
         start_time = time.time()
 
         # Get or create persistent conversation ID for voice interactions
