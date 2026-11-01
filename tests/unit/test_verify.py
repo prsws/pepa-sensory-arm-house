@@ -95,9 +95,13 @@ def house():
         hooks.on_timeout.append(action)
         return lambda: hooks.unsubscribed.append("timer")
 
+    # The alert itself is tested in test_verify_alert.py; here we record the call.
+    hooks.alerts = MagicMock(return_value=["notification"])
+
     with (
         patch.object(verify, "async_track_state_change_event", side_effect=track),
         patch.object(verify, "async_call_later", side_effect=call_later),
+        patch.object(verify, "async_alert_failure", hooks.alerts),
     ):
         yield hooks
 
@@ -163,6 +167,17 @@ class TestVerifyManager:
         assert event["reason"] == "timeout"
         assert event["observed"] == "opening"
         assert manager.pending_entity_ids == frozenset()
+        house.alerts.assert_called_once()
+        assert house.alerts.call_args.args[1:6] == (ORIGIN, GATE, "open", "opening", "timeout")
+        assert event["alerts"] == ["notification"]
+
+    def test_only_failures_are_loud(self, house):
+        manager = VerifyManager(house.hass)
+        manager.async_start(GATE, "open_cover", {}, "closed", ORIGIN)
+        _change(house, "open")  # confirmed
+        manager.async_start(GATE, "stop_cover", {}, "open", ORIGIN)  # unverifiable
+        house.alerts.assert_not_called()
+        assert all(event["alerts"] == [] for event in _events(house))
 
     def test_deadline_confirms_if_state_arrived_unseen(self, house):
         manager = VerifyManager(house.hass)
