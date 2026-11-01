@@ -30,6 +30,7 @@ from .const import (
     CONF_ADDITIONAL_COLLECTIONS,
     CONF_ADDITIONAL_L2_DISTANCE_THRESHOLD,
     CONF_ADDITIONAL_TOP_K,
+    CONF_CONFIRM_TIMEOUT,
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
     CONF_CONTINUE_CONVERSATION,
@@ -91,6 +92,7 @@ from .const import (
     DEFAULT_ADDITIONAL_COLLECTIONS,
     DEFAULT_ADDITIONAL_L2_DISTANCE_THRESHOLD,
     DEFAULT_ADDITIONAL_TOP_K,
+    DEFAULT_CONFIRM_TIMEOUT,
     DEFAULT_CONTEXT_FORMAT,
     DEFAULT_CONTEXT_MODE,
     DEFAULT_CONTINUE_CONVERSATION,
@@ -1022,6 +1024,13 @@ class HomeAgentOptionsFlow(config_entries.OptionsFlow):
                             current_data.get(CONF_TOOLS_TIMEOUT, DEFAULT_TOOLS_TIMEOUT),
                         ),
                     ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+                    vol.Optional(
+                        CONF_CONFIRM_TIMEOUT,
+                        default=current_options.get(
+                            CONF_CONFIRM_TIMEOUT,
+                            current_data.get(CONF_CONFIRM_TIMEOUT, DEFAULT_CONFIRM_TIMEOUT),
+                        ),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
                 }
             ),
         )

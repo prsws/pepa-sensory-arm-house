@@ -45,7 +45,7 @@ This repository is the house scope's front end: voice conversation, the ReAct (r
 - **Exposed-entity allow-list refreshed every turn.** Entities that appear after a cold boot (late Zigbee or MQTT discovery) are no longer locked out until a reload, on the voice path and through the integration's own service. From upstream pull request #44, extended here.
 - **House catalog.** One shared answer to "what does the house expose?": the entities exposed to Assist, published as `sensor.pepa_entity_context` (state = entity count, attribute `csv` = a table of entity_id, name, area, aliases, domain, services, volatile, verify, reverse). The CSV stays byte-identical between turns so a prompt that includes it stays cacheable, and the tools' allow-list reads the same answer.
 - **`verify` for slow-acting devices.** Give an entity the Home Assistant label `verify` (a carport gate, a lock). After a command, the agent does not claim success: it checks within 60 seconds that the entity reached the state the command implies. A failure is loud: spoken on the satellite that took the request when it can announce, and always a Home Assistant notification. Every outcome fires a `pepa_verify` event.
-- **`reverse` column in the house catalog.** Give an entity the Home Assistant label `reverse` when its actions can be undone. The catalog shows `true` for those and `false` for everything else: no label means not reversible, so a new or forgotten device fails closed. For now the column only informs the model; checking it in code before an action is the next step.
+- **Ask before acting on what can't be undone.** Give an entity the Home Assistant label `reverse` when its actions can be undone; the house catalog shows it in a `reverse` column. Any other entity (no label, so a new or forgotten device fails closed) is not acted on straight away: the action is held, the agent asks a yes-or-no question, and the satellite keeps listening for the answer. Code, not the model, decides whether the answer is a yes, from fixed Spanish and English word lists; only a yes from the same satellite or conversation, within the wait (1 to 60 seconds, default 10), runs exactly the held action. A no cancels it and says so; anything else cancels it and is answered as a normal request. Requests through the integration's service can't be confirmed and are refused. Every step fires a `pepa_confirm` event.
 - **Memory extraction through the external LLM** stores what it extracts instead of silently dropping it (upstream pull request #43).
 - **Optional follow-up listening** (`continue_conversation`, off by default): the satellite reopens its microphone after a reply (upstream pull request #51).
 
@@ -153,6 +153,8 @@ data:
 Open **Settings** → **Devices & Services** → this integration → **Configure** to set the context mode, conversation history, custom tools, external LLM, memory, and streaming.
 
 To have slow devices checked after each command, add the label `verify` to them in Home Assistant (**Settings** → **Labels**, then on the entity).
+
+To let the agent act without asking first, add the label `reverse` to the entities whose actions can be undone (lights, fans, media players). Until you do, every action asks for a yes. The wait for the answer is under **Tool Configuration** → **Confirmation Wait (seconds)**.
 
 Details: [Configuration Reference](docs/CONFIGURATION.md)
 
@@ -301,6 +303,6 @@ This repository is derived from [Home Agent](https://github.com/aradlein/hass-ag
 
 ## Changelog
 
-**1.0.0-alpha** (unreleased): rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; `reverse` column in the house catalog (no label = not reversible); renamed from `home_agent` to `pepa_sensory_arm_house` ("Pepa Sensory Arm House"), with Pepa's brand icons and `iot_class` set to `local_polling`; Pepa changes being re-adopted one at a time.
+**1.0.0-alpha** (unreleased): rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; `reverse` label and catalog column (no label = not reversible) with a spoken yes-or-no before any action on what can't be undone; renamed from `home_agent` to `pepa_sensory_arm_house` ("Pepa Sensory Arm House"), with Pepa's brand icons and `iot_class` set to `local_polling`; Pepa changes being re-adopted one at a time.
 
 **0.9.5 and earlier**: upstream Home Agent history. See the [upstream releases](https://github.com/aradlein/hass-agent-llm/releases).

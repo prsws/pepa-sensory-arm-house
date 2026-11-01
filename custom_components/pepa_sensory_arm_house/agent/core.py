@@ -110,7 +110,9 @@ from homeassistant.exceptions import TemplateError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent, template
 
+from ..awaiting_reply import async_get_awaiting_replies
 from ..const import (
+    CONF_CONFIRM_TIMEOUT,
     CONF_CONTEXT_ENTITIES,
     CONF_CONTEXT_MODE,
     CONF_CONTINUE_CONVERSATION,
@@ -129,6 +131,7 @@ from ..const import (
     CONF_TOOLS_CUSTOM,
     CONF_TOOLS_MAX_CALLS_PER_TURN,
     CONF_TOOLS_TIMEOUT,
+    DEFAULT_CONFIRM_TIMEOUT,
     DEFAULT_CONTINUE_CONVERSATION,
     DEFAULT_HISTORY_MAX_MESSAGES,
     DEFAULT_HISTORY_MAX_TOKENS,
@@ -279,9 +282,69 @@ class HomeAgent(
         Records where the request came from (a satellite, or the conversation
         pipeline without one) for the whole turn, so tools can answer through the
         same channel; see request_origin.
+
+        If a question asked earlier is waiting for its answer from this origin
+        (for example "should I open the gate?"), the utterance goes to it first
+        and may be answered without the language model; see awaiting_reply. And
+        if this turn asked such a question, the satellite keeps listening for the
+        reply.
         """
-        with request_origin(RequestOrigin.from_conversation_input(user_input)):
-            return await self._async_process_turn(user_input)
+        with request_origin(RequestOrigin.from_conversation_input(user_input)) as origin:
+            turn_started = time.monotonic()
+            answered = await self._async_answer_awaited_reply(user_input, origin)
+            result = answered or await self._async_process_turn(user_input)
+            if not result.continue_conversation and async_get_awaiting_replies(
+                self.hass
+            ).is_awaiting(origin, since=turn_started):
+                result = ha_conversation.ConversationResult(
+                    response=result.response,
+                    conversation_id=result.conversation_id,
+                    continue_conversation=True,
+                )
+            return result
+
+    async def _async_answer_awaited_reply(
+        self, user_input: ha_conversation.ConversationInput, origin: RequestOrigin
+    ) -> ha_conversation.ConversationResult | None:
+        """Answer a reply awaited from this origin in code, or return None."""
+        try:
+            speech = await async_get_awaiting_replies(self.hass).async_answer(
+                origin, user_input.text
+            )
+        except Exception:  # noqa: BLE001 - fall back to a normal turn
+            _LOGGER.exception("Error while handling an awaited reply")
+            return None
+        if speech is None:
+            return None
+
+        # Keep both logs coherent: Home Assistant's chat log (streaming path) and
+        # the integration's own history, so the model knows what happened.
+        from homeassistant.components.conversation.chat_log import (
+            AssistantContent,
+            current_chat_log,
+        )
+
+        chat_log = current_chat_log.get()
+        if chat_log is not None:
+            try:
+                chat_log.async_add_assistant_content_without_tools(
+                    AssistantContent(
+                        agent_id=getattr(user_input, "agent_id", None) or "", content=speech
+                    )
+                )
+            except Exception:  # noqa: BLE001 - the answer was already acted on
+                _LOGGER.warning("Could not add the awaited-reply answer to the chat log")
+        if user_input.conversation_id and self.config.get(CONF_HISTORY_ENABLED, True):
+            self.conversation_manager.add_message(
+                user_input.conversation_id, "user", user_input.text
+            )
+            self.conversation_manager.add_message(user_input.conversation_id, "assistant", speech)
+
+        intent_response = intent.IntentResponse(language=user_input.language)
+        intent_response.async_set_speech(speech)
+        return ha_conversation.ConversationResult(
+            response=intent_response, conversation_id=user_input.conversation_id
+        )
 
     async def _async_process_turn(
         self, user_input: ha_conversation.ConversationInput
@@ -498,7 +561,12 @@ class HomeAgent(
             return self._exposed_entity_ids
 
         # Register ha_control tool
-        ha_control = HomeAssistantControlTool(self.hass, exposed_provider)
+        def confirm_timeout_provider() -> Any:
+            return self.config.get(CONF_CONFIRM_TIMEOUT, DEFAULT_CONFIRM_TIMEOUT)
+
+        ha_control = HomeAssistantControlTool(
+            self.hass, exposed_provider, confirm_timeout=confirm_timeout_provider
+        )
         self.tool_handler.register_tool(ha_control)
 
         # Register ha_query tool

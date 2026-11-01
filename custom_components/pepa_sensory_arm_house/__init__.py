@@ -17,6 +17,7 @@ from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers.typing import ConfigType
 
 from .agent import HomeAgent
+from .awaiting_reply import async_get_awaiting_replies
 from .const import (
     CONF_CONTEXT_MODE,
     CONF_MEMORY_ENABLED,
@@ -256,6 +257,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     catalog.async_remove_user(entry.entry_id)
     if not catalog.active:
         async_get_verify_manager(hass).async_stop_all()
+        async_get_awaiting_replies(hass).async_stop_all()
 
     # Clean up agent, memory manager, and vector DB manager
     if entry.entry_id in hass.data[DOMAIN]:

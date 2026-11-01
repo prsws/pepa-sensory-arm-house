@@ -289,11 +289,13 @@
         "description": "Configure tool execution limits and timeouts.",
         "data": {
           "tools_max_calls_per_turn": "Max Tool Calls Per Turn",
-          "tools_timeout": "Tool Timeout (seconds)"
+          "tools_timeout": "Tool Timeout (seconds)",
+          "confirm_timeout": "Confirmation Wait (seconds)"
         },
         "data_description": {
           "tools_max_calls_per_turn": "Maximum number of tool executions per conversation turn",
-          "tools_timeout": "Maximum execution time for each tool call"
+          "tools_timeout": "Maximum execution time for each tool call",
+          "confirm_timeout": "How long Pepa waits for a yes or no before an action that cannot be undone (entities without the 'reverse' label). 1 to 60 seconds."
         }
       },
       "external_llm_settings": {

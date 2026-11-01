@@ -1,0 +1,66 @@
+# Words that answer "should I do it?" when Pepa asks before an action that
+# cannot be undone (see confirmation.py).
+#
+# The whole reply must match one of these entries. Capitals, accents and
+# punctuation are ignored, so "Sí." matches "si" and "Go ahead!" matches
+# "go ahead". Both languages are always accepted, whatever the pipeline
+# language, because the household speaks Spanglish.
+#
+# Anything that is neither a yes nor a no cancels the pending action and the
+# turn goes to the language model as usual. A no cancels it and Pepa says so.
+#
+# Keep every entry in quotes: unquoted, YAML reads yes, no, on and off as
+# true or false.
+
+"yes":
+  es:
+    - "sí"
+    - "sí claro"
+    - "sí por favor"
+    - "claro"
+    - "claro que sí"
+    - "dale"
+    - "dale que sí"
+    - "ok"
+    - "okey"
+    - "correcto"
+    - "adelante"
+    - "hazlo"
+    - "afirmativo"
+    - "seguro"
+    - "ajá"
+  en:
+    - "yes"
+    - "yes please"
+    - "yeah"
+    - "yep"
+    - "yup"
+    - "sure"
+    - "okay"
+    - "do it"
+    - "go ahead"
+    - "confirm"
+    - "confirmed"
+    - "affirmative"
+    - "correct"
+
+"no":
+  es:
+    - "no"
+    - "no gracias"
+    - "mejor no"
+    - "cancela"
+    - "cancelar"
+    - "déjalo"
+    - "olvídalo"
+    - "para"
+    - "detente"
+  en:
+    - "nope"
+    - "no thanks"
+    - "cancel"
+    - "stop"
+    - "never mind"
+    - "nevermind"
+    - "don't"
+    - "do not"

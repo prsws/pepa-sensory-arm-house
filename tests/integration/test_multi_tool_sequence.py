@@ -52,6 +52,22 @@ def maybe_mock_llm(is_using_mock: bool, mock_server):
         yield
 
 
+@pytest.fixture(autouse=True)
+def reversible_entities():
+    """Treat every entity in these tests as reversible (labelled ``reverse``).
+
+    These tests exercise tool sequencing, not the confirmation gate, so the
+    controlled entities must act without asking first.
+    """
+    registry = MagicMock()
+    registry.async_get.return_value = MagicMock(labels={"reverse"})
+    with patch(
+        "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get",
+        return_value=registry,
+    ):
+        yield
+
+
 @pytest.fixture
 def multi_tool_entity_states() -> list[State]:
     """Create entity states for multi-tool testing.
