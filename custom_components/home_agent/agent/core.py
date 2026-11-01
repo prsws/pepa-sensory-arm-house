@@ -1170,10 +1170,11 @@ class HomeAgent(
                     messages.append(msg)
 
                 elif isinstance(content_item, conversation.ToolResultContent):
+
                     def json_encoder(obj):
                         if isinstance(obj, (datetime, date)):
                             return obj.isoformat()
-                        raise TypeError ("Object of type %s is not JSON serializable" % type(obj))
+                        raise TypeError("Object of type %s is not JSON serializable" % type(obj))
 
                     messages.append(
                         {

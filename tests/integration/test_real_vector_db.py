@@ -636,8 +636,8 @@ class TestAreaLookupEntityIndexing:
         }
 
         state = State("light.bedroom_lamp", "on", {"friendly_name": "Bedroom Lamp"})
-        mock_hass_integration.states.get.side_effect = (
-            lambda eid: state if eid == "light.bedroom_lamp" else None
+        mock_hass_integration.states.get.side_effect = lambda eid: (
+            state if eid == "light.bedroom_lamp" else None
         )
         mock_hass_integration.states.async_all.return_value = [state]
 
@@ -711,8 +711,8 @@ class TestAreaLookupEntityIndexing:
             "22",
             {"friendly_name": "Kitchen Temperature", "unit_of_measurement": "°C"},
         )
-        mock_hass_integration.states.get.side_effect = (
-            lambda eid: state if eid == "sensor.kitchen_temp" else None
+        mock_hass_integration.states.get.side_effect = lambda eid: (
+            state if eid == "sensor.kitchen_temp" else None
         )
         mock_hass_integration.states.async_all.return_value = [state]
 
@@ -780,8 +780,8 @@ class TestAreaLookupEntityIndexing:
         }
 
         state = State("light.office_desk", "on", {"friendly_name": "Office Desk Light"})
-        mock_hass_integration.states.get.side_effect = (
-            lambda eid: state if eid == "light.office_desk" else None
+        mock_hass_integration.states.get.side_effect = lambda eid: (
+            state if eid == "light.office_desk" else None
         )
         mock_hass_integration.states.async_all.return_value = [state]
 
@@ -819,12 +819,12 @@ class TestAreaLookupEntityIndexing:
 
             assert len(result["ids"]) == 1
             document = result["documents"][0]
-            assert "Bedroom" in document, (
-                f"Expected entity area 'Bedroom' in document, got: {document}"
-            )
-            assert "Kitchen" not in document, (
-                f"'Kitchen' (device area) should not appear, got: {document}"
-            )
+            assert (
+                "Bedroom" in document
+            ), f"Expected entity area 'Bedroom' in document, got: {document}"
+            assert (
+                "Kitchen" not in document
+            ), f"'Kitchen' (device area) should not appear, got: {document}"
 
         finally:
             await manager.async_shutdown()
