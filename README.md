@@ -21,7 +21,7 @@ The house scope of the Pepa Sensory Arm: a Home Assistant (HA) conversation agen
 The **Sensory Arm** (PSA) is the boundary between Pepa and the physical world. It perceives, delivers and collects raw data, and it does not decide what that data means. It has two scopes so far:
 
 - **House** (this repository): the senses, muscles and voice. It perceives the house, acts on it, and speaks in it. Real time, with parts deliberately exposed to Pepa's conversation.
-- **Human telemetry**: the internal organs. Collection only, inward only, never exposed to conversation. It lives in a separate repository (name not yet settled) and runs on its own Home Assistant instance. It will never run this code.
+- **Human telemetry**: the internal organs. Collection only, inward only, never exposed to conversation. Its code, when there is some, goes in a separate repository, `pepa-sensory-arm-person` (D-16), and it runs on its own Home Assistant instance. It will never run this code.
 
 Read more: [The Sensory Arm](https://ai4aging.org/arms/sensory/the-sensory-arm/) · [House Sensing](https://ai4aging.org/arms/sensory/house-sensing/) · [Decision Register](https://ai4aging.org/arms/sensory/decisions/)
 
@@ -29,7 +29,9 @@ Read more: [The Sensory Arm](https://ai4aging.org/arms/sensory/the-sensory-arm/)
 
 This repository is the house scope's front end: voice conversation, the ReAct (reason-and-act) tool loop, and the actuation tools. The rules it is built to follow come from the [Decision Register](https://ai4aging.org/arms/sensory/decisions/) (cited here by ID, such as D-05):
 
-- **Reflexes only.** It acts on its own only through direct, requested house actions, using explicit, declared and guardrailed rules, never beyond them (D-05). *"Apaga el abanico de la oficina"* is a reflex. Nothing upstream is consulted.
+- **Reflexes only.** A Pepa arm reflex is a response that an arm completes on its own, from stimulus to effect, through rules declared in advance, without consulting the Head or another arm; others learn of it afterward, through the arm's ledger, never before (D-14). The house scope narrows that to direct, requested house actions, using explicit, declared and guardrailed rules, never beyond them (D-05). *"Apaga el abanico de la oficina"* is a reflex. Nothing upstream is consulted.
+- **Asks before what cannot be undone.** An entity is reversible only when it carries the `reverse` label. Any other action waits for a person's yes, from the same satellite or conversation; a request nobody there can confirm is refused (D-17).
+- **Requests from other arms are not reflexes.** When the Head or another arm asks it to speak, deliver an alarm or act on its behalf, the decision is theirs; this code answers for carrying it out faithfully and records it as done at their request. Such requests are bound by its physical limits and its own authority limits, whoever asked (D-15).
 - **Anything else goes up.** A request that is not about the house is handed on rather than improvised. Health information spoken to Pepa is not housework: the house scope punts it and voices only whatever reply comes back (D-11).
 - **Alarms are delivered, not decided.** Shower safety and similar signals are observations, not conclusions. The house scope can deliver an alarm. Deciding that one is warranted is not its job (D-12).
 - **Raw and declared.** What it collects is kept as received, and whatever it receives must be declared (D-06).
