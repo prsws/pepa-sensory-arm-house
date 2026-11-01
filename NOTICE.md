@@ -19,7 +19,7 @@ their authors stay credited.
 
 | Upstream pull request | What it brought | Merged here |
 | --- | --- | --- |
-| _none yet_ | | |
+| [#44](https://github.com/aradlein/hass-agent-llm/pull/44) by Ptah-CT | Exposed-entity allow-list refreshed every conversation turn, so entities that appear after a cold boot (late Zigbee/MQTT discovery) are not locked out | #6 |
 
 ## Licence
 

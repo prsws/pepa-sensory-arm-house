@@ -468,7 +468,9 @@ class HomeAgent(
             self._exposed_entity_ids = current
             _LOGGER.debug(
                 "Refreshed exposed entities for tools: %d total (+%d, -%d)",
-                len(current), len(current - previous), len(previous - current),
+                len(current),
+                len(current - previous),
+                len(previous - current),
             )
 
     def _register_tools(self) -> None:

@@ -276,9 +276,7 @@ class HomeAssistantControlTool(BaseTool):
         # set each turn instead of sharing a mutable reference the tool would
         # have to see mutated in place.
         exposed = (
-            self._exposed_entities()
-            if callable(self._exposed_entities)
-            else self._exposed_entities
+            self._exposed_entities() if callable(self._exposed_entities) else self._exposed_entities
         )
 
         # If no exposed entities set is provided, allow all access
