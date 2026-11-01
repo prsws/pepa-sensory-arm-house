@@ -1,4 +1,4 @@
-"""Integration tests for language edge cases in Home Agent.
+"""Integration tests for language edge cases in Pepa Sensory Arm House.
 
 These tests verify that the agent correctly handles edge cases related to
 language support including unicode handling, streaming with multiple languages,
@@ -12,8 +12,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from homeassistant.components import conversation as ha_conversation
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_DEBUG_LOGGING,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -76,7 +76,7 @@ async def test_unicode_handling_per_language(
 
     with (
         patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ),
         mock_llm_server.patch_aiohttp(),
@@ -91,7 +91,7 @@ async def test_unicode_handling_per_language(
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result = await agent.async_process(user_input)
@@ -152,7 +152,7 @@ async def test_streaming_with_multilingual(test_hass, llm_config, session_manage
 
     with (
         patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ),
         mock_llm_server.patch_aiohttp(),
@@ -167,7 +167,7 @@ async def test_streaming_with_multilingual(test_hass, llm_config, session_manage
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_de = await agent.async_process(user_input_de)
@@ -186,7 +186,7 @@ async def test_streaming_with_multilingual(test_hass, llm_config, session_manage
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_es = await agent.async_process(user_input_es)
@@ -236,7 +236,7 @@ async def test_tool_execution_language_agnostic(
 
     with (
         patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ),
         mock_llm_server.patch_aiohttp(),
@@ -293,7 +293,7 @@ async def test_tool_execution_language_agnostic(
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_de = await agent.async_process(user_input_de)
@@ -345,7 +345,7 @@ async def test_empty_conversation_preserves_language(
 
     with (
         patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ),
         mock_llm_server.patch_aiohttp(),
@@ -360,7 +360,7 @@ async def test_empty_conversation_preserves_language(
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_short = await agent.async_process(user_input_short)
@@ -379,7 +379,7 @@ async def test_empty_conversation_preserves_language(
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_word = await agent.async_process(user_input_word)
@@ -398,7 +398,7 @@ async def test_empty_conversation_preserves_language(
             context=MagicMock(user_id="test_user"),
             device_id=None,
             satellite_id=None,
-            agent_id="home_agent",
+            agent_id="pepa_sensory_arm_house",
         )
 
         result_minimal = await agent.async_process(user_input_minimal)

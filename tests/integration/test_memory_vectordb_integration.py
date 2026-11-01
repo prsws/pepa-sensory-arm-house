@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_VECTOR_DB_COLLECTION,
     CONF_VECTOR_DB_EMBEDDING_BASE_URL,
@@ -29,13 +29,13 @@ from custom_components.home_agent.const import (
     CONTEXT_MODE_VECTOR_DB,
     EMBEDDING_PROVIDER_OLLAMA,
 )
-from custom_components.home_agent.memory_manager import (
+from custom_components.pepa_sensory_arm_house.memory_manager import (
     MEMORY_TYPE_EVENT,
     MEMORY_TYPE_FACT,
     MEMORY_TYPE_PREFERENCE,
     MemoryManager,
 )
-from custom_components.home_agent.vector_db_manager import VectorDBManager
+from custom_components.pepa_sensory_arm_house.vector_db_manager import VectorDBManager
 
 
 @pytest.mark.integration
@@ -69,7 +69,7 @@ async def test_memory_added_to_vectordb(
     # Mock entity exposure
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),
@@ -186,7 +186,7 @@ async def test_memory_semantic_search_retrieval(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),
@@ -323,7 +323,7 @@ async def test_memory_metadata_integrity(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),
@@ -456,7 +456,7 @@ async def test_memory_update_syncs_to_vectordb(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),
@@ -572,7 +572,7 @@ async def test_memory_deletion_removes_from_vectordb(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),
@@ -680,7 +680,7 @@ async def test_memory_vectordb_cross_query_relevance(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         patch("chromadb.HttpClient", return_value=mock_chromadb_client),

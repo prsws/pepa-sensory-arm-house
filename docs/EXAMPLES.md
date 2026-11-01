@@ -1,16 +1,16 @@
 # Examples
 
-Quick reference of the most useful Home Agent examples to get you started.
+Quick reference of the most useful Pepa Sensory Arm House examples to get you started.
 
 ## Voice Assistant Examples
 
 ### Basic Voice Control
 
-Set up Home Agent for simple voice commands.
+Set up Pepa Sensory Arm House for simple voice commands.
 
 ```yaml
-# Settings > Devices & Services > Add Integration > Home Agent
-Name: Home Agent
+# Settings > Devices & Services > Add Integration > Pepa Sensory Arm House
+Name: Pepa Sensory Arm House
 LLM Base URL: https://api.openai.com/v1
 API Key: sk-your-api-key-here
 Model: gpt-4o-mini
@@ -28,7 +28,7 @@ Max Tokens: 500
 Enable personalized, context-aware responses.
 
 ```yaml
-# Settings > Home Agent > Configure > Memory System
+# Settings > Pepa Sensory Arm House > Configure > Memory System
 Memory Enabled: true
 Automatic Extraction: true
 Extraction LLM: external
@@ -54,7 +54,7 @@ Call external weather APIs.
 
 ```yaml
 # configuration.yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: check_weather
       description: "Get current weather and 3-day forecast for any location"
@@ -84,7 +84,7 @@ home_agent:
 Trigger Home Assistant automations and scripts.
 
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: run_morning_routine
       description: "Trigger the morning routine automation"
@@ -123,7 +123,7 @@ automation:
   - alias: "Log Device Control Events"
     trigger:
       - platform: event
-        event_type: home_agent.tool.executed
+        event_type: pepa_sensory_arm_house.tool.executed
         event_data:
           tool_name: ha_control
     condition:
@@ -132,7 +132,7 @@ automation:
     action:
       - service: logbook.log
         data:
-          name: Home Agent
+          name: Pepa Sensory Arm House
           message: >
             Controlled {{ trigger.event.data.parameters.entity_id }}
             via voice: {{ trigger.event.data.parameters.action }}
@@ -149,7 +149,7 @@ automation:
       - platform: time
         at: "07:00:00"
     action:
-      - service: home_agent.process
+      - service: pepa_sensory_arm_house.process
         data:
           text: >
             Good morning! Please prepare for the day based on my preferences,
@@ -170,7 +170,7 @@ automation:
 Memories are automatically extracted after conversations.
 
 ```yaml
-# Settings > Home Agent > Configure > Memory System
+# Settings > Pepa Sensory Arm House > Configure > Memory System
 Memory Enabled: true
 Automatic Extraction: true
 Extraction LLM: external
@@ -280,7 +280,7 @@ Combining multiple features.
 
 **configuration.yaml:**
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     # Weather tool
     - name: check_weather
@@ -336,7 +336,7 @@ home_agent:
       after: "06:00:00"
       before: "09:00:00"
   action:
-    - service: home_agent.process
+    - service: pepa_sensory_arm_house.process
       data:
         text: >
           Good morning! Check the weather and suggest what to prepare for the day.
@@ -356,7 +356,7 @@ home_agent:
     - service: camera.snapshot
       target:
         entity_id: camera.front_door
-    - service: home_agent.process
+    - service: pepa_sensory_arm_house.process
       data:
         text: >
           Front door opened while alarm is armed. Analyze if this matches

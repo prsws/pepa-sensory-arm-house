@@ -1,4 +1,4 @@
-"""Unit tests for Home Agent config flow."""
+"""Unit tests for Pepa Sensory Arm House config flow."""
 
 from unittest.mock import Mock
 
@@ -6,13 +6,13 @@ import pytest
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
-from custom_components.home_agent.config_flow import (
+from custom_components.pepa_sensory_arm_house.config_flow import (
     HomeAgentConfigFlow,
     HomeAgentOptionsFlow,
     _migrate_legacy_backend,
     _validate_proxy_headers,
 )
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_FORMAT,
     CONF_CONTEXT_MODE,
     CONF_CONTINUE_CONVERSATION,
@@ -44,7 +44,7 @@ from custom_components.home_agent.const import (
     DEFAULT_STREAMING_ENABLED,
     LLM_BACKEND_OLLAMA_GPU,
 )
-from custom_components.home_agent.exceptions import ValidationError
+from custom_components.pepa_sensory_arm_house.exceptions import ValidationError
 
 
 @pytest.fixture
@@ -263,7 +263,7 @@ class TestExternalLLMValidation:
 
 
 class TestHomeAgentOptionsFlow:
-    """Test Home Agent options flow."""
+    """Test Pepa Sensory Arm House options flow."""
 
     async def test_options_flow_includes_streaming_option(self, mock_config_entry, mock_hass):
         """Test that options flow includes streaming toggle in debug settings."""
@@ -1035,7 +1035,7 @@ class TestHomeAgentOptionsFlow:
 
 
 class TestHomeAgentConfigFlow:
-    """Test Home Agent config flow initialization."""
+    """Test Pepa Sensory Arm House config flow initialization."""
 
     async def test_config_flow_does_not_include_streaming_in_initial_setup(self):
         """Test that initial setup doesn't include streaming (options only)."""

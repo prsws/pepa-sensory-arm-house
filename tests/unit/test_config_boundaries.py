@@ -16,8 +16,8 @@ from unittest.mock import Mock
 import pytest
 import voluptuous as vol
 
-from custom_components.home_agent.config_flow import HomeAgentConfigFlow
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.config_flow import HomeAgentConfigFlow
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_EXTERNAL_LLM_MAX_TOKENS,
     CONF_EXTERNAL_LLM_TEMPERATURE,
     CONF_HISTORY_MAX_MESSAGES,

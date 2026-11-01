@@ -1,12 +1,12 @@
-"""Unit tests for the house catalog (custom_components.home_agent.house_catalog)."""
+"""Unit tests for the house catalog (custom_components.pepa_sensory_arm_house.house_catalog)."""
 
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent import house_catalog
-from custom_components.home_agent.house_catalog import (
+from custom_components.pepa_sensory_arm_house import house_catalog
+from custom_components.pepa_sensory_arm_house.house_catalog import (
     CSV_COLUMNS,
     SENSOR_ENTITY_ID,
     HouseCatalog,

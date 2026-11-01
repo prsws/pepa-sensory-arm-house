@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from custom_components.home_agent.streaming import OpenAIStreamingHandler
+from custom_components.pepa_sensory_arm_house.streaming import OpenAIStreamingHandler
 
 
 async def async_generator_from_list(items):

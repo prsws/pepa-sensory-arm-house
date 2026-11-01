@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_ADDITIONAL_COLLECTIONS,
     CONF_ADDITIONAL_L2_DISTANCE_THRESHOLD,
     CONF_ADDITIONAL_TOP_K,
@@ -26,12 +26,12 @@ from custom_components.home_agent.const import (
     CONF_VECTOR_DB_TOP_K,
     EMBEDDING_PROVIDER_OPENAI,
 )
-from custom_components.home_agent.context_providers.vector_db import (
+from custom_components.pepa_sensory_arm_house.context_providers.vector_db import (
     CHROMADB_AVAILABLE,
     OPENAI_AVAILABLE,
     VectorDBContextProvider,
 )
-from custom_components.home_agent.exceptions import ContextInjectionError
+from custom_components.pepa_sensory_arm_house.exceptions import ContextInjectionError
 
 
 class TestVectorDBContextProviderInit:
@@ -83,7 +83,9 @@ class TestVectorDBContextProviderInit:
     def test_vector_db_provider_init_chromadb_not_available(self, mock_hass):
         """Test initialization fails when ChromaDB is not installed."""
         with patch(
-            "custom_components.home_agent.context_providers.vector_db.CHROMADB_AVAILABLE", False
+            "custom_components.pepa_sensory_arm_house"
+            ".context_providers.vector_db.CHROMADB_AVAILABLE",
+            False,
         ):
             config = {CONF_OPENAI_API_KEY: "sk-test"}
             with pytest.raises(ContextInjectionError) as exc_info:
@@ -737,7 +739,7 @@ class TestEventEmission:
         assert results[1]["entity_id"] == "sensor.temp"
 
         # Verify event WAS fired with correct data
-        from custom_components.home_agent.const import EVENT_VECTOR_DB_QUERIED
+        from custom_components.pepa_sensory_arm_house.const import EVENT_VECTOR_DB_QUERIED
 
         mock_hass.bus.async_fire.assert_called_once()
         call_args = mock_hass.bus.async_fire.call_args

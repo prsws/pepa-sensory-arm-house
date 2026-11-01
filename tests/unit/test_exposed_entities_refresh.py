@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -20,7 +20,7 @@ from custom_components.home_agent.const import (
     CONF_LLM_MODEL,
     CONTEXT_MODE_DIRECT,
 )
-from custom_components.home_agent.exceptions import PermissionDenied
+from custom_components.pepa_sensory_arm_house.exceptions import PermissionDenied
 
 # _refresh_exposed_entities imports async_should_expose inside the function, so it
 # must be patched where it is defined, not in the agent module.
@@ -52,8 +52,10 @@ def mock_hass():
 @pytest.fixture
 def agent(mock_hass):
     """An agent with tools registered while only the early entity exists."""
-    from custom_components.home_agent.agent import HomeAgent
-    from custom_components.home_agent.conversation_session import ConversationSessionManager
+    from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+    from custom_components.pepa_sensory_arm_house.conversation_session import (
+        ConversationSessionManager,
+    )
 
     config = {
         CONF_LLM_BASE_URL: "http://localhost:11434/v1",

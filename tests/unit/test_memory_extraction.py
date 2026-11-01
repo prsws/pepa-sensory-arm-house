@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_EXTERNAL_LLM_ENABLED,
     CONF_LLM_API_KEY,
     CONF_LLM_BASE_URL,
@@ -55,12 +55,14 @@ def agent_config():
 
 
 @pytest.fixture
-def home_agent(mock_hass, agent_config):
+def pepa_sensory_arm_house(mock_hass, agent_config):
     """Create a HomeAgent instance for testing."""
-    with patch("custom_components.home_agent.agent.core.ContextManager"):
-        with patch("custom_components.home_agent.agent.core.ConversationHistoryManager"):
-            with patch("custom_components.home_agent.agent.core.ToolHandler"):
-                from custom_components.home_agent.conversation_session import (
+    with patch("custom_components.pepa_sensory_arm_house.agent.core.ContextManager"):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.agent.core.ConversationHistoryManager"
+        ):
+            with patch("custom_components.pepa_sensory_arm_house.agent.core.ToolHandler"):
+                from custom_components.pepa_sensory_arm_house.conversation_session import (
                     ConversationSessionManager,
                 )
 
@@ -72,43 +74,43 @@ def home_agent(mock_hass, agent_config):
 class TestFormatConversationForExtraction:
     """Test _format_conversation_for_extraction method."""
 
-    def test_format_empty_conversation(self, home_agent):
+    def test_format_empty_conversation(self, pepa_sensory_arm_house):
         """Test formatting empty conversation."""
         messages = []
-        result = home_agent._format_conversation_for_extraction(messages)
+        result = pepa_sensory_arm_house._format_conversation_for_extraction(messages)
         assert result == ""
 
-    def test_format_conversation_excludes_system(self, home_agent):
+    def test_format_conversation_excludes_system(self, pepa_sensory_arm_house):
         """Test that system messages are excluded."""
         messages = [
             {"role": "system", "content": "You are an assistant"},
             {"role": "user", "content": "Hello"},
             {"role": "assistant", "content": "Hi there"},
         ]
-        result = home_agent._format_conversation_for_extraction(messages)
+        result = pepa_sensory_arm_house._format_conversation_for_extraction(messages)
         assert "system" not in result.lower()
         assert "Hello" in result
         assert "Hi there" in result
 
-    def test_format_conversation_excludes_tool(self, home_agent):
+    def test_format_conversation_excludes_tool(self, pepa_sensory_arm_house):
         """Test that tool messages are excluded."""
         messages = [
             {"role": "user", "content": "Turn on the light"},
             {"role": "tool", "content": '{"success": true}'},
             {"role": "assistant", "content": "Done"},
         ]
-        result = home_agent._format_conversation_for_extraction(messages)
+        result = pepa_sensory_arm_house._format_conversation_for_extraction(messages)
         assert "tool" not in result.lower()
         assert "Turn on the light" in result
         assert "Done" in result
 
-    def test_format_conversation_correct_format(self, home_agent):
+    def test_format_conversation_correct_format(self, pepa_sensory_arm_house):
         """Test correct formatting of conversation."""
         messages = [
             {"role": "user", "content": "What's the temperature?"},
             {"role": "assistant", "content": "It's 72°F"},
         ]
-        result = home_agent._format_conversation_for_extraction(messages)
+        result = pepa_sensory_arm_house._format_conversation_for_extraction(messages)
         assert "User: What's the temperature?" in result
         assert "Assistant: It's 72°F" in result
 
@@ -116,7 +118,7 @@ class TestFormatConversationForExtraction:
 class TestBuildExtractionPrompt:
     """Test _build_extraction_prompt method."""
 
-    def test_build_prompt_with_no_history(self, home_agent):
+    def test_build_prompt_with_no_history(self, pepa_sensory_arm_house):
         """Test building prompt with no previous history."""
         user_msg = "Set bedroom to 68 degrees"
         assistant_msg = "I've set the bedroom to 68°F"
@@ -125,7 +127,7 @@ class TestBuildExtractionPrompt:
             {"role": "user", "content": user_msg},
         ]
 
-        prompt = home_agent._build_extraction_prompt(
+        prompt = pepa_sensory_arm_house._build_extraction_prompt(
             user_message=user_msg,
             assistant_response=assistant_msg,
             full_messages=messages,
@@ -138,7 +140,7 @@ class TestBuildExtractionPrompt:
         assert "type" in prompt
         assert "importance" in prompt
 
-    def test_build_prompt_with_history(self, home_agent):
+    def test_build_prompt_with_history(self, pepa_sensory_arm_house):
         """Test building prompt with conversation history."""
         messages = [
             {"role": "system", "content": "System prompt"},
@@ -147,7 +149,7 @@ class TestBuildExtractionPrompt:
             {"role": "user", "content": "Current question"},
         ]
 
-        prompt = home_agent._build_extraction_prompt(
+        prompt = pepa_sensory_arm_house._build_extraction_prompt(
             user_message="Current question",
             assistant_response="Current answer",
             full_messages=messages,
@@ -158,7 +160,7 @@ class TestBuildExtractionPrompt:
         assert "Current question" in prompt
         assert "Current answer" in prompt
 
-    def test_build_prompt_excludes_system_and_tool(self, home_agent):
+    def test_build_prompt_excludes_system_and_tool(self, pepa_sensory_arm_house):
         """Test that prompt excludes system and tool messages."""
         messages = [
             {"role": "system", "content": "System message"},
@@ -167,7 +169,7 @@ class TestBuildExtractionPrompt:
             {"role": "assistant", "content": "Assistant message"},
         ]
 
-        prompt = home_agent._build_extraction_prompt(
+        prompt = pepa_sensory_arm_house._build_extraction_prompt(
             user_message="Current",
             assistant_response="Response",
             full_messages=messages,
@@ -180,38 +182,38 @@ class TestBuildExtractionPrompt:
 class TestCallPrimaryLLMForExtraction:
     """Test _call_primary_llm_for_extraction method."""
 
-    async def test_extraction_success(self, home_agent):
+    async def test_extraction_success(self, pepa_sensory_arm_house):
         """Test successful extraction with primary LLM."""
         expected_result = '[{"type": "fact", "content": "Test fact"}]'
 
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_call_llm",
             return_value={"choices": [{"message": {"content": expected_result}}]},
         ):
-            result = await home_agent._call_primary_llm_for_extraction("test prompt")
+            result = await pepa_sensory_arm_house._call_primary_llm_for_extraction("test prompt")
 
             assert result["success"] is True
             assert result["result"] == expected_result
             assert result["error"] is None
 
-    async def test_extraction_failure(self, home_agent):
+    async def test_extraction_failure(self, pepa_sensory_arm_house):
         """Test extraction failure with primary LLM."""
-        with patch.object(home_agent, "_call_llm", side_effect=Exception("LLM error")):
-            result = await home_agent._call_primary_llm_for_extraction("test prompt")
+        with patch.object(pepa_sensory_arm_house, "_call_llm", side_effect=Exception("LLM error")):
+            result = await pepa_sensory_arm_house._call_primary_llm_for_extraction("test prompt")
 
             assert result["success"] is False
             assert result["result"] is None
             assert "LLM error" in result["error"]
 
-    async def test_extraction_uses_correct_temperature(self, home_agent):
+    async def test_extraction_uses_correct_temperature(self, pepa_sensory_arm_house):
         """Test that extraction uses lower temperature."""
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_call_llm",
             return_value={"choices": [{"message": {"content": "[]"}}]},
         ) as mock_call:
-            await home_agent._call_primary_llm_for_extraction("test prompt")
+            await pepa_sensory_arm_house._call_primary_llm_for_extraction("test prompt")
 
             # Verify _call_llm was called with temperature=0.3
             call_args = mock_call.call_args
@@ -221,9 +223,9 @@ class TestCallPrimaryLLMForExtraction:
 class TestParseAndStoreMemories:
     """Test _parse_and_store_memories method."""
 
-    async def test_parse_valid_json(self, home_agent, mock_memory_manager):
+    async def test_parse_valid_json(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test parsing valid JSON response."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = json.dumps(
             [
@@ -240,14 +242,16 @@ class TestParseAndStoreMemories:
             ]
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         mock_memory_manager.add_memory.assert_called_once()
 
-    async def test_parse_json_in_markdown(self, home_agent, mock_memory_manager):
+    async def test_parse_json_in_markdown(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test parsing JSON wrapped in markdown code block."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         fact_content = (
             "The living room has three ceiling lights"
@@ -265,46 +269,54 @@ class TestParseAndStoreMemories:
         )
         extraction_result = f"```json\n{inner_json}\n```"
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         mock_memory_manager.add_memory.assert_called_once()
 
-    async def test_parse_empty_array(self, home_agent, mock_memory_manager):
+    async def test_parse_empty_array(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test parsing empty array (no memories)."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = "[]"
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 0
         mock_memory_manager.add_memory.assert_not_called()
 
-    async def test_parse_invalid_json(self, home_agent, mock_memory_manager):
+    async def test_parse_invalid_json(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test handling of invalid JSON."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = "not valid json"
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 0
         mock_memory_manager.add_memory.assert_not_called()
 
-    async def test_parse_non_array(self, home_agent, mock_memory_manager):
+    async def test_parse_non_array(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test handling of non-array JSON."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = '{"type": "fact"}'
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 0
 
-    async def test_parse_multiple_memories(self, home_agent, mock_memory_manager):
+    async def test_parse_multiple_memories(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test parsing multiple memories."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = json.dumps(
             [
@@ -338,14 +350,16 @@ class TestParseAndStoreMemories:
             ]
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 3
         assert mock_memory_manager.add_memory.call_count == 3
 
-    async def test_parse_handles_storage_failure(self, home_agent, mock_memory_manager):
+    async def test_parse_handles_storage_failure(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test that storage failures don't stop other memories from being stored."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         # First call fails, second succeeds
         mock_memory_manager.add_memory.side_effect = [
@@ -376,14 +390,18 @@ class TestParseAndStoreMemories:
             ]
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1  # Only one succeeded
         assert mock_memory_manager.add_memory.call_count == 2
 
-    async def test_parse_validates_memory_content(self, home_agent, mock_memory_manager):
+    async def test_parse_validates_memory_content(
+        self, pepa_sensory_arm_house, mock_memory_manager
+    ):
         """Test that memories without content are skipped."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         extraction_result = json.dumps(
             [
@@ -399,18 +417,22 @@ class TestParseAndStoreMemories:
             ]
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1  # Only the valid one
         mock_memory_manager.add_memory.assert_called_once()
 
-    async def test_parse_strips_thinking_blocks_before_json(self, home_agent, mock_memory_manager):
+    async def test_parse_strips_thinking_blocks_before_json(
+        self, pepa_sensory_arm_house, mock_memory_manager
+    ):
         """Test that thinking blocks from reasoning models are stripped before parsing.
 
         Reasoning models (Qwen3, DeepSeek R1) may include <think>...</think> blocks
         in their output which would break JSON parsing.
         """
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         # Simulate reasoning model output with thinking block before JSON
         pref_content = (
@@ -436,16 +458,18 @@ class TestParseAndStoreMemories:
             )
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         mock_memory_manager.add_memory.assert_called_once()
 
     async def test_parse_strips_thinking_blocks_with_markdown(
-        self, home_agent, mock_memory_manager
+        self, pepa_sensory_arm_house, mock_memory_manager
     ):
         """Test that thinking blocks are stripped when JSON is in markdown block."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         fact_content = (
             "The living room has three ceiling lights"
@@ -469,16 +493,18 @@ class TestParseAndStoreMemories:
             + "\n```"
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         mock_memory_manager.add_memory.assert_called_once()
 
     async def test_parse_handles_thinking_block_with_json_inside(
-        self, home_agent, mock_memory_manager
+        self, pepa_sensory_arm_house, mock_memory_manager
     ):
         """Test handling when thinking block contains JSON-like content."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         doorbell_content = (
             "The smart doorbell is connected to the"
@@ -503,16 +529,20 @@ class TestParseAndStoreMemories:
             )
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         # Verify the correct memory was stored (not the one inside think block)
         call_args = mock_memory_manager.add_memory.call_args
         assert "doorbell" in call_args.kwargs["content"]
 
-    async def test_parse_handles_multiple_thinking_blocks(self, home_agent, mock_memory_manager):
+    async def test_parse_handles_multiple_thinking_blocks(
+        self, pepa_sensory_arm_house, mock_memory_manager
+    ):
         """Test handling multiple thinking blocks in output."""
-        home_agent._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
 
         lighting_content = (
             "User prefers warm white lighting in the"
@@ -533,7 +563,9 @@ class TestParseAndStoreMemories:
             )
         )
 
-        count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert count == 1
         mock_memory_manager.add_memory.assert_called_once()
@@ -542,32 +574,32 @@ class TestParseAndStoreMemories:
 class TestExtractAndStoreMemories:
     """Test _extract_and_store_memories method."""
 
-    async def test_extraction_disabled_when_memory_disabled(self, home_agent):
+    async def test_extraction_disabled_when_memory_disabled(self, pepa_sensory_arm_house):
         """Test that extraction is skipped when memory is disabled."""
-        home_agent.config[CONF_MEMORY_ENABLED] = False
+        pepa_sensory_arm_house.config[CONF_MEMORY_ENABLED] = False
 
-        with patch.object(home_agent, "_build_extraction_prompt") as mock_build:
-            await home_agent._extract_and_store_memories(
+        with patch.object(pepa_sensory_arm_house, "_build_extraction_prompt") as mock_build:
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
             mock_build.assert_not_called()
 
-    async def test_extraction_skipped_when_no_memory_manager(self, home_agent):
+    async def test_extraction_skipped_when_no_memory_manager(self, pepa_sensory_arm_house):
         """Test that extraction is skipped when memory manager is not available."""
-        home_agent._memory_manager = None
+        pepa_sensory_arm_house._memory_manager = None
 
-        with patch.object(home_agent, "_build_extraction_prompt") as mock_build:
-            await home_agent._extract_and_store_memories(
+        with patch.object(pepa_sensory_arm_house, "_build_extraction_prompt") as mock_build:
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
             mock_build.assert_not_called()
 
-    async def test_extraction_with_local_llm(self, home_agent, mock_memory_manager):
+    async def test_extraction_with_local_llm(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test extraction using local LLM."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
 
         extraction_result = json.dumps(
             [
@@ -584,22 +616,22 @@ class TestExtractAndStoreMemories:
         )
 
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_call_primary_llm_for_extraction",
             return_value={"success": True, "result": extraction_result},
         ):
-            await home_agent._extract_and_store_memories(
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
             # Verify memory was stored
             mock_memory_manager.add_memory.assert_called_once()
 
-    async def test_extraction_with_external_llm(self, home_agent, mock_memory_manager):
+    async def test_extraction_with_external_llm(self, pepa_sensory_arm_house, mock_memory_manager):
         """Test extraction using external LLM."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "external"
-        home_agent.config[CONF_EXTERNAL_LLM_ENABLED] = True
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "external"
+        pepa_sensory_arm_house.config[CONF_EXTERNAL_LLM_ENABLED] = True
 
         extraction_result = json.dumps(
             [
@@ -620,18 +652,20 @@ class TestExtractAndStoreMemories:
         # envelope — so the result is DOUBLE-nested. Mock that real shape so the
         # unwrap in _extract_and_store_memories is exercised (without it, the inner
         # dict reaches strip_thinking_blocks and the extraction silently stores 0).
-        home_agent.tool_handler.execute_tool = AsyncMock(
+        pepa_sensory_arm_house.tool_handler.execute_tool = AsyncMock(
             return_value={
                 "success": True,
                 "result": {"success": True, "result": extraction_result, "error": None},
             }
         )
 
-        await home_agent._extract_and_store_memories("conv_123", "user msg", "assistant msg", [])
+        await pepa_sensory_arm_house._extract_and_store_memories(
+            "conv_123", "user msg", "assistant msg", []
+        )
 
         # Verify external LLM tool was called
-        home_agent.tool_handler.execute_tool.assert_called_once()
-        call_args = home_agent.tool_handler.execute_tool.call_args
+        pepa_sensory_arm_house.tool_handler.execute_tool.assert_called_once()
+        call_args = pepa_sensory_arm_house.tool_handler.execute_tool.call_args
         assert call_args[1]["tool_name"] == "query_external_llm"
         assert call_args[1]["conversation_id"] == "conv_123"
         assert isinstance(call_args[1]["parameters"]["prompt"], str)
@@ -642,26 +676,26 @@ class TestExtractAndStoreMemories:
         mock_memory_manager.add_memory.assert_called_once()
 
     async def test_extraction_skipped_when_external_llm_not_enabled(
-        self, home_agent, mock_memory_manager
+        self, pepa_sensory_arm_house, mock_memory_manager
     ):
         """Test extraction is skipped when external LLM not enabled."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "external"
-        home_agent.config[CONF_EXTERNAL_LLM_ENABLED] = False
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "external"
+        pepa_sensory_arm_house.config[CONF_EXTERNAL_LLM_ENABLED] = False
 
-        with patch.object(home_agent, "_parse_and_store_memories") as mock_parse:
-            await home_agent._extract_and_store_memories(
+        with patch.object(pepa_sensory_arm_house, "_parse_and_store_memories") as mock_parse:
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
             mock_parse.assert_not_called()
 
     async def test_extraction_fires_event_on_success(
-        self, home_agent, mock_memory_manager, mock_hass
+        self, pepa_sensory_arm_house, mock_memory_manager, mock_hass
     ):
         """Test that event is fired when memories are extracted."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
 
         extraction_result = json.dumps(
             [
@@ -678,46 +712,50 @@ class TestExtractAndStoreMemories:
         )
 
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_call_primary_llm_for_extraction",
             return_value={"success": True, "result": extraction_result},
         ):
-            await home_agent._extract_and_store_memories(
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
             # Verify event was fired
             mock_hass.bus.async_fire.assert_called_once()
             call_args = mock_hass.bus.async_fire.call_args
-            assert "home_agent.memory.extracted" in call_args[0]
+            assert "pepa_sensory_arm_house.memory.extracted" in call_args[0]
 
-    async def test_extraction_handles_llm_failure_gracefully(self, home_agent, mock_memory_manager):
+    async def test_extraction_handles_llm_failure_gracefully(
+        self, pepa_sensory_arm_house, mock_memory_manager
+    ):
         """Test that LLM failure doesn't crash extraction."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
 
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_call_primary_llm_for_extraction",
             return_value={"success": False, "error": "LLM failed"},
         ):
             # Should not raise exception
-            await home_agent._extract_and_store_memories(
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
-    async def test_extraction_handles_unexpected_exception(self, home_agent, mock_memory_manager):
+    async def test_extraction_handles_unexpected_exception(
+        self, pepa_sensory_arm_house, mock_memory_manager
+    ):
         """Test that unexpected exceptions are handled gracefully."""
-        home_agent._memory_manager = mock_memory_manager
-        home_agent.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
+        pepa_sensory_arm_house._memory_manager = mock_memory_manager
+        pepa_sensory_arm_house.config[CONF_MEMORY_EXTRACTION_LLM] = "local"
 
         with patch.object(
-            home_agent,
+            pepa_sensory_arm_house,
             "_build_extraction_prompt",
             side_effect=Exception("Unexpected error"),
         ):
             # Should not raise exception
-            await home_agent._extract_and_store_memories(
+            await pepa_sensory_arm_house._extract_and_store_memories(
                 "conv_123", "user msg", "assistant msg", []
             )
 
@@ -725,9 +763,9 @@ class TestExtractAndStoreMemories:
 class TestMemoryExtractionIntegration:
     """Integration tests for memory extraction in conversation flow."""
 
-    async def test_extraction_triggered_after_conversation(self, home_agent, mock_hass):
+    async def test_extraction_triggered_after_conversation(self, pepa_sensory_arm_house, mock_hass):
         """Test that extraction is triggered after conversation completes."""
         # This would be tested in integration tests with full conversation flow
         # For now, we verify the hook exists
-        assert hasattr(home_agent, "_extract_and_store_memories")
-        assert callable(home_agent._extract_and_store_memories)
+        assert hasattr(pepa_sensory_arm_house, "_extract_and_store_memories")
+        assert callable(pepa_sensory_arm_house._extract_and_store_memories)

@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.conversation_session import (
+from custom_components.pepa_sensory_arm_house.conversation_session import (
     DEFAULT_SESSION_TIMEOUT,
     ConversationSessionManager,
 )
@@ -24,7 +24,7 @@ def mock_hass():
 @pytest.fixture
 async def session_manager(mock_hass):
     """Create a conversation session manager."""
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         # Mock the Store's async_load and async_save methods
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value=None)
@@ -83,7 +83,7 @@ async def test_device_id_priority(session_manager):
 @pytest.mark.asyncio
 async def test_session_expiration(mock_hass, freezer):
     """Test that sessions expire after timeout."""
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value=None)
         store_instance.async_save = AsyncMock()
@@ -203,7 +203,7 @@ async def test_session_persistence_on_load(mock_hass):
         },
     }
 
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value={"sessions": existing_sessions})
         store_instance.async_save = AsyncMock()
@@ -237,7 +237,7 @@ async def test_cleanup_expired_sessions_on_load(mock_hass):
         },
     }
 
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value={"sessions": existing_sessions})
         store_instance.async_save = AsyncMock()
@@ -320,7 +320,7 @@ async def test_update_activity_nonexistent_session(session_manager):
 @pytest.mark.asyncio
 async def test_session_persistence_disabled_returns_none(mock_hass):
     """Test that when session_timeout=0, get_conversation_id always returns None even stored."""
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value=None)
         store_instance.async_save = AsyncMock()
@@ -341,7 +341,7 @@ async def test_session_persistence_disabled_returns_none(mock_hass):
 @pytest.mark.asyncio
 async def test_session_persistence_disabled_negative_timeout(mock_hass):
     """Test that negative timeout values also disable persistence (returns None)."""
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value=None)
         store_instance.async_save = AsyncMock()
@@ -362,7 +362,7 @@ async def test_session_persistence_disabled_negative_timeout(mock_hass):
 @pytest.mark.asyncio
 async def test_session_persistence_enabled_with_custom_timeout(mock_hass):
     """Test that a custom timeout (e.g., 300 seconds / 5 minutes) works correctly."""
-    with patch("custom_components.home_agent.conversation_session.Store") as mock_store:
+    with patch("custom_components.pepa_sensory_arm_house.conversation_session.Store") as mock_store:
         store_instance = MagicMock()
         store_instance.async_load = AsyncMock(return_value=None)
         store_instance.async_save = AsyncMock()

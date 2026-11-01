@@ -1,1 +1,1 @@
-"""Tests for Home Agent integration."""
+"""Tests for Pepa Sensory Arm House integration."""

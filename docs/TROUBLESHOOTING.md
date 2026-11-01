@@ -1,6 +1,6 @@
 # Troubleshooting Quick Reference
 
-Quick fixes for common Home Agent issues. For detailed diagnostics, see the [Complete Troubleshooting Guide](reference/TROUBLESHOOTING.md).
+Quick fixes for common Pepa Sensory Arm House issues. For detailed diagnostics, see the [Complete Troubleshooting Guide](reference/TROUBLESHOOTING.md).
 
 ## Quick Fixes
 
@@ -129,7 +129,7 @@ Vector DB Port: 8000
 - Lower importance threshold: `Min Importance: 0.0`
 - Test search manually:
   ```yaml
-  service: home_agent.search_memories
+  service: pepa_sensory_arm_house.search_memories
   data:
     query: "temperature preferences"
     limit: 10
@@ -150,7 +150,7 @@ Debug Logging: true
 # configuration.yaml
 logger:
   logs:
-    custom_components.home_agent: debug
+    custom_components.pepa_sensory_arm_house: debug
 ```
 
 **What it shows:**
@@ -165,7 +165,7 @@ logger:
 **In Home Assistant UI:**
 ```
 Settings → System → Logs
-Filter: "home_agent"
+Filter: "pepa_sensory_arm_house"
 ```
 
 **Log file location:**
@@ -176,27 +176,27 @@ Filter: "home_agent"
 ### Event Monitoring
 
 **Monitor in Developer Tools → Events:**
-Listen to: `home_agent.*`
+Listen to: `pepa_sensory_arm_house.*`
 
 **Key events:**
-- `home_agent.error` - Errors
-- `home_agent.tool.executed` - Tool results
-- `home_agent.conversation.finished` - Performance metrics
-- `home_agent.memory.extracted` - Memory events
+- `pepa_sensory_arm_house.error` - Errors
+- `pepa_sensory_arm_house.tool.executed` - Tool results
+- `pepa_sensory_arm_house.conversation.finished` - Performance metrics
+- `pepa_sensory_arm_house.memory.extracted` - Memory events
 
 ### Manual Tool Testing
 
 **Test tools directly:**
 ```yaml
 # Test ha_query
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_query
   parameters:
     entity_id: light.living_room
 
 # Test ha_control
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_control
   parameters:

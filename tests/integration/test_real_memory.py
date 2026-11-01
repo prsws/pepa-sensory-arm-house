@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_VECTOR_DB_COLLECTION,
     CONF_VECTOR_DB_EMBEDDING_BASE_URL,
@@ -20,13 +20,13 @@ from custom_components.home_agent.const import (
     CONTEXT_MODE_VECTOR_DB,
     EMBEDDING_PROVIDER_OLLAMA,
 )
-from custom_components.home_agent.memory_manager import (
+from custom_components.pepa_sensory_arm_house.memory_manager import (
     MEMORY_TYPE_EVENT,
     MEMORY_TYPE_FACT,
     MEMORY_TYPE_PREFERENCE,
     MemoryManager,
 )
-from custom_components.home_agent.vector_db_manager import VectorDBManager
+from custom_components.pepa_sensory_arm_house.vector_db_manager import VectorDBManager
 
 
 @contextmanager
@@ -84,7 +84,7 @@ async def test_memory_extraction_flow(
     # Mock entity exposure
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         maybe_mock_chromadb(is_using_mock_chromadb, mock_chromadb_client),
@@ -214,7 +214,7 @@ async def test_memory_recall(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         maybe_mock_chromadb(is_using_mock_chromadb, mock_chromadb_client),
@@ -359,7 +359,7 @@ async def test_memory_semantic_search(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         maybe_mock_chromadb(is_using_mock_chromadb, mock_chromadb_client),
@@ -505,7 +505,7 @@ async def test_memory_lifecycle(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         maybe_mock_chromadb(is_using_mock_chromadb, mock_chromadb_client),
@@ -613,7 +613,7 @@ async def test_memory_type_filtering(
 
     with (
         patch(
-            "custom_components.home_agent.vector_db_manager.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.vector_db_manager.async_should_expose",
             return_value=False,
         ),
         maybe_mock_chromadb(is_using_mock_chromadb, mock_chromadb_client),

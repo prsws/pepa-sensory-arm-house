@@ -1,6 +1,6 @@
 # Configuration Guide
 
-Essential configuration settings for Home Agent. For complete options, see the [Configuration Reference](reference/CONFIGURATION.md).
+Essential configuration settings for Pepa Sensory Arm House. For complete options, see the [Configuration Reference](reference/CONFIGURATION.md).
 
 **Looking for ready-to-use configurations?** See [Example Configurations](EXAMPLE_CONFIGS.md) for comprehensive setup guides for OpenAI, Ollama, LocalAI, multi-LLM, memory system, and vector DB.
 
@@ -8,7 +8,7 @@ Essential configuration settings for Home Agent. For complete options, see the [
 
 **Access configuration:**
 ```
-Settings → Devices & Services → Home Agent → Configure
+Settings → Devices & Services → Pepa Sensory Arm House → Configure
 ```
 
 **Configuration locations:**
@@ -201,7 +201,7 @@ Memory Extraction LLM: external  # Quality extraction
 
 **Add custom tools in `configuration.yaml`:**
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   custom_tools:
     # REST API example
     - name: check_weather
@@ -269,14 +269,14 @@ Memory Extraction LLM: local  # or external
 ```yaml
 # 1. Install Wyoming TTS (Piper recommended)
 # 2. Configure voice pipeline
-# 3. Enable in Home Agent:
+# 3. Enable in Pepa Sensory Arm House:
 Streaming Enabled: true
 ```
 
 ### Enable Vector DB
 ```yaml
 # 1. Start ChromaDB: docker run -p 8000:8000 chromadb/chroma
-# 2. Configure in Home Agent:
+# 2. Configure in Pepa Sensory Arm House:
 Context Mode: vector_db
 Vector DB Enabled: true
 Vector DB Host: localhost
@@ -340,7 +340,7 @@ Custom HTTP headers for routing requests through proxies or load balancers. Usef
    Route to different model tiers or priorities
 
 **Configuration in UI:**
-1. Go to Settings → Devices & Services → Home Agent → Configure
+1. Go to Settings → Devices & Services → Pepa Sensory Arm House → Configure
 2. Select "LLM Settings"
 3. Enter JSON in "Proxy Headers" field
 4. Leave empty if not needed

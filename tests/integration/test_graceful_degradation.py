@@ -1,6 +1,6 @@
 """Integration tests for graceful degradation when optional components are unavailable.
 
-This test suite verifies that the Home Agent system continues to work when optional
+This test suite verifies that the Pepa Sensory Arm House system continues to work when optional
 components fail or are unavailable. Each test mocks a component failure and verifies:
 1. The agent still initializes successfully
 2. Core functionality (basic conversation) still works
@@ -15,8 +15,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
     CONF_EXTERNAL_LLM_ENABLED,
@@ -33,7 +33,7 @@ from custom_components.home_agent.const import (
     DEFAULT_HISTORY_MAX_MESSAGES,
     DEFAULT_HISTORY_MAX_TOKENS,
 )
-from custom_components.home_agent.exceptions import HomeAgentError
+from custom_components.pepa_sensory_arm_house.exceptions import HomeAgentError
 
 
 @pytest.mark.integration
@@ -102,7 +102,8 @@ class TestGracefulDegradation:
 
         # Mock VectorDBContextProvider to raise an error during initialization
         with patch(
-            "custom_components.home_agent.context_providers.vector_db.VectorDBContextProvider"
+            "custom_components.pepa_sensory_arm_house"
+            ".context_providers.vector_db.VectorDBContextProvider"
         ) as mock_vector_provider:
             mock_vector_provider.side_effect = Exception("Vector DB connection failed")
 
@@ -233,7 +234,7 @@ class TestGracefulDegradation:
         # Mock ExternalLLMTool to fail during instantiation
         # This tests that tool failures are handled (or demonstrates they should be)
         with patch(
-            "custom_components.home_agent.agent.core.ExternalLLMTool",
+            "custom_components.pepa_sensory_arm_house.agent.core.ExternalLLMTool",
             side_effect=Exception("External LLM service unavailable"),
         ):
             # Agent initialization will fail when trying to register tools
@@ -283,7 +284,7 @@ class TestGracefulDegradation:
 
         # Mock DirectContextProvider to fail during init
         with patch(
-            "custom_components.home_agent.context_manager.DirectContextProvider"
+            "custom_components.pepa_sensory_arm_house.context_manager.DirectContextProvider"
         ) as mock_direct_provider:
             mock_direct_provider.side_effect = Exception("Context provider initialization failed")
 
@@ -436,9 +437,12 @@ class TestGracefulDegradation:
         # Mock multiple component failures
         with (
             patch(
-                "custom_components.home_agent.context_providers.vector_db.VectorDBContextProvider"
+                "custom_components.pepa_sensory_arm_house"
+                ".context_providers.vector_db.VectorDBContextProvider"
             ) as mock_vector_provider,
-            patch("custom_components.home_agent.agent.core.ExternalLLMTool") as mock_ext_llm,
+            patch(
+                "custom_components.pepa_sensory_arm_house.agent.core.ExternalLLMTool"
+            ) as mock_ext_llm,
         ):
 
             # Make vector DB and external LLM fail
@@ -694,7 +698,7 @@ class TestGracefulDegradation:
         - Success after retries
         - Exception handling
         """
-        from custom_components.home_agent.const import (
+        from custom_components.pepa_sensory_arm_house.const import (
             DEFAULT_RETRY_BACKOFF_FACTOR,
             DEFAULT_RETRY_INITIAL_DELAY,
             DEFAULT_RETRY_JITTER,
@@ -708,7 +712,7 @@ class TestGracefulDegradation:
         assert DEFAULT_RETRY_JITTER is True
 
         # Verify the imports exist in llm.py
-        import custom_components.home_agent.agent.llm as llm_module
+        import custom_components.pepa_sensory_arm_house.agent.llm as llm_module
 
         assert hasattr(llm_module, "DEFAULT_RETRY_INITIAL_DELAY")
         assert hasattr(llm_module, "DEFAULT_RETRY_BACKOFF_FACTOR")

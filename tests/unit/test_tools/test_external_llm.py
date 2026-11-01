@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_EXTERNAL_LLM_API_KEY,
     CONF_EXTERNAL_LLM_BASE_URL,
     CONF_EXTERNAL_LLM_MAX_TOKENS,
@@ -20,8 +20,8 @@ from custom_components.home_agent.const import (
     DEFAULT_EXTERNAL_LLM_TOOL_DESCRIPTION,
     TOOL_QUERY_EXTERNAL_LLM,
 )
-from custom_components.home_agent.exceptions import ValidationError
-from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+from custom_components.pepa_sensory_arm_house.exceptions import ValidationError
+from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
 
 class TestExternalLLMTool:

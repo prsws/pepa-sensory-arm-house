@@ -16,8 +16,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_LLM_API_KEY,
     CONF_LLM_BASE_URL,
     CONF_LLM_MODEL,
@@ -25,7 +25,7 @@ from custom_components.home_agent.const import (
     CONF_MEMORY_EXTRACTION_ENABLED,
     CONF_MEMORY_EXTRACTION_LLM,
 )
-from custom_components.home_agent.memory_manager import MemoryManager
+from custom_components.pepa_sensory_arm_house.memory_manager import MemoryManager
 
 
 @pytest.fixture
@@ -59,19 +59,21 @@ def memory_manager(mock_hass):
     config = {
         "memory_dedup_threshold": 0.9,
     }
-    with patch("custom_components.home_agent.vector_db_manager.VectorDBManager"):
+    with patch("custom_components.pepa_sensory_arm_house.vector_db_manager.VectorDBManager"):
         mock_vector_db = MagicMock()
         manager = MemoryManager(mock_hass, mock_vector_db, config)
         return manager
 
 
 @pytest.fixture
-def home_agent(mock_hass, agent_config, memory_manager):
+def pepa_sensory_arm_house(mock_hass, agent_config, memory_manager):
     """Create a HomeAgent instance for testing."""
-    with patch("custom_components.home_agent.agent.core.ContextManager"):
-        with patch("custom_components.home_agent.agent.core.ConversationHistoryManager"):
-            with patch("custom_components.home_agent.agent.core.ToolHandler"):
-                from custom_components.home_agent.conversation_session import (
+    with patch("custom_components.pepa_sensory_arm_house.agent.core.ContextManager"):
+        with patch(
+            "custom_components.pepa_sensory_arm_house.agent.core.ConversationHistoryManager"
+        ):
+            with patch("custom_components.pepa_sensory_arm_house.agent.core.ToolHandler"):
+                from custom_components.pepa_sensory_arm_house.conversation_session import (
                     ConversationSessionManager,
                 )
 
@@ -143,10 +145,10 @@ class TestMemoryQualityValidation:
     """Test memory quality validation in _parse_and_store_memories."""
 
     @pytest.mark.asyncio
-    async def test_rejects_short_memories(self, home_agent):
+    async def test_rejects_short_memories(self, pepa_sensory_arm_house):
         """Test that memories with less than 10 meaningful words are rejected."""
         # Mock the memory manager's add_memory to track calls
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         short_memories = [
             {
@@ -162,16 +164,18 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(short_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         # No memories should be stored
         assert stored_count == 0
-        assert home_agent.memory_manager.add_memory.call_count == 0
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_rejects_low_importance_memories(self, home_agent):
+    async def test_rejects_low_importance_memories(self, pepa_sensory_arm_house):
         """Test that memories with importance < 0.4 are rejected."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         low_importance_memories = [
             {
@@ -187,15 +191,17 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(low_importance_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert stored_count == 0
-        assert home_agent.memory_manager.add_memory.call_count == 0
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_rejects_low_value_starting_patterns(self, home_agent):
+    async def test_rejects_low_value_starting_patterns(self, pepa_sensory_arm_house):
         """Test that memories starting with low-value phrases are rejected."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         low_value_memories = [
             {
@@ -221,15 +227,17 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(low_value_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert stored_count == 0
-        assert home_agent.memory_manager.add_memory.call_count == 0
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_rejects_transient_state_content(self, home_agent):
+    async def test_rejects_transient_state_content(self, pepa_sensory_arm_house):
         """Test that transient state and low-quality content is rejected for all types."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         transient_memories = [
             {
@@ -249,15 +257,17 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(transient_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert stored_count == 0
-        assert home_agent.memory_manager.add_memory.call_count == 0
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_accepts_high_quality_memories(self, home_agent):
+    async def test_accepts_high_quality_memories(self, pepa_sensory_arm_house):
         """Test that high-quality memories pass all validation checks and are stored."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         good_memories = [
             {
@@ -302,23 +312,25 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(good_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         # All 4 memories should be stored
         assert stored_count == 4
-        assert home_agent.memory_manager.add_memory.call_count == 4
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 4
 
         # Verify the content of stored memories
         for i, memory in enumerate(good_memories):
-            call_kwargs = home_agent.memory_manager.add_memory.call_args_list[i][1]
+            call_kwargs = pepa_sensory_arm_house.memory_manager.add_memory.call_args_list[i][1]
             assert call_kwargs["content"] == memory["content"]
             assert call_kwargs["memory_type"] == memory["type"]
             assert call_kwargs["importance"] == memory["importance"]
 
     @pytest.mark.asyncio
-    async def test_mixed_quality_memories(self, home_agent):
+    async def test_mixed_quality_memories(self, pepa_sensory_arm_house):
         """Test that only high-quality memories are stored when mixed with low-quality."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         mixed_memories = [
             # Good memory - should be stored
@@ -384,15 +396,18 @@ class TestMemoryQualityValidation:
         ]
 
         extraction_result = json.dumps(mixed_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         # Only 3 good memories should be stored
         assert stored_count == 3
-        assert home_agent.memory_manager.add_memory.call_count == 3
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 3
 
         # Verify that the right memories were stored (the good ones)
         stored_contents = [
-            call[1]["content"] for call in home_agent.memory_manager.add_memory.call_args_list
+            call[1]["content"]
+            for call in pepa_sensory_arm_house.memory_manager.add_memory.call_args_list
         ]
         assert "User prefers bedroom temperature at 68°F" in stored_contents[0]
         assert "sensitive to bright lights" in stored_contents[1]
@@ -403,20 +418,22 @@ class TestMemoryValidationEdgeCases:
     """Test edge cases in memory quality validation."""
 
     @pytest.mark.asyncio
-    async def test_handles_empty_extraction_result(self, home_agent):
+    async def test_handles_empty_extraction_result(self, pepa_sensory_arm_house):
         """Test handling of empty memory extraction results."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         extraction_result = json.dumps([])
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         assert stored_count == 0
-        assert home_agent.memory_manager.add_memory.call_count == 0
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_word_count_excludes_short_words(self, home_agent):
+    async def test_word_count_excludes_short_words(self, pepa_sensory_arm_house):
         """Test that word count validation excludes very short words (<=2 chars)."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         # Content has 15 total words but only 6 meaningful words (>2 chars)
         # "a", "to", "at", "in", "is", "on", "of", "it", "or" are all <=2 chars
@@ -429,15 +446,17 @@ class TestMemoryValidationEdgeCases:
         ]
 
         extraction_result = json.dumps(short_word_memory)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         # Should be rejected due to insufficient meaningful words
         assert stored_count == 0
 
     @pytest.mark.asyncio
-    async def test_importance_threshold_at_boundary(self, home_agent):
+    async def test_importance_threshold_at_boundary(self, pepa_sensory_arm_house):
         """Test importance threshold at exactly 0.4 (boundary case)."""
-        home_agent.memory_manager.add_memory = AsyncMock(return_value="mem_123")
+        pepa_sensory_arm_house.memory_manager.add_memory = AsyncMock(return_value="mem_123")
 
         # Test at threshold boundary
         boundary_memories = [
@@ -460,8 +479,10 @@ class TestMemoryValidationEdgeCases:
         ]
 
         extraction_result = json.dumps(boundary_memories)
-        stored_count = await home_agent._parse_and_store_memories(extraction_result, "conv_123")
+        stored_count = await pepa_sensory_arm_house._parse_and_store_memories(
+            extraction_result, "conv_123"
+        )
 
         # Only the first one (0.4) should be stored
         assert stored_count == 1
-        assert home_agent.memory_manager.add_memory.call_count == 1
+        assert pepa_sensory_arm_house.memory_manager.add_memory.call_count == 1

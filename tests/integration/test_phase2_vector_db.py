@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_VECTOR_DB_COLLECTION,
     CONF_VECTOR_DB_EMBEDDING_MODEL,
     CONF_VECTOR_DB_EMBEDDING_PROVIDER,
@@ -22,7 +22,7 @@ from custom_components.home_agent.const import (
     CONF_VECTOR_DB_TOP_K,
     EMBEDDING_PROVIDER_OLLAMA,
 )
-from custom_components.home_agent.context_providers.vector_db import (
+from custom_components.pepa_sensory_arm_house.context_providers.vector_db import (
     VectorDBContextProvider,
 )
 

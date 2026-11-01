@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent.context_providers.direct import DirectContextProvider
+from custom_components.pepa_sensory_arm_house.context_providers.direct import DirectContextProvider
 
 
 class TestDirectContextProviderInit:

@@ -15,8 +15,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.components import conversation as ha_conversation
 
-from custom_components.home_agent.agent.core import HomeAgent
-from custom_components.home_agent.const import DOMAIN
+from custom_components.pepa_sensory_arm_house.agent.core import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import DOMAIN
 
 
 @pytest.fixture
@@ -91,7 +91,7 @@ def user_input():
         language="en",
         device_id=None,
         satellite_id=None,
-        agent_id="home_agent",
+        agent_id="pepa_sensory_arm_house",
     )
 
 

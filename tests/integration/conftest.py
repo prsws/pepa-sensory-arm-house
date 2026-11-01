@@ -1,4 +1,4 @@
-"""Integration test fixtures for Home Agent.
+"""Integration test fixtures for Pepa Sensory Arm House.
 
 This module provides fixtures for integration tests that interact with real services
 (ChromaDB, LLM endpoints, etc.) configured via environment variables.
@@ -36,7 +36,7 @@ def disable_thinking_for_tests():
     # Patch where the value is used (agent.core), not where it's defined (const)
     # because Python imports copy the value at import time
     with patch(
-        "custom_components.home_agent.agent.core.DEFAULT_THINKING_ENABLED",
+        "custom_components.pepa_sensory_arm_house.agent.core.DEFAULT_THINKING_ENABLED",
         False,
     ):
         yield
@@ -415,7 +415,9 @@ async def session_manager(test_hass: HomeAssistant):
     Returns:
         ConversationSessionManager instance
     """
-    from custom_components.home_agent.conversation_session import ConversationSessionManager
+    from custom_components.pepa_sensory_arm_house.conversation_session import (
+        ConversationSessionManager,
+    )
 
     manager = ConversationSessionManager(test_hass)
     await manager.async_load()
@@ -697,11 +699,11 @@ def mock_llm_server():
     """Provide a pre-configured mock LLM server for testing.
 
     This fixture provides a MockLLMServer configured with responses
-    appropriate for Home Agent testing.
+    appropriate for Pepa Sensory Arm House testing.
     """
-    from tests.mocks import create_mock_llm_for_home_agent
+    from tests.mocks import create_mock_llm_for_pepa_sensory_arm_house
 
-    return create_mock_llm_for_home_agent()
+    return create_mock_llm_for_pepa_sensory_arm_house()
 
 
 @pytest.fixture

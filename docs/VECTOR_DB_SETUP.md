@@ -70,9 +70,9 @@ Get an API key from [OpenAI Platform](https://platform.openai.com/)
 
 Cost: ~$0.02 per 1M tokens (~$0.01-0.05/month typical usage)
 
-### 3. Configure Home Agent
+### 3. Configure Pepa Sensory Arm House
 
-1. Navigate to **Settings** > **Devices & Services** > **Home Agent** > **Configure**
+1. Navigate to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure**
 2. Select **Vector DB Settings**
 3. Configure connection:
 
@@ -101,13 +101,13 @@ Cost: ~$0.02 per 1M tokens (~$0.01-0.05/month typical usage)
 After enabling Vector DB mode, index your entities:
 
 1. Open **Developer Tools** > **Services**
-2. Select `home_agent.reindex_entities`
+2. Select `pepa_sensory_arm_house.reindex_entities`
 3. Execute (no parameters required)
 
 Monitor progress in logs:
 ```
-[home_agent.vector_db_manager] Indexing 127 entities...
-[home_agent.vector_db_manager] Indexed 127 entities in 12.3s
+[pepa_sensory_arm_house.vector_db_manager] Indexing 127 entities...
+[pepa_sensory_arm_house.vector_db_manager] Indexed 127 entities in 12.3s
 ```
 
 **When to reindex:**
@@ -120,14 +120,14 @@ Monitor progress in logs:
 Test a query:
 
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "What is the bedroom temperature?"
 ```
 
 Check logs for entity retrieval:
 ```
-[home_agent.vector_db_manager] Retrieved 3 entities for query (threshold=250.0)
+[pepa_sensory_arm_house.vector_db_manager] Retrieved 3 entities for query (threshold=250.0)
 ```
 
 The LLM should receive only relevant entities (e.g., bedroom temperature sensor) rather than all entities.
@@ -197,7 +197,7 @@ Controls minimum similarity required:
 ### No Entities Retrieved
 
 1. Verify entities are indexed:
-   - Re-run `home_agent.reindex_entities`
+   - Re-run `pepa_sensory_arm_house.reindex_entities`
 
 2. Increase Top K or similarity threshold
 
@@ -214,7 +214,7 @@ Controls minimum similarity required:
 
 All vector data is stored locally on your Home Assistant instance. No entity data is sent to external services except:
 - Embedding generation (if using OpenAI embeddings)
-- LLM queries with retrieved entity context (standard Home Agent operation)
+- LLM queries with retrieved entity context (standard Pepa Sensory Arm House operation)
 
 Use local Ollama embeddings for complete privacy.
 

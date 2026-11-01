@@ -1,4 +1,4 @@
-"""Mock utilities for Home Agent integration tests.
+"""Mock utilities for Pepa Sensory Arm House integration tests.
 
 This package provides reusable mock implementations for external services:
 - LLM backends (OpenAI, Ollama, vLLM)
@@ -36,7 +36,7 @@ from .embedding_mocks import (
 from .fixtures import (
     MockChromaDBClient,
     MockChromaDBCollection,
-    create_mock_llm_for_home_agent,
+    create_mock_llm_for_pepa_sensory_arm_house,
 )
 from .llm_mocks import (
     RESPONSES,
@@ -70,5 +70,5 @@ __all__ = [
     "MockChromaDBClient",
     "MockChromaDBCollection",
     # Pre-configured mocks
-    "create_mock_llm_for_home_agent",
+    "create_mock_llm_for_pepa_sensory_arm_house",
 ]

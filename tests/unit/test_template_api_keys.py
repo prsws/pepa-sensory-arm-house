@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.helpers import render_template_value
+from custom_components.pepa_sensory_arm_house.helpers import render_template_value
 
 # Patch path for the lazy Template import inside render_template_value
 _TEMPLATE_PATCH = "homeassistant.helpers.template.Template"
@@ -147,14 +147,14 @@ class TestSchemaAcceptsTemplates:
     def _mock_template_selector(self):
         """Mock TemplateSelector to accept strings without event loop."""
         with patch(
-            "custom_components.home_agent.config.schemas.selector.TemplateSelector",
+            "custom_components.pepa_sensory_arm_house.config.schemas.selector.TemplateSelector",
             return_value=str,
         ):
             yield
 
     def test_user_step_schema_accepts_plain_api_key(self):
         """Test that user step schema accepts a plain API key string."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_user_step_schema,
         )
 
@@ -170,7 +170,7 @@ class TestSchemaAcceptsTemplates:
 
     def test_user_step_schema_accepts_template_api_key(self):
         """Test that user step schema accepts a Jinja template string."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_user_step_schema,
         )
 
@@ -186,7 +186,7 @@ class TestSchemaAcceptsTemplates:
 
     def test_llm_settings_schema_accepts_plain_api_key(self):
         """Test that LLM settings schema accepts a plain API key."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_llm_settings_schema,
         )
 
@@ -201,7 +201,7 @@ class TestSchemaAcceptsTemplates:
 
     def test_llm_settings_schema_accepts_template_api_key(self):
         """Test that LLM settings schema accepts a Jinja template."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_llm_settings_schema,
         )
 
@@ -216,7 +216,7 @@ class TestSchemaAcceptsTemplates:
 
     def test_external_llm_schema_accepts_template(self):
         """Test that external LLM schema accepts a template API key."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_external_llm_settings_schema,
         )
 
@@ -230,7 +230,7 @@ class TestSchemaAcceptsTemplates:
 
     def test_vector_db_schema_accepts_template(self):
         """Test that vector DB schema accepts a template for OpenAI API key."""
-        from custom_components.home_agent.config.schemas import (
+        from custom_components.pepa_sensory_arm_house.config.schemas import (
             get_vector_db_settings_schema,
         )
 

@@ -27,23 +27,25 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from aiohttp import ClientSession
 
-from custom_components.home_agent.agent.llm import LLMMixin
-from custom_components.home_agent.agent.streaming import StreamingMixin
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent.llm import LLMMixin
+from custom_components.pepa_sensory_arm_house.agent.streaming import StreamingMixin
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_LLM_API_KEY,
     CONF_LLM_BASE_URL,
     CONF_LLM_MODEL,
 )
-from custom_components.home_agent.exceptions import HomeAgentError
+from custom_components.pepa_sensory_arm_house.exceptions import HomeAgentError
 
 # Patch path for the lazy Template import inside render_template_value
 _TEMPLATE_PATCH = "homeassistant.helpers.template.Template"
 
 # Patch path for render_template_value inside the streaming module
-_RENDER_IN_STREAMING = "custom_components.home_agent.agent.streaming.render_template_value"
+_RENDER_IN_STREAMING = (
+    "custom_components.pepa_sensory_arm_house.agent.streaming.render_template_value"
+)
 
 # Patch path for render_template_value inside the llm module
-_RENDER_IN_LLM = "custom_components.home_agent.helpers.render_template_value"
+_RENDER_IN_LLM = "custom_components.pepa_sensory_arm_house.helpers.render_template_value"
 
 
 # ---------------------------------------------------------------------------
@@ -264,7 +266,9 @@ class TestRedirectAuthPreservation:
         agent = _MockLLMAgent(config)
 
         # Capture how aiohttp.ClientSession is constructed
-        with patch("custom_components.home_agent.agent.llm.aiohttp.ClientSession") as mock_cls:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.agent.llm.aiohttp.ClientSession"
+        ) as mock_cls:
             mock_session_inst = MagicMock(spec=ClientSession)
             mock_session_inst.closed = False
 

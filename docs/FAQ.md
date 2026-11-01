@@ -6,9 +6,9 @@ Quick answers to common questions. For comprehensive coverage, see the [Complete
 
 ## General
 
-### What is Home Agent?
+### What is Pepa Sensory Arm House?
 
-Home Agent is a custom Home Assistant integration providing intelligent conversational AI with OpenAI-compatible LLMs. It enables natural language control with advanced features like custom tools, memory system, multi-LLM workflows, and streaming responses.
+Pepa Sensory Arm House is a custom Home Assistant integration providing intelligent conversational AI with OpenAI-compatible LLMs. It enables natural language control with advanced features like custom tools, memory system, multi-LLM workflows, and streaming responses.
 
 ### How is it different from extended_openai_conversation?
 
@@ -133,7 +133,7 @@ User: "I'm going to bed"
 
 **Example:**
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   custom_tools:
     - name: check_weather
       handler:
@@ -195,8 +195,8 @@ Debug Logging: true
 
 ### Where is data stored?
 
-**Conversation history**: `.storage/home_agent.history` (local only)
-**Memories**: `.storage/home_agent.memories` (local only)
+**Conversation history**: `.storage/pepa_sensory_arm_house.history` (local only)
+**Memories**: `.storage/pepa_sensory_arm_house.memories` (local only)
 **Vector DB**: Local ChromaDB instance (optional)
 
 **Control:**
@@ -205,11 +205,11 @@ Debug Logging: true
 History Enabled: false
 
 # Clear all data
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true
 ---
-service: home_agent.clear_history
+service: pepa_sensory_arm_house.clear_history
 ```
 
 ### Can I disable memory for privacy?
@@ -217,11 +217,11 @@ service: home_agent.clear_history
 **Yes:**
 ```yaml
 # Via UI
-Settings → Home Agent → Configure → Memory System
+Settings → Pepa Sensory Arm House → Configure → Memory System
 Memory Enabled: false
 
 # Or via service
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true
 ```
@@ -238,12 +238,12 @@ History Persist: false  # Don't save across restarts
 **Complete deletion:**
 ```yaml
 # 1. Clear memories
-service: home_agent.clear_memories
+service: pepa_sensory_arm_house.clear_memories
 data:
   confirm: true
 
 # 2. Clear history
-service: home_agent.clear_history
+service: pepa_sensory_arm_house.clear_history
 
 # 3. Disable future collection
 Memory Enabled: false
@@ -306,7 +306,7 @@ curl http://localhost:11434/api/tags
 3. Validate YAML syntax: Settings → System → Configuration Validation
 4. Test manually:
    ```yaml
-   service: home_agent.execute_tool
+   service: pepa_sensory_arm_house.execute_tool
    data:
      tool_name: ha_query
      parameters:
@@ -321,24 +321,24 @@ curl http://localhost:11434/api/tags
 # configuration.yaml
 logger:
   logs:
-    custom_components.home_agent: debug
+    custom_components.pepa_sensory_arm_house: debug
 ```
 
 **2. View logs:**
 ```
 Settings → System → Logs
-Filter: "home_agent"
+Filter: "pepa_sensory_arm_house"
 ```
 
 **3. Monitor events:**
 ```
 Developer Tools → Events
-Listen to: home_agent.*
+Listen to: pepa_sensory_arm_house.*
 ```
 
 **4. Test tools manually:**
 ```yaml
-service: home_agent.execute_tool
+service: pepa_sensory_arm_house.execute_tool
 data:
   tool_name: ha_control
   parameters:

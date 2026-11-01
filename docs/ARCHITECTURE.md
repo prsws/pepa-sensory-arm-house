@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document provides a comprehensive overview of Home Agent's architecture, including component relationships, data flow, and module structure.
+This document provides a comprehensive overview of Pepa Sensory Arm House's architecture, including component relationships, data flow, and module structure.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ This document provides a comprehensive overview of Home Agent's architecture, in
 
 ## High-Level Architecture
 
-Home Agent is built as a modular Home Assistant custom component that integrates with the native conversation platform. The architecture follows a layered design with clear separation of concerns.
+Pepa Sensory Arm House is built as a modular Home Assistant custom component that integrates with the native conversation platform. The architecture follows a layered design with clear separation of concerns.
 
 ```mermaid
 graph TB
@@ -25,7 +25,7 @@ graph TB
         Services[Services]
     end
 
-    subgraph "Home Agent Core"
+    subgraph "Pepa Sensory Arm House Core"
         Agent[HomeAgent<br/>Main Orchestrator]
         ContextMgr[ContextManager<br/>Context Injection]
         ConvHistory[ConversationHistoryManager<br/>History Tracking]
@@ -202,11 +202,11 @@ sequenceDiagram
 
 ## Module Structure
 
-This diagram shows the directory layout and key classes within the Home Agent codebase.
+This diagram shows the directory layout and key classes within the Pepa Sensory Arm House codebase.
 
 ```mermaid
 graph TD
-    subgraph "custom_components/home_agent/"
+    subgraph "custom_components/pepa_sensory_arm_house/"
         Init["__init__.py<br/>• async_setup<br/>• async_setup_entry<br/>• Service registration"]
 
         subgraph "agent/"
@@ -305,7 +305,7 @@ graph TD
 ### Directory Organization
 
 ```
-custom_components/home_agent/
+custom_components/pepa_sensory_arm_house/
 ├── agent/                      # Main agent implementation (mixin-based)
 │   ├── core.py                # HomeAgent orchestrator class
 │   ├── llm.py                 # LLM API communication
@@ -650,18 +650,18 @@ HomeAgentError (base)
 
 ## Event System
 
-Home Agent emits events for observability and automation:
+Pepa Sensory Arm House emits events for observability and automation:
 
-- `home_agent.conversation.started`
-- `home_agent.conversation.finished` (with metrics)
-- `home_agent.context.injected`
-- `home_agent.context.optimized`
-- `home_agent.tool.executed`
-- `home_agent.tool.progress`
-- `home_agent.error`
-- `home_agent.streaming.error`
-- `home_agent.memory.extracted`
-- `home_agent.history.saved`
+- `pepa_sensory_arm_house.conversation.started`
+- `pepa_sensory_arm_house.conversation.finished` (with metrics)
+- `pepa_sensory_arm_house.context.injected`
+- `pepa_sensory_arm_house.context.optimized`
+- `pepa_sensory_arm_house.tool.executed`
+- `pepa_sensory_arm_house.tool.progress`
+- `pepa_sensory_arm_house.error`
+- `pepa_sensory_arm_house.streaming.error`
+- `pepa_sensory_arm_house.memory.extracted`
+- `pepa_sensory_arm_house.history.saved`
 
 Events can be used for:
 - Monitoring and alerting

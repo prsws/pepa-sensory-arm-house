@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -43,7 +43,7 @@ class TestKeepAliveConditionalLLM:
     @pytest.fixture
     def session_manager(self, mock_hass):
         """Create a session manager."""
-        from custom_components.home_agent.conversation_session import (
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
             ConversationSessionManager,
         )
 
@@ -51,7 +51,7 @@ class TestKeepAliveConditionalLLM:
 
     def _create_agent(self, mock_hass, session_manager, base_url: str, keep_alive: str = "5m"):
         """Create a HomeAgent with the given base URL."""
-        from custom_components.home_agent.agent import HomeAgent
+        from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 
         config = {
             CONF_LLM_BASE_URL: base_url,
@@ -66,7 +66,7 @@ class TestKeepAliveConditionalLLM:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             return HomeAgent(mock_hass, config, session_manager)
@@ -202,7 +202,7 @@ class TestKeepAliveConditionalStreaming:
     @pytest.fixture
     def session_manager(self, mock_hass):
         """Create a session manager."""
-        from custom_components.home_agent.conversation_session import (
+        from custom_components.pepa_sensory_arm_house.conversation_session import (
             ConversationSessionManager,
         )
 
@@ -210,7 +210,7 @@ class TestKeepAliveConditionalStreaming:
 
     def _create_agent(self, mock_hass, session_manager, base_url: str, keep_alive: str = "5m"):
         """Create a HomeAgent with the given base URL."""
-        from custom_components.home_agent.agent import HomeAgent
+        from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 
         config = {
             CONF_LLM_BASE_URL: base_url,
@@ -225,7 +225,7 @@ class TestKeepAliveConditionalStreaming:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             return HomeAgent(mock_hass, config, session_manager)
@@ -343,13 +343,13 @@ class TestKeepAliveConditionalExternalLLM:
     )
     async def test_external_llm_keep_alive_not_sent_to_openai(self, mock_hass, base_url):
         """Test that keep_alive is NOT sent by external LLM tool to OpenAI-compatible APIs."""
-        from custom_components.home_agent.const import (
+        from custom_components.pepa_sensory_arm_house.const import (
             CONF_EXTERNAL_LLM_API_KEY,
             CONF_EXTERNAL_LLM_BASE_URL,
             CONF_EXTERNAL_LLM_KEEP_ALIVE,
             CONF_EXTERNAL_LLM_MODEL,
         )
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: base_url,
@@ -404,13 +404,13 @@ class TestKeepAliveConditionalExternalLLM:
         self, mock_hass, base_url, keep_alive_value
     ):
         """Test that keep_alive IS sent by external LLM tool to Ollama."""
-        from custom_components.home_agent.const import (
+        from custom_components.pepa_sensory_arm_house.const import (
             CONF_EXTERNAL_LLM_API_KEY,
             CONF_EXTERNAL_LLM_BASE_URL,
             CONF_EXTERNAL_LLM_KEEP_ALIVE,
             CONF_EXTERNAL_LLM_MODEL,
         )
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: base_url,
@@ -485,7 +485,7 @@ class TestIsOllamaBackendHelper:
     )
     def test_is_ollama_backend_detection(self, base_url, expected):
         """Test that Ollama backends are correctly detected by URL."""
-        from custom_components.home_agent.helpers import is_ollama_backend
+        from custom_components.pepa_sensory_arm_house.helpers import is_ollama_backend
 
         result = is_ollama_backend(base_url)
         assert (

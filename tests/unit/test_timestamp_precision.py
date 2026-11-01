@@ -20,8 +20,8 @@ import pytest
 from homeassistant.core import State
 from homeassistant.util import dt as dt_util
 
-from custom_components.home_agent.context_providers.base import _make_json_serializable
-from custom_components.home_agent.tools.ha_query import HomeAssistantQueryTool
+from custom_components.pepa_sensory_arm_house.context_providers.base import _make_json_serializable
+from custom_components.pepa_sensory_arm_house.tools.ha_query import HomeAssistantQueryTool
 
 
 class TestTimestampPrecision:

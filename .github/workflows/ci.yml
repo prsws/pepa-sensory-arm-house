@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest tests/unit/ tests/integration/ --ignore=tests/integration/test_real_llm.py --ignore=tests/integration/test_real_memory.py --ignore=tests/integration/test_real_vector_db.py --ignore=tests/integration/test_real_ttft_metrics.py -v --cov=custom_components.home_agent --cov-report=xml --cov-report=term
+          pytest tests/unit/ tests/integration/ --ignore=tests/integration/test_real_llm.py --ignore=tests/integration/test_real_memory.py --ignore=tests/integration/test_real_vector_db.py --ignore=tests/integration/test_real_ttft_metrics.py -v --cov=custom_components.pepa_sensory_arm_house --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -88,4 +88,4 @@ jobs:
 
       - name: Validate manifest.json
         run: |
-          python -c "import json; json.load(open('custom_components/home_agent/manifest.json'))"
+          python -c "import json; json.load(open('custom_components/pepa_sensory_arm_house/manifest.json'))"

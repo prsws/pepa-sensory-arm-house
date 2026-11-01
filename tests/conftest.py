@@ -1,4 +1,4 @@
-"""Shared test fixtures for Home Agent."""
+"""Shared test fixtures for Pepa Sensory Arm House."""
 
 import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -235,7 +235,7 @@ def sample_entities():
 def sample_config():
     """Sample configuration for testing."""
     return {
-        "name": "Test Home Agent",
+        "name": "Test Pepa Sensory Arm House",
         "llm": {
             "base_url": "https://api.openai.com/v1",
             "api_key": "test-key-123",

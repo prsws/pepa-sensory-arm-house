@@ -14,6 +14,10 @@ Agent") at commit `6989adb` (v0.9.5, 11 May 2026). That starting point is
 bookmarked by the `radlein-base` tag. Everything after that tag is work done
 in this repository.
 
+The integration has since been renamed: upstream's `home_agent` domain ("Home
+Agent") is `pepa_sensory_arm_house` ("Pepa Sensory Arm House") here, starting
+at version 1.0.0-alpha.
+
 Upstream pull requests that are merged here later will be listed below, so that
 their authors stay credited.
 

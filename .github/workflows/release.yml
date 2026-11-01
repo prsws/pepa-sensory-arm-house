@@ -29,7 +29,7 @@ jobs:
       - name: Extract version from manifest
         id: extract_manifest
         run: |
-          MANIFEST_VERSION=$(jq -r '.version' custom_components/home_agent/manifest.json)
+          MANIFEST_VERSION=$(jq -r '.version' custom_components/pepa_sensory_arm_house/manifest.json)
           echo "manifest_version=$MANIFEST_VERSION" >> $GITHUB_OUTPUT
           echo "Manifest version: $MANIFEST_VERSION"
 
@@ -97,7 +97,7 @@ jobs:
           IS_PRERELEASE="${{ steps.prerelease.outputs.is_prerelease }}"
 
           cat > RELEASE_NOTES.md << EOF
-          # Home Agent v$VERSION
+          # Pepa Sensory Arm House v$VERSION
 
           $(if [ "$IS_PRERELEASE" = "true" ]; then echo "**⚠️ This is a pre-release version**"; echo ""; fi)
           ## What's Changed
@@ -109,17 +109,17 @@ jobs:
           ### Via HACS (Recommended)
 
           1. In HACS → Integrations → Custom repositories
-          2. Add: \`https://github.com/aradlein/hass-agent-llm\`
-          3. Install Home Agent from HACS
+          2. Add: \`https://github.com/prsws/pepa-sensory-arm-house\`
+          3. Install Pepa Sensory Arm House from HACS
 
           See [HACS Installation Guide](docs/HACS_PRIVATE_INSTALL.md) for detailed instructions.
 
           ### Manual Installation
 
-          1. Download the \`home-agent-$VERSION.zip\` file below
-          2. Extract to \`config/custom_components/home_agent\`
+          1. Download the \`pepa-sensory-arm-house-$VERSION.zip\` file below
+          2. Extract to \`config/custom_components/pepa_sensory_arm_house\`
           3. Restart Home Assistant
-          4. Add the Home Agent integration
+          4. Add the Pepa Sensory Arm House integration
 
           ## Documentation
 
@@ -141,7 +141,7 @@ jobs:
           prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
           generate_release_notes: false
           files: |
-            custom_components/home_agent/**/*
+            custom_components/pepa_sensory_arm_house/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -150,7 +150,7 @@ jobs:
           VERSION="${{ steps.extract_version.outputs.tag_version }}"
           mkdir -p dist
           cd custom_components
-          zip -r ../dist/home-agent-$VERSION.zip home_agent/
+          zip -r ../dist/pepa-sensory-arm-house-$VERSION.zip pepa_sensory_arm_house/
           cd ..
 
       - name: Upload Release Asset

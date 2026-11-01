@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from custom_components.home_agent.context_optimizer import (
+from custom_components.pepa_sensory_arm_house.context_optimizer import (
     CompressionMetrics,
     ContextOptimizer,
     EntityPriority,

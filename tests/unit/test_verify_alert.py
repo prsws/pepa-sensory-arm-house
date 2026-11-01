@@ -1,18 +1,18 @@
-"""Tests for loud verify failures (custom_components.home_agent.verify_alert)."""
+"""Tests for loud verify failures (custom_components.pepa_sensory_arm_house.verify_alert)."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent import verify_alert
-from custom_components.home_agent.request_origin import (
+from custom_components.pepa_sensory_arm_house import verify_alert
+from custom_components.pepa_sensory_arm_house.request_origin import (
     CHANNEL_CONVERSATION,
     CHANNEL_SATELLITE,
     CHANNEL_SERVICE,
     RequestOrigin,
 )
-from custom_components.home_agent.verify_alert import (
+from custom_components.pepa_sensory_arm_house.verify_alert import (
     ALERT_NOTIFICATION,
     ALERT_SATELLITE,
     async_alert_failure,

@@ -1,8 +1,8 @@
-# Home Agent Installation - Quick Start
+# Pepa Sensory Arm House Installation - Quick Start
 
 ## Overview
 
-Home Agent is a Home Assistant custom component that brings advanced conversational AI capabilities with tool execution, context injection, and intelligent automation management. Works with OpenAI, Ollama, LocalAI, and any OpenAI-compatible endpoint.
+Pepa Sensory Arm House is a Home Assistant custom component that brings advanced conversational AI capabilities with tool execution, context injection, and intelligent automation management. Works with OpenAI, Ollama, LocalAI, and any OpenAI-compatible endpoint.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Home Agent is a Home Assistant custom component that brings advanced conversatio
 
 1. Open Home Assistant and navigate to **HACS** in the sidebar
 2. Click **Integrations** then the **+** button
-3. Search for **Home Agent**
+3. Search for **Pepa Sensory Arm House**
 4. Click **Download**
 5. Restart Home Assistant
 
@@ -25,17 +25,17 @@ Note: Currently in development. Use manual installation below.
 1. **Clone or download** the repository:
    ```bash
    cd /config
-   git clone https://github.com/yourusername/home-agent.git
+   git clone https://github.com/prsws/pepa-sensory-arm-house.git
    ```
 
 2. **Copy to custom components**:
    ```bash
-   cp -r home-agent/custom_components/home_agent /config/custom_components/
+   cp -r pepa-sensory-arm-house/custom_components/pepa_sensory_arm_house /config/custom_components/
    ```
 
 3. **Verify files are in place**:
    ```bash
-   ls -la /config/custom_components/home_agent/
+   ls -la /config/custom_components/pepa_sensory_arm_house/
    ```
 
 4. **Restart Home Assistant** via Settings > System > Restart
@@ -45,12 +45,12 @@ Note: Currently in development. Use manual installation below.
 ### Add the Integration
 
 1. Navigate to **Settings** > **Devices & Services**
-2. Click **+ Add Integration** and search for **Home Agent**
+2. Click **+ Add Integration** and search for **Pepa Sensory Arm House**
 3. Configure the primary LLM:
 
 | Field | Example Value |
 |-------|---------------|
-| Name | `Home Agent` |
+| Name | `Pepa Sensory Arm House` |
 | LLM Base URL | `https://api.openai.com/v1` (OpenAI) or `http://localhost:11434/v1` (Ollama) |
 | API Key | Your API key (or leave blank for local models) |
 | Model | `gpt-4o-mini` (OpenAI) or `llama3.2:3b` (Ollama) |
@@ -79,7 +79,7 @@ Other providers (LocalAI, LM Studio) follow similar patterns - see reference doc
 
 ### Configure Context Mode
 
-1. Go to **Settings** > **Devices & Services** > **Home Agent** > **Configure**
+1. Go to **Settings** > **Devices & Services** > **Pepa Sensory Arm House** > **Configure**
 2. Select **Context Settings**
 3. Choose your mode:
 
@@ -110,7 +110,7 @@ Other providers (LocalAI, LM Studio) follow similar patterns - see reference doc
 Test your installation:
 
 1. Open **Developer Tools** > **Services**
-2. Select `home_agent.process`
+2. Select `pepa_sensory_arm_house.process`
 3. Enter:
    ```yaml
    text: "What is the current temperature?"
@@ -150,7 +150,7 @@ text: "Turn on the living room lights"
 
 2. **Voice Assistant Integration:**
    - Navigate to **Settings** > **Voice Assistants**
-   - Select **Home Agent** as the conversation agent
+   - Select **Pepa Sensory Arm House** as the conversation agent
 
 3. **Use in Automations:**
    ```yaml
@@ -160,7 +160,7 @@ text: "Turn on the living room lights"
          - platform: time
            at: "07:00:00"
        action:
-         - service: home_agent.process
+         - service: pepa_sensory_arm_house.process
            data:
              text: "Give me a morning briefing"
    ```

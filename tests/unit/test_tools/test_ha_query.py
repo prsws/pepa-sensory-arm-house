@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from homeassistant.core import State
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     HISTORY_AGGREGATE_AVG,
     HISTORY_AGGREGATE_COUNT,
     HISTORY_AGGREGATE_MAX,
@@ -14,12 +14,12 @@ from custom_components.home_agent.const import (
     HISTORY_AGGREGATE_SUM,
     TOOL_HA_QUERY,
 )
-from custom_components.home_agent.exceptions import (
+from custom_components.pepa_sensory_arm_house.exceptions import (
     PermissionDenied,
     ToolExecutionError,
     ValidationError,
 )
-from custom_components.home_agent.tools.ha_query import HomeAssistantQueryTool
+from custom_components.pepa_sensory_arm_house.tools.ha_query import HomeAssistantQueryTool
 
 
 class TestHomeAssistantQueryTool:

@@ -6,7 +6,7 @@
 
 The house scope of the Pepa Sensory Arm: a Home Assistant (HA) conversation agent that gives Pepa its senses, muscles and voice inside the home. Reflex-first, local-first.
 
-> **Status: rebuild in progress.** This repository was restarted from a clean copy of upstream [Home Agent](https://github.com/aradlein/hass-agent-llm) by Anton Radlein (version 0.9.5, tagged here as the `radlein-base` pre-release). Pepa-specific changes from the earlier `pepa-sensory-arm` repository are being brought over one at a time, each judged against the scope framing below, not replayed mechanically. The code behaves like upstream Home Agent except for the changes listed under [Added in this repository](#added-in-this-repository), and it still carries upstream's name: the integration appears as "Home Agent" and its domain and service names start with `home_agent`. They will be renamed to `pepa_sensory_arm_house`, which will be a breaking change for anyone who installs before then.
+> **Status: rebuild in progress.** This repository was restarted from a clean copy of upstream [Home Agent](https://github.com/aradlein/hass-agent-llm) by Anton Radlein (version 0.9.5, tagged here as the `radlein-base` pre-release). Pepa-specific changes from the earlier `pepa-sensory-arm` repository are being brought over one at a time, each judged against the scope framing below, not replayed mechanically. The code behaves like upstream Home Agent except for the changes listed under [Added in this repository](#added-in-this-repository). It has been renamed: the integration appears as "Pepa Sensory Arm House" and its domain, service and event names start with `pepa_sensory_arm_house` (version 1.0.0-alpha). To Home Assistant it is a new integration, separate from upstream Home Agent (`home_agent`) and from the earlier `pepa_sensory_arm`.
 
 ## Where this fits
 
@@ -97,7 +97,7 @@ Starting with 2026.11, the Home Assistant Community Store (HACS) is built into H
    [![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=prsws&repository=pepa-sensory-arm-house&category=integration)
 2. Adding a custom repository needs a GitHub connection (a GitHub account). Browsing and installing from the main catalog does not.
 3. Install it. An integration with a setup flow that was not loaded before starts right away; otherwise a repair notice offers a restart.
-4. Go to **Settings** → **Devices & Services** → **Add Integration**, search for "Home Agent" (the name will change with the rename), and follow the wizard.
+4. Go to **Settings** → **Devices & Services** → **Add Integration**, search for "Pepa Sensory Arm House", and follow the wizard.
 
 Updates appear under **Settings** → **Updates**, next to Home Assistant's own.
 
@@ -105,7 +105,7 @@ Updates appear under **Settings** → **Updates**, next to Home Assistant's own.
 
 1. In HACS, go to **Integrations** → **⋮** → **Custom repositories**.
 2. Add `https://github.com/prsws/pepa-sensory-arm-house` with category **Integration**.
-3. Search for "Home Agent" in HACS and click **Install**, then restart Home Assistant.
+3. Search for "Pepa Sensory Arm House" in HACS and click **Install**, then restart Home Assistant.
 4. Add the integration as in step 4 above.
 
 The link above also works on these versions: it opens HACS.
@@ -113,12 +113,12 @@ The link above also works on these versions: it opens HACS.
 ### Manual (any version)
 
 1. Download the latest release from this repository.
-2. Copy `custom_components/home_agent` into your Home Assistant `config/custom_components` folder.
+2. Copy `custom_components/pepa_sensory_arm_house` into your Home Assistant `config/custom_components` folder.
 3. Restart Home Assistant and add the integration as above.
 
 ### One repository per integration name
 
-Home Assistant allows only one installed repository for each integration domain (the internal name, here `home_agent`). Until the rename, if you already have upstream Home Agent or another copy of it installed, the Marketplace will refuse to install this one. Back up, then remove the other copy first.
+Home Assistant allows only one installed repository for each integration domain (the internal name, here `pepa_sensory_arm_house`). Upstream Home Agent (`home_agent`) and the earlier Pepa Sensory Arm (`pepa_sensory_arm`) have different domains, so they can be installed side by side with this one, for example while testing. Configuration and history do not carry over from them: this is set up as a new integration.
 
 Details: [Installation Guide](docs/INSTALLATION.md)
 
@@ -140,12 +140,12 @@ In **Settings** → **Devices & Services** → **Add Integration**, configure:
 Call the conversation service:
 
 ```yaml
-service: home_agent.process
+service: pepa_sensory_arm_house.process
 data:
   text: "Turn on the living room lights"
 ```
 
-(Service names will change with the rename; new code and documentation will key on the integration's domain constant rather than the literal name.)
+(Upstream's `home_agent.process` is now `pepa_sensory_arm_house.process`; the same goes for every service and event name.)
 
 ### 3. Go further
 
@@ -174,7 +174,7 @@ automation:
       - platform: time
         at: "07:00:00"
     action:
-      - service: home_agent.process
+      - service: pepa_sensory_arm_house.process
         data:
           text: "Good morning! Please prepare for the day."
           conversation_id: "morning_routine"
@@ -201,7 +201,7 @@ automation:
 Custom tools are defined in YAML (`configuration.yaml`). Point REST tools at services on your own network; a call that leaves the house goes against Pepa's no-cloud rule.
 
 ```yaml
-home_agent:
+pepa_sensory_arm_house:
   tools_custom:
     - name: check_weather
       description: "Get weather forecast"
@@ -233,17 +233,17 @@ Reset a conversation with the `clear_conversation` service:
 
 ```yaml
 # Current user and device
-service: home_agent.clear_conversation
+service: pepa_sensory_arm_house.clear_conversation
 
 # A specific device
-service: home_agent.clear_conversation
+service: pepa_sensory_arm_house.clear_conversation
 data:
   device_id: "kitchen_satellite"
 ```
 
 ## Documentation
 
-The `docs/` files are inherited from upstream and still say "Home Agent" until they are revised.
+The `docs/` files are inherited from upstream. Names, services and links have been updated for the rename; their content has not yet been revised against Pepa's rules.
 
 - **Start here**: [Installation](docs/INSTALLATION.md) · [Configuration](docs/CONFIGURATION.md) · [Example configurations](docs/EXAMPLE_CONFIGS.md) · [FAQ](docs/FAQ.md)
 - **Features**: [Memory system](docs/MEMORY_SYSTEM.md) · [Vector DB setup](docs/VECTOR_DB_SETUP.md) · [Custom tools](docs/CUSTOM_TOOLS.md) · [External LLM](docs/EXTERNAL_LLM.md)
@@ -261,7 +261,7 @@ Contributions are welcome. The `main` branch is protected: changes arrive by pul
 
 Because history is linear, merge commits are not allowed: pull requests are merged with **Squash** or **Rebase and merge**. Contributions harvested from upstream are merged with **Rebase and merge**, so their authors stay the commit authors.
 
-To stay installable from the Marketplace, the repository needs a valid `hacs.json` at its root (the Marketplace cannot install or update without it), a `version` in `manifest.json` that matches the release tag, and an `issue_tracker` entry. (`manifest.json`'s `issue_tracker`, `documentation` and `codeowners` still point to upstream; they change with the rename.) The HACS validation action and `hassfest` (Home Assistant's own manifest checker) run on every pull request and must pass.
+To stay installable from the Marketplace, the repository needs a valid `hacs.json` at its root (the Marketplace cannot install or update without it), a `version` in `manifest.json` that matches the release tag (and `VERSION` in `const.py`), and an `issue_tracker` entry. The HACS validation action and `hassfest` (Home Assistant's own manifest checker) run on every pull request and must pass.
 
 Changes should respect the rules in [What the house scope does, and what it never does](#what-the-house-scope-does-and-what-it-never-does). If a decision in the [Decision Register](https://ai4aging.org/arms/sensory/decisions/) looks wrong, raise it as a question rather than working around it in code.
 
@@ -283,7 +283,7 @@ pytest tests/unit/ tests/integration/ \
   --ignore=tests/integration/test_real_ttft_metrics.py
 
 # Unit tests only, with coverage
-pytest tests/unit/ --cov=custom_components.home_agent --cov-report=html
+pytest tests/unit/ --cov=custom_components.pepa_sensory_arm_house --cov-report=html
 ```
 
 ## Support
@@ -300,6 +300,6 @@ This repository is derived from [Home Agent](https://github.com/aradlein/hass-ag
 
 ## Changelog
 
-**Unreleased**: rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; renaming to `pepa_sensory_arm_house` still to come; Pepa changes being re-adopted one at a time.
+**1.0.0-alpha** (unreleased): rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; renamed from `home_agent` to `pepa_sensory_arm_house` ("Pepa Sensory Arm House"), with Pepa's brand icons and `iot_class` set to `local_polling`; Pepa changes being re-adopted one at a time.
 
-**0.9.5 and earlier**: upstream Home Agent history. See the [upstream releases](https://github.com/aradlein/hass-agent-llm/releases). This repository's own version numbering has not been set yet.
+**0.9.5 and earlier**: upstream Home Agent history. See the [upstream releases](https://github.com/aradlein/hass-agent-llm/releases).

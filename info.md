@@ -1,6 +1,6 @@
-# Home Agent (hass-agent-llm)
+# Pepa Sensory Arm House
 
-A highly customizable Home Assistant custom component that extends the native conversation platform with intelligent conversational AI capabilities. Home Agent works with any OpenAI-compatible LLM provider, giving you the flexibility to use cloud services like OpenAI or run models locally with Ollama, enabling natural language control and monitoring of your smart home with advanced context awareness.
+A highly customizable Home Assistant custom component that extends the native conversation platform with intelligent conversational AI capabilities. Pepa Sensory Arm House works with any OpenAI-compatible LLM provider, giving you the flexibility to use cloud services like OpenAI or run models locally with Ollama, enabling natural language control and monitoring of your smart home with advanced context awareness.
 
 ## Key Features
 

@@ -23,8 +23,8 @@ import pytest
 from homeassistant.components import conversation
 from homeassistant.core import HomeAssistant
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_LLM_API_KEY,
     CONF_LLM_BASE_URL,
     CONF_LLM_MODEL,
@@ -308,7 +308,9 @@ async def test_realistic_streaming_with_tool_call(
     EXPECTED: Loop should terminate after 2 iterations
     BUG SYMPTOM: Loop might continue infinitely
     """
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_streaming, streaming_config, session_manager)
@@ -399,7 +401,9 @@ async def test_realistic_streaming_without_tool_calls(
     3. HA clears unresponded_tool_results
     4. Loop terminates after 1 iteration
     """
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_streaming, streaming_config, session_manager)
@@ -470,7 +474,9 @@ async def test_realistic_streaming_edge_case_empty_content(
 
     EXPECTED: Loop should terminate gracefully
     """
-    with patch("custom_components.home_agent.agent.core.async_should_expose") as mock_expose:
+    with patch(
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose"
+    ) as mock_expose:
         mock_expose.return_value = False
 
         agent = HomeAgent(mock_hass_for_streaming, streaming_config, session_manager)

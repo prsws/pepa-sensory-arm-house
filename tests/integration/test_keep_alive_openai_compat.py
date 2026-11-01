@@ -12,8 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
     CONF_EXTERNAL_LLM_API_KEY,
@@ -51,7 +51,9 @@ def test_hass():
 @pytest.fixture
 def session_manager(test_hass):
     """Create a session manager."""
-    from custom_components.home_agent.conversation_session import ConversationSessionManager
+    from custom_components.pepa_sensory_arm_house.conversation_session import (
+        ConversationSessionManager,
+    )
 
     return ConversationSessionManager(test_hass)
 
@@ -80,7 +82,7 @@ class TestKeepAliveOpenAICompatibility:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)
@@ -144,7 +146,7 @@ class TestKeepAliveOpenAICompatibility:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)
@@ -196,7 +198,7 @@ class TestKeepAliveOpenAICompatibility:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)
@@ -235,7 +237,7 @@ class TestKeepAliveOpenAICompatibility:
     @pytest.mark.asyncio
     async def test_external_llm_tool_openai_compat(self, test_hass, session_manager):
         """Test that external LLM tool respects OpenAI compatibility."""
-        from custom_components.home_agent.tools.external_llm import ExternalLLMTool
+        from custom_components.pepa_sensory_arm_house.tools.external_llm import ExternalLLMTool
 
         config = {
             CONF_EXTERNAL_LLM_BASE_URL: "https://api.openai.com/v1",
@@ -296,7 +298,7 @@ class TestKeepAliveEdgeCases:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)
@@ -342,7 +344,7 @@ class TestKeepAliveEdgeCases:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)
@@ -389,7 +391,7 @@ class TestKeepAliveEdgeCases:
         }
 
         with patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=False,
         ):
             agent = HomeAgent(test_hass, config, session_manager)

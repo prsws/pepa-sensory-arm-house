@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.core import ServiceNotFound
 
-from custom_components.home_agent.exceptions import ValidationError
-from custom_components.home_agent.tools.custom import ServiceCustomTool
+from custom_components.pepa_sensory_arm_house.exceptions import ValidationError
+from custom_components.pepa_sensory_arm_house.tools.custom import ServiceCustomTool
 
 
 class TestServiceCustomToolExecution:
@@ -106,7 +106,9 @@ class TestServiceCustomToolExecution:
         """Test successful service call with templated parameters."""
         mock_hass.services.async_call = AsyncMock(return_value=None)
 
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(
                 side_effect=lambda x: (
@@ -147,7 +149,9 @@ class TestServiceCustomToolExecution:
         """Test service call with templated target."""
         mock_hass.services.async_call = AsyncMock(return_value=None)
 
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(return_value="bedroom")
             mock_template_class.return_value = mock_template
@@ -189,7 +193,9 @@ class TestServiceCustomToolExecution:
     @pytest.mark.asyncio
     async def test_template_rendering_error(self, script_tool_with_params):
         """Test handling of template rendering errors."""
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(side_effect=Exception("Template error"))
             mock_template_class.return_value = mock_template
@@ -448,7 +454,9 @@ class TestServiceCustomToolTemplateRendering:
         """Test successful template rendering."""
         variables = {"message": "Hello World", "target": "phone"}
 
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(return_value="Hello World")
             mock_template_class.return_value = mock_template
@@ -467,7 +475,9 @@ class TestServiceCustomToolTemplateRendering:
     @pytest.mark.asyncio
     async def test_render_template_failure(self, tool_with_templates):
         """Test template rendering failure."""
-        with patch("custom_components.home_agent.tools.custom.Template") as mock_template_class:
+        with patch(
+            "custom_components.pepa_sensory_arm_house.tools.custom.Template"
+        ) as mock_template_class:
             mock_template = MagicMock()
             mock_template.async_render = MagicMock(side_effect=Exception("Render error"))
             mock_template_class.return_value = mock_template

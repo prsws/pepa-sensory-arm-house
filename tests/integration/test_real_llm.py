@@ -25,8 +25,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.const import ATTR_ENTITY_ID
 
-from custom_components.home_agent.agent import HomeAgent
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_DEBUG_LOGGING,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -41,7 +41,7 @@ from custom_components.home_agent.const import (
     CONF_STREAMING_ENABLED,
     CONF_TOOLS_MAX_CALLS_PER_TURN,
 )
-from custom_components.home_agent.helpers import strip_thinking_blocks
+from custom_components.pepa_sensory_arm_house.helpers import strip_thinking_blocks
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ async def test_basic_conversation(
     # Mock entity exposure to return no entities (simple test)
     # async_should_expose is actually a sync function despite the name
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         with maybe_mock_llm(is_using_mock_llm, mock_llm_server):
@@ -176,7 +176,7 @@ async def test_tool_calling(
 
     # Mock entity exposure to return False (avoid entity registry calls)
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         # Setup test states
@@ -284,7 +284,7 @@ async def test_multi_turn_context(
         mock_llm_server.add_response("color", "You like the color blue.")
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         with maybe_mock_llm(is_using_mock_llm, mock_llm_server):
@@ -375,7 +375,7 @@ async def test_streaming_response(
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         with maybe_mock_llm(is_using_mock_llm, mock_llm_server):
@@ -459,7 +459,7 @@ async def test_error_handling(test_hass, llm_config, session_manager):
     }
 
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         agent = HomeAgent(test_hass, config, session_manager)
@@ -537,7 +537,7 @@ async def test_llm_with_complex_tools(
 
     # Mock entity exposure to return False (avoid entity registry calls)
     with patch(
-        "custom_components.home_agent.agent.core.async_should_expose",
+        "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
         return_value=False,
     ):
         test_hass.states.async_all = MagicMock(return_value=sample_entity_states)
@@ -659,11 +659,11 @@ async def test_tool_execution_with_correct_entity(
     # Mock entity exposure - return True to expose all test entities
     with (
         patch(
-            "custom_components.home_agent.agent.core.async_should_expose",
+            "custom_components.pepa_sensory_arm_house.agent.core.async_should_expose",
             return_value=True,
         ),
         patch(
-            "custom_components.home_agent.tools.ha_control.er.async_get",
+            "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get",
             return_value=mock_entity_registry,
         ),
     ):

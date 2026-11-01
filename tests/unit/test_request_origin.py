@@ -1,4 +1,4 @@
-"""Tests for request origin tracking (custom_components.home_agent.request_origin).
+"""Tests for request origin tracking (custom_components.pepa_sensory_arm_house.request_origin).
 
 Each request records where it came from (a satellite, the conversation pipeline
 without one, or the integration's own service) so that tools can later answer
@@ -11,7 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from custom_components.home_agent.const import (
+from custom_components.pepa_sensory_arm_house.const import (
     CONF_CONTEXT_MODE,
     CONF_EMIT_EVENTS,
     CONF_HISTORY_ENABLED,
@@ -20,7 +20,7 @@ from custom_components.home_agent.const import (
     CONF_LLM_MODEL,
     CONTEXT_MODE_DIRECT,
 )
-from custom_components.home_agent.request_origin import (
+from custom_components.pepa_sensory_arm_house.request_origin import (
     CHANNEL_CONVERSATION,
     CHANNEL_SATELLITE,
     CHANNEL_SERVICE,
@@ -45,8 +45,10 @@ def _user_input(satellite_id=None, device_id=None, conversation_id="conv-1"):
 
 @pytest.fixture
 def agent():
-    from custom_components.home_agent.agent import HomeAgent
-    from custom_components.home_agent.conversation_session import ConversationSessionManager
+    from custom_components.pepa_sensory_arm_house.agent import HomeAgent
+    from custom_components.pepa_sensory_arm_house.conversation_session import (
+        ConversationSessionManager,
+    )
 
     hass = MagicMock()
     hass.states.async_all = MagicMock(return_value=[])
