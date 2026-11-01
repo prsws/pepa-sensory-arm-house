@@ -96,6 +96,18 @@ def mock_vector_manager():
     return manager
 
 
+@pytest.fixture(autouse=True)
+def mock_house_catalog():
+    """Stand in for the shared house catalog.
+
+    The real catalog needs Home Assistant's exposure settings and registries,
+    which mock_hass does not have. Its own behaviour is tested in
+    test_house_catalog.py; here we only check setup joins it and unload leaves it.
+    """
+    with patch("custom_components.home_agent.async_get_house_catalog") as getter:
+        yield getter.return_value
+
+
 class TestAsyncSetup:
     """Test async_setup function."""
 
@@ -177,6 +189,7 @@ class TestAsyncSetupEntry:
         mock_hass,
         mock_config_entry,
         mock_agent,
+        mock_house_catalog,
     ):
         """Test basic config entry setup without memory or vector DB."""
         mock_agent_class.return_value = mock_agent
@@ -193,6 +206,7 @@ class TestAsyncSetupEntry:
         assert "agent" in mock_hass.data[DOMAIN][mock_config_entry.entry_id]
         mock_set_agent.assert_called_once_with(mock_hass, mock_config_entry, mock_agent)
         mock_setup_services.assert_called_once()
+        mock_house_catalog.async_add_user.assert_called_once_with(mock_config_entry.entry_id)
 
     @patch("custom_components.home_agent.ConversationSessionManager")
     @patch("custom_components.home_agent.HomeAgent")
@@ -586,7 +600,7 @@ class TestAsyncUnloadEntry:
 
     @patch("custom_components.home_agent.ha_conversation.async_unset_agent")
     async def test_unload_entry_with_agent_only(
-        self, mock_unset_agent, mock_hass, mock_config_entry, mock_agent
+        self, mock_unset_agent, mock_hass, mock_config_entry, mock_agent, mock_house_catalog
     ):
         """Test unloading entry with only agent."""
         mock_hass.data[DOMAIN] = {mock_config_entry.entry_id: {"agent": mock_agent}}
@@ -597,6 +611,7 @@ class TestAsyncUnloadEntry:
         mock_unset_agent.assert_called_once_with(mock_hass, mock_config_entry)
         mock_agent.close.assert_called_once()
         assert mock_config_entry.entry_id not in mock_hass.data[DOMAIN]
+        mock_house_catalog.async_remove_user.assert_called_once_with(mock_config_entry.entry_id)
 
     @patch("custom_components.home_agent.ha_conversation.async_unset_agent")
     async def test_unload_entry_with_memory_manager(

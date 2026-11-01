@@ -154,6 +154,7 @@ from ..exceptions import (
     TokenLimitExceeded,
 )
 from ..helpers import strip_thinking_blocks
+from ..house_catalog import async_get_house_catalog
 from ..tool_handler import ToolHandler
 from ..tools import HomeAssistantControlTool, HomeAssistantQueryTool
 from ..tools.custom import CustomToolHandler
@@ -452,17 +453,12 @@ class HomeAgent(
         agent (HA still has them flagged exposed, but they were absent from
         hass.states at snapshot time). Re-reading exposure each turn lets them
         become controllable on the next turn instead.
-        """
-        from homeassistant.components import conversation as ha_conversation
-        from homeassistant.components.homeassistant.exposed_entities import (
-            async_should_expose,
-        )
 
-        current = frozenset(
-            state.entity_id
-            for state in self.hass.states.async_all()
-            if async_should_expose(self.hass, ha_conversation.DOMAIN, state.entity_id)
-        )
+        The exposed set comes from the shared house catalog, the same answer the
+        prompt's device catalog is built from, so what the model is shown and what
+        the tools allow cannot drift apart.
+        """
+        current = async_get_house_catalog(self.hass).async_refresh()
         previous = getattr(self, "_exposed_entity_ids", frozenset())
         if current != previous:
             self._exposed_entity_ids = current
