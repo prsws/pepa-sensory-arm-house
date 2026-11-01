@@ -26,5 +26,7 @@ their authors stay credited.
 ## Licence
 
 The upstream code is released under the MIT License, copyright (c) 2024 Home
-Agent Contributors. The `LICENSE` file is kept unchanged, and additions made in
-this repository are offered under the same licence.
+Agent Contributors. Work done in this repository is copyright (c) 2026 Pepa
+Sensory Arm contributors and is offered under the same licence. `LICENSE`
+carries both copyright lines; the upstream line and the licence text are kept
+unchanged.
