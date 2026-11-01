@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 
+from ..confirmation import CONFIRM_TIMEOUT_DEFAULT, async_get_confirmation_gate
 from ..const import (
     ACTION_SET_VALUE,
     ACTION_TOGGLE,
@@ -25,7 +26,7 @@ from ..const import (
     TOOL_HA_CONTROL,
 )
 from ..exceptions import PermissionDenied, ToolExecutionError, ValidationError
-from ..house_catalog import LABEL_VERIFY
+from ..house_catalog import LABEL_REVERSE, LABEL_VERIFY
 from ..request_origin import current_origin
 from ..verify import (
     OUTCOME_CONFIRMED,
@@ -80,6 +81,7 @@ class HomeAssistantControlTool(BaseTool):
         self,
         hass: HomeAssistant,
         exposed_entities: set[str] | Callable[[], frozenset[str] | set[str]] | None = None,
+        confirm_timeout: int | Callable[[], Any] | None = None,
     ) -> None:
         """Initialize the Home Assistant control tool.
 
@@ -90,9 +92,13 @@ class HomeAssistantControlTool(BaseTool):
                 agent refresh the allow-list without sharing a mutable reference).
                 If None, all entities are accessible (not recommended for
                 production).
+            confirm_timeout: Seconds to wait for the user's confirmation of an
+                action that cannot be undone, or a zero-arg provider of it (so a
+                changed option applies without re-creating the tool).
         """
         super().__init__(hass)
         self._exposed_entities = exposed_entities
+        self._confirm_timeout = confirm_timeout
 
     @property
     def name(self) -> str:
@@ -227,6 +233,50 @@ class HomeAssistantControlTool(BaseTool):
                     f"Use ha_query with wildcards to search for entities."
                 )
 
+        # Reversible only with the user-declared "reverse" label; anything else
+        # (no label, or no registry entry) is not reversible and is held until
+        # the user confirms it. See confirmation.py.
+        if registry_entry is None or LABEL_REVERSE not in registry_entry.labels:
+            state = self.hass.states.get(entity_id)
+            return async_get_confirmation_gate(self.hass).async_hold(
+                origin=current_origin(),
+                entity_id=entity_id,
+                name=state.attributes.get("friendly_name", entity_id) if state else entity_id,
+                action=action,
+                run=lambda: self._async_run_confirmed(action, entity_id, parameters),
+                timeout_s=self._confirm_timeout_s(),
+            )
+
+        return await self._async_run(action, entity_id, parameters, registry_entry)
+
+    def _confirm_timeout_s(self) -> Any:
+        value = (
+            self._confirm_timeout() if callable(self._confirm_timeout) else self._confirm_timeout
+        )
+        return CONFIRM_TIMEOUT_DEFAULT if value is None else value
+
+    async def _async_run_confirmed(
+        self, action: str, entity_id: str, parameters: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Run an action the user has just confirmed.
+
+        Access is checked again: the entity may have been unexposed or removed
+        while the question was waiting for an answer.
+        """
+        self._validate_entity_access(entity_id)
+        registry_entry = er.async_get(self.hass).async_get(entity_id)
+        if registry_entry is None and self.hass.states.get(entity_id) is None:
+            raise ValidationError(f"Entity '{entity_id}' no longer exists.")
+        return await self._async_run(action, entity_id, parameters, registry_entry)
+
+    async def _async_run(
+        self,
+        action: str,
+        entity_id: str,
+        parameters: dict[str, Any],
+        registry_entry: er.RegistryEntry | None,
+    ) -> dict[str, Any]:
+        """Call the service and build the result for the model."""
         # Slow-acting devices carry the user-declared "verify" label.
         needs_verify = registry_entry is not None and LABEL_VERIFY in registry_entry.labels
         previous = self.hass.states.get(entity_id)

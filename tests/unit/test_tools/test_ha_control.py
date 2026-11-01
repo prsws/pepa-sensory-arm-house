@@ -93,7 +93,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             # Start with light off
@@ -150,7 +150,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_switch_state
@@ -175,7 +175,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -199,7 +199,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -230,7 +230,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -257,7 +257,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_climate_state
@@ -285,7 +285,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_climate_state
@@ -356,7 +356,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -407,7 +407,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -439,7 +439,11 @@ class TestHomeAssistantControlTool:
 
     @pytest.mark.asyncio
     async def test_entity_not_in_registry_but_in_state_machine(self, mock_hass, sample_light_state):
-        """Test handling entity not in registry but in state machine."""
+        """An entity only in the state machine has no labels, so it is not reversible.
+
+        It is held for confirmation; with no request origin nobody can confirm it,
+        so it is refused and the service is never called.
+        """
         tool = HomeAssistantControlTool(mock_hass)
 
         with patch(
@@ -452,10 +456,11 @@ class TestHomeAssistantControlTool:
             mock_hass.states.get.return_value = sample_light_state  # But in state machine
             mock_hass.services.async_call = AsyncMock()
 
-            # Should still work
             result = await tool.execute(action=ACTION_TURN_ON, entity_id="light.living_room")
 
-            assert result["success"] is True
+            assert result["success"] is False
+            assert result["confirmation_required"] is True
+            mock_hass.services.async_call.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_service_call_failure_raises_tool_execution_error(
@@ -468,7 +473,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -490,7 +495,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -513,7 +518,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_climate_state
@@ -655,7 +660,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = sample_light_state
@@ -731,7 +736,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = cover_state
@@ -884,7 +889,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -924,7 +929,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -965,7 +970,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -1003,7 +1008,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -1039,7 +1044,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -1075,7 +1080,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -1111,7 +1116,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state
@@ -1147,7 +1152,7 @@ class TestHomeAssistantControlTool:
             "custom_components.pepa_sensory_arm_house.tools.ha_control.er.async_get"
         ) as mock_er:
             mock_registry = MagicMock()
-            mock_registry.async_get.return_value = MagicMock()
+            mock_registry.async_get.return_value = MagicMock(labels={"reverse"})
             mock_er.return_value = mock_registry
 
             mock_hass.states.get.return_value = climate_state

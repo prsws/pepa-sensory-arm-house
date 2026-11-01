@@ -262,7 +262,7 @@ class TestHaControlStartsVerify:
         )
 
     async def test_verify_entity_answers_pending_without_state(self, house):
-        tool, registry_patch = self._tool(house, ["verify"])
+        tool, registry_patch = self._tool(house, ["verify", "reverse"])
         with registry_patch, request_origin(ORIGIN):
             result = await tool.execute(action="turn_on", entity_id=GATE)
         assert result["success"] is True
@@ -275,7 +275,7 @@ class TestHaControlStartsVerify:
         assert manager._checks[GATE].command == "cover.open_cover"
 
     async def test_other_entities_are_unchanged(self, house):
-        tool, registry_patch = self._tool(house, [])
+        tool, registry_patch = self._tool(house, ["reverse"])
         with registry_patch:
             result = await tool.execute(action="turn_on", entity_id=GATE)
         assert "verification" not in result
