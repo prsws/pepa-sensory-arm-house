@@ -39,6 +39,7 @@ from .const import (
 )
 from .conversation_session import ConversationSessionManager
 from .helpers import check_chromadb_health, check_ollama_health
+from .house_catalog import async_get_house_catalog
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -133,6 +134,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "agent": agent,
         "session_manager": session_manager,
     }
+
+    # Start (or join) the shared house catalog, which publishes
+    # sensor.pepa_entity_context and feeds the tools' allow-list.
+    async_get_house_catalog(hass).async_add_user(entry.entry_id)
 
     # Perform health checks if using vector DB mode
     context_mode = config.get(CONF_CONTEXT_MODE)
@@ -243,6 +248,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Unregister conversation agent
     ha_conversation.async_unset_agent(hass, entry)
+
+    # Leave the shared house catalog; the last entry removes the sensor.
+    async_get_house_catalog(hass).async_remove_user(entry.entry_id)
 
     # Clean up agent, memory manager, and vector DB manager
     if entry.entry_id in hass.data[DOMAIN]:
