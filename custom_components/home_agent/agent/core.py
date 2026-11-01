@@ -157,6 +157,7 @@ from ..exceptions import (
 )
 from ..helpers import strip_thinking_blocks
 from ..house_catalog import async_get_house_catalog
+from ..request_origin import CHANNEL_SERVICE, RequestOrigin, current_origin, request_origin
 from ..tool_handler import ToolHandler
 from ..tools import HomeAssistantControlTool, HomeAssistantQueryTool
 from ..tools.custom import CustomToolHandler
@@ -271,6 +272,18 @@ class HomeAgent(
             _LOGGER.debug("Memory context provider enabled")
 
     async def async_process(
+        self, user_input: ha_conversation.ConversationInput
+    ) -> ha_conversation.ConversationResult:
+        """Process a conversation turn (required by AbstractConversationAgent).
+
+        Records where the request came from (a satellite, or the conversation
+        pipeline without one) for the whole turn, so tools can answer through the
+        same channel; see request_origin.
+        """
+        with request_origin(RequestOrigin.from_conversation_input(user_input)):
+            return await self._async_process_turn(user_input)
+
+    async def _async_process_turn(
         self, user_input: ha_conversation.ConversationInput
     ) -> ha_conversation.ConversationResult:
         """Process a conversation turn with optional streaming support.
@@ -742,6 +755,27 @@ class HomeAgent(
             return template_str
 
     async def process_message(
+        self,
+        text: str,
+        conversation_id: str | None = None,
+        user_id: str | None = None,
+        device_id: str | None = None,
+    ) -> str:
+        """Process a user message and return the agent's response.
+
+        Also the entry point of the integration's own service. When no request
+        origin is set yet (a direct call, not reached through async_process), the
+        request is recorded as coming through the service; see request_origin.
+        """
+        if current_origin() is not None:
+            return await self._process_message(text, conversation_id, user_id, device_id)
+        origin = RequestOrigin(
+            channel=CHANNEL_SERVICE, device_id=device_id, conversation_id=conversation_id
+        )
+        with request_origin(origin):
+            return await self._process_message(text, conversation_id, user_id, device_id)
+
+    async def _process_message(
         self,
         text: str,
         conversation_id: str | None = None,
