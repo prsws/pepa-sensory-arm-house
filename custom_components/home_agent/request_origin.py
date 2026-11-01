@@ -43,6 +43,9 @@ class RequestOrigin:
     satellite_id: str | None = None
     device_id: str | None = None
     conversation_id: str | None = None
+    # The pipeline's configured language (e.g. "es"); None for the service
+    # channel, where there is no pipeline.
+    language: str | None = None
 
     @classmethod
     def from_conversation_input(cls, user_input: ConversationInput) -> RequestOrigin:
@@ -53,6 +56,7 @@ class RequestOrigin:
             satellite_id=satellite_id,
             device_id=getattr(user_input, "device_id", None),
             conversation_id=getattr(user_input, "conversation_id", None),
+            language=getattr(user_input, "language", None),
         )
 
 

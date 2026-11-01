@@ -90,6 +90,7 @@ class TestRequestOriginModule:
             satellite_id="assist_satellite.sala",
             device_id="dev-sala",
             conversation_id="conv-1",
+            language="es",
         )
 
     def test_from_conversation_input_without_satellite(self):
@@ -162,6 +163,7 @@ class TestAgentRecordsOrigin:
         assert seen["origin"] == RequestOrigin(
             channel=CHANNEL_SERVICE, device_id="dev-x", conversation_id="c1"
         )
+        assert seen["origin"].language is None  # no pipeline on the service channel
         assert current_origin() is None
 
     async def test_satellite_origin_survives_the_synchronous_path(self, agent):
