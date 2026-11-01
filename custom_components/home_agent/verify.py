@@ -17,9 +17,12 @@ The check compares the entity's state with the state the command implies
 Nothing here blocks: the check is a state-change subscription plus one timer,
 both Home Assistant callbacks. Every outcome fires a ``pepa_verify`` event (the
 temporary ledger until the arm's ledger exists) carrying the entity, the
-command, the expected and observed states, the time taken and the request's
-origin, including its pipeline language. Failures are logged as errors. Saying
-a failure out loud on the channel the request came from is a later step.
+command, the expected and observed states, the time taken, the request's
+origin (including its pipeline language) and the alert channels used.
+
+Failures are loud (see verify_alert): logged as errors, always a Home Assistant
+notification, and spoken on the satellite the request came from when it can
+announce.
 """
 
 from __future__ import annotations
@@ -34,6 +37,7 @@ from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callb
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 
 from .request_origin import RequestOrigin
+from .verify_alert import async_alert_failure
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -246,6 +250,17 @@ class VerifyManager:
         self._release(check)
         duration = time.monotonic() - check.started
         observed = check.expectation.observed(current)
+        alerts = None
+        if outcome == OUTCOME_FAILED:
+            alerts = async_alert_failure(
+                self.hass,
+                check.origin,
+                check.entity_id,
+                check.expectation.description,
+                observed,
+                reason,
+                VERIFY_TIMEOUT_SECONDS,
+            )
         self._fire(
             check.entity_id,
             check.command,
@@ -255,6 +270,7 @@ class VerifyManager:
             reason,
             observed,
             duration,
+            alerts,
         )
         if outcome == OUTCOME_FAILED:
             _LOGGER.error(
@@ -282,6 +298,7 @@ class VerifyManager:
         reason: str | None,
         observed: Any,
         duration: float,
+        alerts: list[str] | None = None,
     ) -> None:
         self.hass.bus.async_fire(
             EVENT_VERIFY,
@@ -294,6 +311,7 @@ class VerifyManager:
                 "observed": observed,
                 "duration_s": round(duration, 1),
                 "origin": asdict(origin) if origin is not None else None,
+                "alerts": alerts or [],
             },
         )
 
