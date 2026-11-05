@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.components import conversation as ha_conversation
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import llm
 
 from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 from custom_components.pepa_sensory_arm_house.const import (
@@ -604,7 +605,7 @@ class TestStreamingMessageConstruction:
                 agent_id="pepa_sensory_arm_house",
                 tool_call_id="call_123",
                 tool_name="ha_control",
-                tool_result={"success": True},
+                result=llm.ToolResult(data={"success": True}),
             )
             # Final message to end the loop
             yield AssistantContent(
@@ -803,7 +804,7 @@ class TestStreamingToolLoopTermination:
                 agent_id="pepa_sensory_arm_house",
                 tool_call_id="call_123",
                 tool_name="HassTurnOn",
-                tool_result={"success": True},
+                result=llm.ToolResult(data={"success": True}),
             ),
         ]
 
@@ -900,7 +901,7 @@ class TestStreamingToolLoopTermination:
                 agent_id="pepa_sensory_arm_house",
                 tool_call_id=f"call_{stream_call_count}",
                 tool_name="SomeTool",
-                tool_result={"result": "ok"},
+                result=llm.ToolResult(data={"result": "ok"}),
             )
 
         mock_chat_log_instance.async_add_delta_content_stream = mock_content_stream_infinite
@@ -1042,7 +1043,7 @@ class TestStreamingToolLoopTermination:
                     agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_1",
                     tool_name="HassTurnOn",
-                    tool_result={"success": True},
+                    result=llm.ToolResult(data={"success": True}),
                 )
                 # CRITICAL: HA might also yield another AssistantContent
                 # with the LLM's response to the tool result IN THE SAME ITERATION
@@ -1473,7 +1474,7 @@ class TestStreamingMessageAccumulation:
                     agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_123",
                     tool_name="HassTurnOn",
-                    tool_result={"success": True},
+                    result=llm.ToolResult(data={"success": True}),
                 )
             elif iteration_count == 2:
                 # Second iteration: Final response - clear unresponded_tool_results
@@ -1617,7 +1618,7 @@ class TestStreamingMessageAccumulation:
                     agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_abc",
                     tool_name="HassTurnOn",
-                    tool_result={"success": True},
+                    result=llm.ToolResult(data={"success": True}),
                 )
                 # HA also yields the final response in the SAME iteration
                 # This should cause loop termination
@@ -2069,7 +2070,7 @@ class TestToolResultDatetimeSerialization:
                     agent_id="pepa_sensory_arm_house",
                     tool_call_id="call_dt",
                     tool_name="ha_query",
-                    tool_result=tool_result_with_datetimes,
+                    result=llm.ToolResult(data=tool_result_with_datetimes),
                 )
             else:
                 yield AssistantContent(
@@ -2117,3 +2118,108 @@ class TestToolResultDatetimeSerialization:
         assert tool_content["state"] == "playing"
         assert tool_content["last_updated"] == "2026-05-10T12:00:00"
         assert tool_content["scheduled_date"] == "2026-05-11"
+
+
+class TestToolResultsForHomeAssistant202611:
+    """Tool results must be llm.ToolResult on Home Assistant 2026.11.
+
+    The chat log stores what the tool adapter returns as ToolResultContent.result
+    and serializes it with dataclasses.asdict when the turn ends. A plain dict
+    there raised TypeError and the Assist dialog showed "Unexpected error during
+    intent recognition".
+    """
+
+    async def _adapter(self, agent):
+        """Run one streaming turn and return the tool adapter it installed."""
+        from homeassistant.components.conversation import AssistantContent
+
+        agent.config[CONF_STREAMING_ENABLED] = True
+        mock_input = MagicMock(spec=ha_conversation.ConversationInput)
+        mock_input.text = "Turn on the lights"
+        mock_input.conversation_id = "test-conv"
+        mock_input.language = "en"
+        mock_input.context = MagicMock()
+        mock_input.context.user_id = "test-user"
+        mock_input.device_id = None
+
+        chat_log = MagicMock()
+        chat_log.unresponded_tool_results = []
+
+        async def content_stream(*args, **kwargs):
+            yield AssistantContent(agent_id="pepa_sensory_arm_house", content="Done.")
+
+        chat_log.async_add_delta_content_stream = content_stream
+
+        def llm_stream(messages):
+            async def stream():
+                yield "data: {}"
+
+            return stream()
+
+        with (
+            patch("homeassistant.components.conversation.chat_log.current_chat_log") as current,
+            patch.object(agent, "_call_llm_streaming", side_effect=llm_stream),
+            patch(
+                "homeassistant.components.conversation.async_get_result_from_chat_log",
+                return_value=MagicMock(spec=ha_conversation.ConversationResult),
+            ),
+        ):
+            current.get.return_value = chat_log
+            await agent.async_process(mock_input)
+        return chat_log.llm_api
+
+    @pytest.mark.asyncio
+    async def test_success_is_a_tool_result(self, agent):
+        from homeassistant.helpers.llm import ToolInput
+
+        adapter = await self._adapter(agent)
+        adapter.tool_handler.execute_tool = AsyncMock(return_value={"success": True})
+        result = await adapter.async_call_tool(ToolInput(tool_name="ha_control", tool_args={}))
+        assert isinstance(result, llm.ToolResult)
+        assert result.data == {"success": True}
+        assert result.error is False
+
+    @pytest.mark.asyncio
+    async def test_non_dict_result_is_wrapped(self, agent):
+        from homeassistant.helpers.llm import ToolInput
+
+        adapter = await self._adapter(agent)
+        adapter.tool_handler.execute_tool = AsyncMock(return_value="ok")
+        result = await adapter.async_call_tool(ToolInput(tool_name="ha_control", tool_args={}))
+        assert result == llm.ToolResult(data={"result": "ok"})
+
+    @pytest.mark.asyncio
+    async def test_exception_is_an_error_result(self, agent):
+        from homeassistant.helpers.llm import ToolInput
+
+        adapter = await self._adapter(agent)
+        adapter.tool_handler.execute_tool = AsyncMock(side_effect=RuntimeError("boom"))
+        result = await adapter.async_call_tool(ToolInput(tool_name="ha_control", tool_args={}))
+        assert result == llm.ToolResult(data={"error": "boom"}, error=True)
+
+    @pytest.mark.asyncio
+    async def test_call_limit_is_an_error_result(self, agent):
+        from homeassistant.helpers.llm import ToolInput
+
+        adapter = await self._adapter(agent)
+        adapter.calls_this_turn = adapter.max_calls_per_turn
+        result = await adapter.async_call_tool(ToolInput(tool_name="ha_control", tool_args={}))
+        assert isinstance(result, llm.ToolResult)
+        assert result.error is True
+
+    @pytest.mark.asyncio
+    async def test_chat_log_entry_can_be_saved(self, agent):
+        """The regression itself: the stored entry serializes."""
+        from homeassistant.components.conversation import ToolResultContent
+        from homeassistant.helpers.llm import ToolInput
+
+        adapter = await self._adapter(agent)
+        adapter.tool_handler.execute_tool = AsyncMock(return_value={"held": True})
+        result = await adapter.async_call_tool(ToolInput(tool_name="ha_control", tool_args={}))
+        content = ToolResultContent(
+            agent_id="pepa_sensory_arm_house",
+            tool_call_id="c1",
+            tool_name="ha_control",
+            result=result,
+        )
+        assert content.as_dict()["result"] == {"data": {"held": True}, "error": False}

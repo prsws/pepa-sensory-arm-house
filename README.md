@@ -1,7 +1,7 @@
 # Pepa Sensory Arm — House
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.11%2B-blue.svg)](https://www.home-assistant.io/)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.11%2B-blue.svg)](https://www.home-assistant.io/)
 [![Marketplace](https://img.shields.io/badge/Marketplace-custom%20repository-orange.svg)](#installation)
 
 The house scope of the Pepa Sensory Arm: a Home Assistant (HA) conversation agent that gives Pepa its senses, muscles and voice inside the home. Reflex-first, local-first.
@@ -76,9 +76,8 @@ Pepa's rule is that nothing leaves the house. The inherited code can talk to clo
 
 **Required**
 
-- Home Assistant 2025.11 or later (the minimum declared in `hacs.json` and the version the tests run against, on Python 3.13 and 3.14)
+- Home Assistant 2026.11 or later (the minimum declared in `hacs.json` and the version the tests run against, on Python 3.14). Earlier versions are not supported: 2026.11 changed how tool results pass through the conversation, and this integration uses the new form. On an earlier Home Assistant, stay on the earlier [`pepa-sensory-arm`](https://github.com/prsws/pepa-sensory-arm).
 - `aiohttp >= 3.9.0` (included with Home Assistant)
-- To install from the Marketplace: Home Assistant 2026.11 or later. On earlier versions, use HACS or a manual install.
 
 **Optional**
 
@@ -92,7 +91,7 @@ Pepa's rule is that nothing leaves the house. The inherited code can talk to clo
 
 This repository is not in the community catalog, so it is installed as a *custom repository*. Community content is made and supported by its authors, not by the Home Assistant project; Home Assistant shows a warning saying so before you install.
 
-### Marketplace (Home Assistant 2026.11 and later)
+### Marketplace
 
 Starting with 2026.11, the Home Assistant Community Store (HACS) is built into Home Assistant as the **Marketplace** (**Settings** → **Marketplace**). If you already had HACS, Home Assistant migrates it on first start, including your custom repositories. HACS can no longer be installed on 2026.11 or later.
 
@@ -104,16 +103,7 @@ Starting with 2026.11, the Home Assistant Community Store (HACS) is built into H
 
 Updates appear under **Settings** → **Updates**, next to Home Assistant's own.
 
-### HACS (before 2026.11)
-
-1. In HACS, go to **Integrations** → **⋮** → **Custom repositories**.
-2. Add `https://github.com/prsws/pepa-sensory-arm-house` with category **Integration**.
-3. Search for "Pepa Sensory Arm House" in HACS and click **Install**, then restart Home Assistant.
-4. Add the integration as in step 4 above.
-
-The link above also works on these versions: it opens HACS.
-
-### Manual (any version)
+### Manual
 
 1. Download the latest release from this repository.
 2. Copy `custom_components/pepa_sensory_arm_house` into your Home Assistant `config/custom_components` folder.
@@ -272,7 +262,7 @@ Changes should respect the rules in [What the house scope does, and what it neve
 
 ## Testing
 
-Python 3.13 or 3.14.
+Python 3.14 (Home Assistant 2026.11 requires 3.14.2 or later).
 
 ```bash
 python3 -m venv venv
@@ -305,6 +295,6 @@ This repository is derived from [Home Agent](https://github.com/aradlein/hass-ag
 
 ## Changelog
 
-**1.0.0-alpha** (unreleased): rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; `reverse` label and catalog column (no label = not reversible) with a spoken yes-or-no before any action on what can't be undone; renamed from `home_agent` to `pepa_sensory_arm_house` ("Pepa Sensory Arm House"), with Pepa's brand icons and `iot_class` set to `local_polling`; Pepa changes being re-adopted one at a time.
+**1.0.0-alpha** (unreleased): rebuild from the upstream base; CI made green (dependency pins, formatting, `hassfest`); upstream pull requests #44, #43 and #51 merged; exposed-entity allow-list refreshed every turn, including the service path; house catalog published as `sensor.pepa_entity_context`; `verify` checks for slow-acting devices with loud failures; `reverse` label and catalog column (no label = not reversible) with a spoken yes-or-no before any action on what can't be undone; renamed from `home_agent` to `pepa_sensory_arm_house` ("Pepa Sensory Arm House"), with Pepa's brand icons and `iot_class` set to `local_polling`; requires Home Assistant 2026.11 or later (tool results as `ToolResult`; earlier versions stay on the earlier `pepa-sensory-arm`); Pepa changes being re-adopted one at a time.
 
 **0.9.5 and earlier**: upstream Home Agent history. See the [upstream releases](https://github.com/aradlein/hass-agent-llm/releases).

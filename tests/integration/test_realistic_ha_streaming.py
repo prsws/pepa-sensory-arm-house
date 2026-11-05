@@ -22,6 +22,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from homeassistant.components import conversation
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import llm
 
 from custom_components.pepa_sensory_arm_house.agent import HomeAgent
 from custom_components.pepa_sensory_arm_house.const import (
@@ -198,7 +199,7 @@ class RealisticChatLogMock:
                     agent_id="test_agent",
                     tool_call_id=tool_call.id,
                     tool_name=tool_call.tool_name,
-                    tool_result=tool_result,
+                    result=llm.ToolResult(data=tool_result),
                 )
 
             # Step 5: Update unresponded_tool_results to trigger next iteration

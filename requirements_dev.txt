@@ -1,14 +1,15 @@
 # Testing
 pytest>=7.4.0
 
-# DNS resolver - pin for aiodns/pycares compatibility
-# pycares 5.0.0 removed ares_query_* types that aiodns expects
-# See: https://github.com/aio-libs/aiodns/issues/97
-pycares>=4.4.0,<5.0.0
+# DNS resolver: Home Assistant 2026.11 uses aiodns 4.x, which needs pycares 5.2.1 or later
+pycares>=5.2.1
 pytest-xdist>=3.5.0
 pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
-pytest-homeassistant-custom-component>=0.13.0
+# Must be the release built for homeassistant 2026.11.0 (it pins Home Assistant exactly).
+# None exists yet as of 4 Nov 2026; until it does, CI cannot install. 0.13.375 is built
+# for 2026.10.4 and fails to load on 2026.11.
+pytest-homeassistant-custom-component>=0.13.376
 pytest-timeout>=2.1.0
 
 # Code Quality
@@ -27,13 +28,13 @@ pre-commit>=3.3.0
 
 # Home Assistant (for testing)
 # Pinned to specific version to ensure dependency compatibility
-homeassistant==2025.11.0
-# hassil and home-assistant-intents must match what homeassistant 2025.11.0 pins in
-# its conversation component (pip does not enforce those pins). Newer releases drop
-# hassil.fuzzy and home_assistant_intents.FuzzyConfig, so importing
-# homeassistant.components.conversation fails and every test errors during collection.
-hassil==3.4.0
-home-assistant-intents==2025.10.28
+homeassistant==2026.11.0
+# hassil and home-assistant-intents must match what homeassistant 2026.11.0 pins in
+# its conversation component (pip does not enforce those pins); a mismatch makes
+# importing homeassistant.components.conversation fail during test collection.
+hassil==3.12.1
+home-assistant-intents==2026.10.27
+gazetteer-matcher==1.1.0
 
 # Optional dependencies (for testing optional features)
 chromadb-client>=1.5.3
