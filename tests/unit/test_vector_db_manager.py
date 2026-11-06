@@ -11,6 +11,9 @@ import aiohttp
 import pytest
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import Event, State
+from homeassistant.helpers import area_registry as ar
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from custom_components.pepa_sensory_arm_house.const import (
     CONF_OPENAI_API_KEY,
@@ -65,6 +68,18 @@ def mock_hass():
         )
     )
     mock.states.async_entity_ids = MagicMock(return_value=[s.entity_id for s in mock_states])
+
+    # Empty registries: Home Assistant 2026.11 raises when a registry is missing
+    # from hass.data, and indexing an entity reads all three.
+    entity_registry = MagicMock()
+    entity_registry.async_get = MagicMock(return_value=None)
+    mock.data[er.DATA_REGISTRY] = entity_registry
+    area_registry = MagicMock()
+    area_registry.async_get_area = MagicMock(return_value=None)
+    mock.data[ar.DATA_REGISTRY] = area_registry
+    device_registry = MagicMock()
+    device_registry.async_get = MagicMock(return_value=None)
+    mock.data[dr.DATA_REGISTRY] = device_registry
 
     return mock
 
