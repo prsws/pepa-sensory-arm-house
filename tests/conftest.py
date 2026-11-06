@@ -275,29 +275,44 @@ def sample_tool_call():
 
 @pytest.fixture(autouse=True)
 async def _cancel_pending_history_saves():
-    """Cancel conversation-history saves still waiting when a test ends.
+    """Cancel background tasks the code under test leaves waiting when a test ends.
 
-    ConversationHistoryManager delays each save (debounce) in a background task.
-    pytest-homeassistant fails any test that leaves a task running, so cancel and
-    await the waiting saves before its cleanup check runs.
+    ConversationHistoryManager delays each save (debounce) in a background task,
+    and a MemoryManager started with async_initialize keeps a periodic cleanup
+    task and a debounced save task that only async_shutdown stops.
+    pytest-homeassistant fails any test that leaves a task running, so cancel
+    and await those tasks before its cleanup check runs.
     """
     from custom_components.pepa_sensory_arm_house.conversation import (
         ConversationHistoryManager,
     )
+    from custom_components.pepa_sensory_arm_house.memory_manager import MemoryManager
 
-    managers = []
-    original = ConversationHistoryManager._debounced_save
+    histories = []
+    memories = []
+    original_save = ConversationHistoryManager._debounced_save
+    original_init = MemoryManager.async_initialize
 
-    async def tracked(self):
-        managers.append(self)
-        await original(self)
+    async def tracked_save(self):
+        histories.append(self)
+        await original_save(self)
 
-    with patch.object(ConversationHistoryManager, "_debounced_save", tracked):
+    async def tracked_init(self):
+        memories.append(self)
+        await original_init(self)
+
+    with (
+        patch.object(ConversationHistoryManager, "_debounced_save", tracked_save),
+        patch.object(MemoryManager, "async_initialize", tracked_init),
+    ):
         yield
 
-    waiting = [
-        m._save_task for m in managers if m._save_task is not None and not m._save_task.done()
-    ]
+    candidates = (
+        [h._save_task for h in histories]
+        + [m._cleanup_task for m in memories]
+        + [m._save_task for m in memories]
+    )
+    waiting = [t for t in candidates if t is not None and not t.done()]
     for task in waiting:
         task.cancel()
     if waiting:
