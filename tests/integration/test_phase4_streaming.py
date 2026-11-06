@@ -944,7 +944,7 @@ async def test_streaming_tool_iteration_loop(
                     agent_id="test_agent",
                     tool_call_id="call_1",
                     tool_name="ha_query",
-                    tool_result={"state": "on"},
+                    result=llm.ToolResult(data={"state": "on"}),
                 )
             else:
                 # Second iteration: final response

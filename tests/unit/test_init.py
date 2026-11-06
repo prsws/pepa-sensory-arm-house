@@ -176,6 +176,24 @@ class TestConfigSchema:
 class TestAsyncSetupEntry:
     """Test async_setup_entry function."""
 
+    @pytest.fixture(autouse=True)
+    def _no_health_check_network(self):
+        """Stub the ChromaDB and Ollama health checks.
+
+        Setup probes both services over HTTP; a unit test must not open sockets.
+        """
+        with (
+            patch(
+                "custom_components.pepa_sensory_arm_house.check_chromadb_health",
+                AsyncMock(return_value=(True, "stubbed")),
+            ),
+            patch(
+                "custom_components.pepa_sensory_arm_house.check_ollama_health",
+                AsyncMock(return_value=(True, "stubbed")),
+            ),
+        ):
+            yield
+
     @patch("custom_components.pepa_sensory_arm_house.ConversationSessionManager")
     @patch("custom_components.pepa_sensory_arm_house.HomeAgent")
     @patch("custom_components.pepa_sensory_arm_house.ha_conversation.async_set_agent")

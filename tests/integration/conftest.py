@@ -186,7 +186,7 @@ def memory_collection_name() -> str:
 
 @pytest.fixture(scope="function")
 def expected_lingering_tasks(request):
-    """Override pytest-homeassistant-custom-component's expected_lingering_tasks.
+    """Override pytest-homeassistant's expected_lingering_tasks.
 
     ChromaDB tests may have lingering background threads from the HTTP client.
     This is expected behavior and not a test failure.
@@ -201,7 +201,7 @@ def expected_lingering_tasks(request):
 
 @pytest.fixture(scope="function")
 def verify_cleanup():
-    """Override pytest-homeassistant-custom-component's verify_cleanup.
+    """Override pytest-homeassistant's verify_cleanup.
 
     For integration tests with ChromaDB, we skip the thread cleanup verification
     because ChromaDB's HttpClient creates daemon threads that cannot be easily
@@ -587,7 +587,7 @@ def pytest_configure(config: Any) -> None:
         config: Pytest config object
     """
     # Disable socket blocking for integration tests
-    # pytest-homeassistant-custom-component blocks sockets by default
+    # pytest-homeassistant blocks sockets by default
     # but integration tests need real network access
     config.option.disable_socket = False
 
@@ -646,7 +646,7 @@ def pytest_sessionstart(session: Any) -> None:
     """Enable sockets at session start, after all plugins have configured.
 
     This runs after pytest_configure from all plugins, so it can override
-    the socket blocking set up by pytest-homeassistant-custom-component.
+    the socket blocking set up by pytest-homeassistant.
 
     Args:
         session: Pytest session object

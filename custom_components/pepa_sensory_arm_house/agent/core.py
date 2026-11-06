@@ -1101,8 +1101,13 @@ class HomeAgent(
                 self.max_calls_per_turn = max_calls_per_turn
                 self.calls_this_turn = 0
 
-            async def async_call_tool(self, tool_input: llm.ToolInput) -> dict:
-                """Execute tool via tool_handler."""
+            async def async_call_tool(self, tool_input: llm.ToolInput) -> llm.ToolResult:
+                """Execute tool via tool_handler.
+
+                Home Assistant 2026.11 stores the returned ToolResult in the chat
+                log and serializes it with dataclasses.asdict when the turn ends,
+                so a plain dict here breaks the whole turn.
+                """
                 # Enforce max calls per turn limit
                 if self.calls_this_turn >= self.max_calls_per_turn:
                     error_msg = (
@@ -1110,7 +1115,7 @@ class HomeAgent(
                         f"Skipping tool '{tool_input.tool_name}'."
                     )
                     _LOGGER.warning(error_msg)
-                    return {"error": error_msg}
+                    return llm.ToolResult(data={"error": error_msg}, error=True)
 
                 self.calls_this_turn += 1
 
@@ -1119,10 +1124,11 @@ class HomeAgent(
                         tool_input.tool_name, tool_input.tool_args, self.conversation_id
                     )
                     self.metrics["tool_calls"] += 1
-                    return result if isinstance(result, dict) else {"result": str(result)}
+                    data = result if isinstance(result, dict) else {"result": str(result)}
+                    return llm.ToolResult(data=data)
                 except Exception as err:
                     _LOGGER.error("Tool execution failed: %s", err, exc_info=True)
-                    return {"error": str(err)}
+                    return llm.ToolResult(data={"error": str(err)}, error=True)
 
         # Initialize metrics that will be passed to the adapter
         metrics: dict[str, Any] = {
@@ -1325,7 +1331,7 @@ class HomeAgent(
                             "role": "tool",
                             "tool_call_id": content_item.tool_call_id,
                             "name": content_item.tool_name,
-                            "content": json.dumps(content_item.tool_result, default=json_encoder),
+                            "content": json.dumps(content_item.result.data, default=json_encoder),
                         }
                     )
 
