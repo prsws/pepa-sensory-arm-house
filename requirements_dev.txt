@@ -6,10 +6,9 @@ pycares>=5.2.1
 pytest-xdist>=3.5.0
 pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
-# Must be the release built for homeassistant 2026.11.0 (it pins Home Assistant exactly).
-# None exists yet as of 4 Nov 2026; until it does, CI cannot install. 0.13.375 is built
-# for 2026.10.4 and fails to load on 2026.11.
-pytest-homeassistant-custom-component>=0.13.376
+# Home Assistant's own test package (replaces pytest-homeassistant-custom-component,
+# which stopped at 2026.10.4). It pins Home Assistant exactly: upgrade the two together.
+pytest-homeassistant==2026.11.0
 pytest-timeout>=2.1.0
 
 # Code Quality
