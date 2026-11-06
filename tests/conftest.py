@@ -271,3 +271,34 @@ def sample_tool_call():
             ),
         },
     }
+
+
+@pytest.fixture(autouse=True)
+async def _cancel_pending_history_saves():
+    """Cancel conversation-history saves still waiting when a test ends.
+
+    ConversationHistoryManager delays each save (debounce) in a background task.
+    pytest-homeassistant fails any test that leaves a task running, so cancel and
+    await the waiting saves before its cleanup check runs.
+    """
+    from custom_components.pepa_sensory_arm_house.conversation import (
+        ConversationHistoryManager,
+    )
+
+    managers = []
+    original = ConversationHistoryManager._debounced_save
+
+    async def tracked(self):
+        managers.append(self)
+        await original(self)
+
+    with patch.object(ConversationHistoryManager, "_debounced_save", tracked):
+        yield
+
+    waiting = [
+        m._save_task for m in managers if m._save_task is not None and not m._save_task.done()
+    ]
+    for task in waiting:
+        task.cancel()
+    if waiting:
+        await asyncio.gather(*waiting, return_exceptions=True)
