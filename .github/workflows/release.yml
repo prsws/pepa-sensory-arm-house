@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Extract version from tag
         id: extract_version
@@ -106,56 +108,42 @@ jobs:
 
           ## Installation
 
-          ### Via HACS (Recommended)
+          ### Home Assistant Marketplace
 
-          1. In HACS → Integrations → Custom repositories
-          2. Add: \`https://github.com/prsws/pepa-sensory-arm-house\`
-          3. Install Pepa Sensory Arm House from HACS
+          1. Marketplace → Pepa Sensory Arm House → Install another version
+          2. Choose \`v$VERSION\`, then restart Home Assistant
 
-          See [HACS Installation Guide](docs/HACS_PRIVATE_INSTALL.md) for detailed instructions.
+          ### Manual
 
-          ### Manual Installation
-
-          1. Download the \`pepa-sensory-arm-house-$VERSION.zip\` file below
-          2. Extract to \`config/custom_components/pepa_sensory_arm_house\`
-          3. Restart Home Assistant
-          4. Add the Pepa Sensory Arm House integration
+          1. Download \`pepa-sensory-arm-house-$VERSION.zip\` below
+          2. Extract it into \`config/custom_components/\` (it creates \`pepa_sensory_arm_house/\`)
+          3. Restart Home Assistant and add the Pepa Sensory Arm House integration
 
           ## Documentation
 
-          - [Installation Guide](docs/INSTALLATION.md)
-          - [Configuration Guide](docs/CONFIGURATION.md)
-          - [API Reference](docs/API_REFERENCE.md)
-          - [Examples](docs/EXAMPLES.md)
+          https://github.com/${{ github.repository }}/tree/v$VERSION/docs
 
           ## Requirements
 
-          - Home Assistant 2024.1.0 or later
-          - Python 3.11+
+          - Home Assistant 2026.11.0 or later
+          - Python 3.14
           EOF
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          body_path: RELEASE_NOTES.md
-          prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
-          generate_release_notes: false
-          files: |
-            custom_components/pepa_sensory_arm_house/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release ZIP
         run: |
           VERSION="${{ steps.extract_version.outputs.tag_version }}"
           mkdir -p dist
           cd custom_components
-          zip -r ../dist/pepa-sensory-arm-house-$VERSION.zip pepa_sensory_arm_house/
+          zip -r ../dist/pepa-sensory-arm-house-$VERSION.zip pepa_sensory_arm_house/ -x '*/__pycache__/*'
           cd ..
 
-      - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+      # Attach only the zip. Attaching each file fails: several share a name (__init__.py).
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ steps.prerelease.outputs.is_prerelease }}
+          generate_release_notes: false
           files: dist/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
