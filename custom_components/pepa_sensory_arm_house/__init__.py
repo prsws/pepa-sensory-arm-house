@@ -16,6 +16,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers.typing import ConfigType
 
+from . import local_guard
 from .agent import HomeAgent
 from .awaiting_reply import async_get_awaiting_replies
 from .const import (
@@ -213,6 +214,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register as a conversation agent
     ha_conversation.async_set_agent(hass, entry, agent)
 
+    # Guard Home Assistant's local handling for this agent's pipelines, so
+    # "Prefer handling commands locally" cannot skip the confirmation gate.
+    # See local_guard.py and docs/LOCAL_HANDLING_GUARD.md.
+    local_guard.async_enable(hass, entry.entry_id)
+
     # Setup scheduled cleanup for conversation history
     agent.conversation_manager.setup_scheduled_cleanup()
 
@@ -250,6 +256,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Unregister conversation agent
     ha_conversation.async_unset_agent(hass, entry)
+    local_guard.async_disable(hass, entry.entry_id)
 
     # Leave the shared house catalog; the last entry removes the sensor and
     # cancels any verify checks still running.

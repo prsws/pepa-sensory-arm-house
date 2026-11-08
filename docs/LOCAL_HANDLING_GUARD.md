@@ -1,6 +1,6 @@
 # Local handling guard
 
-Status: specification. Nothing here is built yet.
+Status: built: device actions, other intents, switching on with each entry and off with the last ([`local_guard.py`](../custom_components/pepa_sensory_arm_house/local_guard.py)). Not built yet: the startup check and repair notice (see [Keeping it working](#keeping-it-working)), the setup dialog text and the onboarding scan.
 
 ## The problem
 
@@ -74,6 +74,32 @@ A watcher in the Self-Monitor arm is planned to flag, afterwards, any action on 
 ## Setup
 
 The setup dialog explains the guard in a few lines: with Pepa's pipelines, Home Assistant still answers questions and acts on what can be undone straight away; anything else is passed to Pepa, which asks first. Labelling the entities that can be undone with `reverse` is what makes more actions fast.
+
+## Seeing it work
+
+The guard writes one INFO line to the Home Assistant log when it switches on or off, for example (the count depends on the integrations installed):
+
+```text
+Local handling guard on: 41 intent handler(s) wrapped; Home Assistant answers Pepa's pipelines by itself only for questions and for actions on entities labelled reverse
+Local handling guard off: 41 intent handler(s) restored
+```
+
+With debug logging on for the guard, it also writes one line each time it hands a request to the agent:
+
+```yaml
+logger:
+  logs:
+    custom_components.pepa_sensory_arm_house.local_guard: debug
+```
+
+```text
+Local handling guard: HassTurnOff on ['climate.cuarto_termostato_cuarto'] handed to the agent (not every target carries the reverse label)
+Local handling guard: HassClimateSetTemperature handed to the agent (only questions are answered locally)
+```
+
+The agent then holds the action as usual, and its `pepa_confirm` events follow.
+
+A known gap: an intent handler that an integration registers late in its own config-entry setup, rather than when the integration loads, is not wrapped. The startup check is meant to report any such handler.
 
 ## Testing
 
