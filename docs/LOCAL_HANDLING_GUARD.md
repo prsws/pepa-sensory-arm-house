@@ -1,6 +1,6 @@
 # Local handling guard
 
-Status: built: device actions, other intents, switching on with each entry and off with the last ([`local_guard.py`](../custom_components/pepa_sensory_arm_house/local_guard.py)). Not built yet: the startup check and repair notice (see [Keeping it working](#keeping-it-working)), the setup dialog text and the onboarding scan.
+Status: built: device actions, other intents, switching on with each entry and off with the last, and the startup check and repair notice (see [Keeping it working](#keeping-it-working)), in [`local_guard.py`](../custom_components/pepa_sensory_arm_house/local_guard.py). Not built yet: the setup dialog text and the onboarding scan.
 
 ## The problem
 
@@ -61,7 +61,7 @@ Handlers registered after setup (by an integration that loads later) are wrapped
 The guard depends on Home Assistant internals: the order of the pipeline steps, the "no valid targets" hand-on, `conversation_agent_id` and `async_handle_states`. A Home Assistant release can change any of them. Two checks catch that:
 
 - **A test in this repository** fails if any of these hook points is missing or behaves differently, so a Home Assistant update is not released until the guard is checked against it.
-- **A check when the integration starts** confirms the wrappers are in place. If they are not, the integration raises a Home Assistant repair notice saying that local handling is not guarded for Pepa's pipelines and what to do (turn prefer-local off for those pipelines until the integration is updated). It does not fail silently.
+- **A check when Home Assistant has started**, and again whenever another integration loads, confirms that the hook points are present and that every intent handler is wrapped or is a question. If not, the integration raises a Home Assistant repair notice ("Pepa can't guard Home Assistant's local handling") naming what it found, logs an ERROR, and tells the person what to do: turn off "Prefer handling commands locally" in each voice assistant that uses Pepa until the integration is updated. The notice clears itself once the problem is gone, and when the last Pepa entry is removed. It does not fail silently.
 
 ## Sentence triggers
 
@@ -99,7 +99,7 @@ Local handling guard: HassClimateSetTemperature handed to the agent (only questi
 
 The agent then holds the action as usual, and its `pepa_confirm` events follow.
 
-A known gap: an intent handler that an integration registers late in its own config-entry setup, rather than when the integration loads, is not wrapped. The startup check is meant to report any such handler.
+A known gap: an intent handler that an integration registers late in its own config-entry setup, rather than when the integration loads, is not wrapped. The startup check reports any such handler in the repair notice until another integration loads and the guard wraps it.
 
 ## Testing
 
