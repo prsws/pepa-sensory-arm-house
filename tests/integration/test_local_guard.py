@@ -11,6 +11,7 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant.common import async_mock_service
 
 from custom_components.pepa_sensory_arm_house.local_guard import (
+    READ_INTENTS,
     async_all_reversible,
     async_get_local_guard,
     async_guard_registered_handlers,
@@ -121,3 +122,65 @@ async def test_all_reversible_rule(guarded_hass: HomeAssistant) -> None:
     assert async_all_reversible(guarded_hass, [lamp, heater]) is False
     assert async_all_reversible(guarded_hass, [loose]) is False
     assert async_all_reversible(guarded_hass, []) is False
+
+
+async def test_questions_answer_locally(guarded_hass: HomeAssistant) -> None:
+    """A read intent through a Pepa pipeline is answered by Home Assistant."""
+    response = await _local_attempt(guarded_hass, "is the bedroom heater on?")
+    assert response is not None
+    assert response.response_type is intent.IntentResponseType.QUERY_ANSWER
+
+
+async def test_other_intents_go_to_the_agent(hass: HomeAssistant) -> None:
+    """A non-read intent that is not a device action is refused for Pepa only."""
+    assert await async_setup_component(hass, "homeassistant", {})
+    assert await async_setup_component(hass, "conversation", {})
+    assert await async_setup_component(hass, "intent", {})
+    assert await async_setup_component(hass, "shopping_list", {})
+    guard = async_get_local_guard(hass)
+    guard.agent_ids.add(PEPA_AGENT_ID)
+    async_guard_registered_handlers(hass, guard)
+
+    assert await _local_attempt(hass, "add milk to my shopping list") is None
+    # For another agent Home Assistant handles it itself. (Without a shopping
+    # list config entry its own handler then fails, which does not matter here:
+    # what matters is that the request was not handed on.)
+    other = await _local_attempt(hass, "add eggs to my shopping list", agent_id=OTHER_AGENT_ID)
+    assert other is not None
+    assert other.error_code is not intent.IntentResponseErrorCode.NO_VALID_TARGETS
+
+
+async def test_unknown_intent_is_refused_for_pepa_only(guarded_hass: HomeAssistant) -> None:
+    """An intent the guard has never heard of fails closed (for Pepa only)."""
+
+    class NewIntent(intent.IntentHandler):
+        intent_type = "HassSomethingNew"
+
+        async def async_handle(self, intent_obj: intent.Intent) -> intent.IntentResponse:
+            return intent_obj.create_response()
+
+    intent.async_register(guarded_hass, NewIntent())
+    async_guard_registered_handlers(guarded_hass, async_get_local_guard(guarded_hass))
+
+    with pytest.raises(intent.MatchFailedError):
+        await intent.async_handle(
+            guarded_hass, "test", "HassSomethingNew", conversation_agent_id=PEPA_AGENT_ID
+        )
+    response = await intent.async_handle(
+        guarded_hass, "test", "HassSomethingNew", conversation_agent_id=OTHER_AGENT_ID
+    )
+    assert response is not None
+
+
+def test_read_list_names_real_intents() -> None:
+    """Every read intent name exists in this Home Assistant version."""
+    from pathlib import Path
+
+    import homeassistant
+
+    root = Path(homeassistant.__file__).parent
+    sources = (root / "helpers/intent.py").read_text() + (
+        root / "components/weather/const.py"
+    ).read_text()
+    for name in READ_INTENTS:
+        assert f'"{name}"' in sources, name

@@ -11,6 +11,8 @@ handlers and, only for requests meant for one of this integration's agents:
   ``intent.MatchFailedError``. Home Assistant then reports "no valid targets",
   drops its own answer and passes the request on to the agent, which holds the
   action and asks.
+- for intents that are not device actions, lets only questions through
+  (``READ_INTENTS``); every other intent is refused the same way.
 
 Requests meant for any other agent are not touched. The design and the Home
 Assistant hook points it relies on are in docs/LOCAL_HANDLING_GUARD.md; the hook
@@ -34,7 +36,22 @@ DATA_LOCAL_GUARD: Final = "pepa_local_guard"
 # Marks a handler method this module has wrapped, so it is never wrapped twice.
 _GUARDED_MARK: Final = "_pepa_local_guard"
 
-HandleStates = Callable[..., Awaitable[intent.IntentResponse]]
+Handler = Callable[..., Awaitable[intent.IntentResponse]]
+
+# Intents that only answer a question and change nothing. Through a Pepa
+# pipeline these are the only intents, other than device actions on reversible
+# targets, that Home Assistant may answer by itself. Anything not listed,
+# including intents a later Home Assistant release adds, goes to the agent.
+READ_INTENTS: Final = frozenset(
+    {
+        intent.INTENT_GET_STATE,
+        intent.INTENT_GET_TEMPERATURE,
+        intent.INTENT_GET_CURRENT_TIME,
+        intent.INTENT_GET_CURRENT_DATE,
+        intent.INTENT_NEVERMIND,
+        "HassGetWeather",
+    }
+)
 
 
 @dataclass
@@ -42,8 +59,8 @@ class LocalGuard:
     """Which agents the guard protects, and which handlers it has wrapped."""
 
     agent_ids: set[str] = field(default_factory=set)
-    # handler -> its original async_handle_states, kept to restore on removal.
-    wrapped: dict[intent.DynamicServiceIntentHandler, HandleStates] = field(default_factory=dict)
+    # handler -> (wrapped method name, original method), kept to restore on removal.
+    wrapped: dict[intent.IntentHandler, tuple[str, Handler]] = field(default_factory=dict)
 
     def is_pepa_request(self, intent_obj: intent.Intent) -> bool:
         """True when the request came through a pipeline for one of our agents."""
@@ -113,15 +130,49 @@ def async_guard_service_handler(
 
     setattr(guarded_handle_states, _GUARDED_MARK, True)
     handler.async_handle_states = guarded_handle_states  # type: ignore[method-assign]
-    guard.wrapped[handler] = original
+    guard.wrapped[handler] = ("async_handle_states", original)
+    return True
+
+
+@callback
+def async_guard_other_handler(guard: LocalGuard, handler: intent.IntentHandler) -> bool:
+    """Wrap an intent handler that is not a service intent. Returns True if wrapped.
+
+    These handlers resolve their targets and act inside their own
+    ``async_handle``, with no common step before acting, so the guard cannot
+    check targets. Through a Pepa pipeline only the read intents pass; any
+    other intent (setting a thermostat or a humidifier, timers, lists...) is
+    refused before it starts and goes to the agent.
+    """
+    if handler.intent_type in READ_INTENTS:
+        return False
+    original = handler.async_handle
+    if getattr(original, _GUARDED_MARK, False):
+        return False
+
+    async def guarded_handle(intent_obj: intent.Intent) -> intent.IntentResponse:
+        if guard.is_pepa_request(intent_obj):
+            raise intent.MatchFailedError(
+                result=intent.MatchTargetsResult(
+                    is_match=False, no_match_reason=intent.MatchFailedReason.ASSISTANT
+                ),
+                constraints=intent.MatchTargetsConstraints(),
+            )
+        return await original(intent_obj)
+
+    setattr(guarded_handle, _GUARDED_MARK, True)
+    handler.async_handle = guarded_handle  # type: ignore[method-assign]
+    guard.wrapped[handler] = ("async_handle", original)
     return True
 
 
 @callback
 def async_guard_registered_handlers(hass: HomeAssistant, guard: LocalGuard) -> int:
-    """Wrap every service intent handler registered so far. Returns how many."""
+    """Wrap every intent handler registered so far. Returns how many were wrapped."""
     count = 0
     for handler in list(intent.async_get(hass)):
         if isinstance(handler, intent.DynamicServiceIntentHandler):
             count += async_guard_service_handler(hass, guard, handler)
+        else:
+            count += async_guard_other_handler(guard, handler)
     return count
