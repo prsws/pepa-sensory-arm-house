@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up Pepa Sensory Arm House",
-        "description": "Configure your Pepa Sensory Arm House integration with an OpenAI-compatible LLM endpoint.",
+        "description": "Configure your Pepa Sensory Arm House integration with an OpenAI-compatible LLM endpoint.\n\nWith Pepa, Home Assistant still answers questions and handles actions that can be undone right away. Anything else goes to Pepa, which asks you first. Label the devices whose actions can be undone with `reverse` to make more of them fast. Fast answers only work in the voice assistant's own language.",
         "data": {
           "name": "Integration Name",
           "llm_base_url": "LLM API Base URL",
