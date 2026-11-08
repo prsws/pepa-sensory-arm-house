@@ -46,6 +46,10 @@ class RequestOrigin:
     # The pipeline's configured language (e.g. "es"); None for the service
     # channel, where there is no pipeline.
     language: str | None = None
+    # What the person said or typed, as received; None for the service channel.
+    # Read by code that must check the person's own words (the toggle rule in
+    # action_words.py), never shown to the model from here.
+    text: str | None = None
 
     @classmethod
     def from_conversation_input(cls, user_input: ConversationInput) -> RequestOrigin:
@@ -57,6 +61,7 @@ class RequestOrigin:
             device_id=getattr(user_input, "device_id", None),
             conversation_id=getattr(user_input, "conversation_id", None),
             language=getattr(user_input, "language", None),
+            text=getattr(user_input, "text", None),
         )
 
 

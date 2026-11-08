@@ -93,6 +93,7 @@ class TestRequestOriginModule:
             device_id="dev-sala",
             conversation_id="conv-1",
             language="es",
+            text="abre el portón",
         )
 
     def test_from_conversation_input_without_satellite(self):

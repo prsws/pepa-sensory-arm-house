@@ -1,0 +1,71 @@
+# Words that say which way a request goes, for the toggle rule in
+# action_words.py.
+#
+# "toggle" flips whatever the device is doing now, so "turn on the fan" sent as
+# a toggle turns a running fan off. The model sometimes picks toggle anyway.
+# Code, not the model, checks what the person actually said:
+#
+# - the request says on (and not off): the action runs as turn_on;
+# - the request says off (and not on): the action runs as turn_off;
+# - the request says toggle: the action stays a toggle;
+# - anything else: the toggle is refused and the model is told to use
+#   turn_on or turn_off.
+#
+# An entry matches when its words appear in the request as whole words, in
+# order. Capitals, accents and punctuation are ignored. Both languages are
+# always accepted, whatever the pipeline language.
+#
+# Covers (blinds, garage doors) map turn_on to open and turn_off to close, so
+# open and close words count as on and off.
+#
+# Keep every entry in quotes: unquoted, YAML reads on and off as true or false.
+
+"turn_on":
+  es:
+    - "enciende"
+    - "encienda"
+    - "encender"
+    - "prende"
+    - "prenda"
+    - "prender"
+    - "activa"
+    - "activar"
+    - "abre"
+    - "abrir"
+  en:
+    - "turn on"
+    - "turn it on"
+    - "turn them on"
+    - "switch on"
+    - "switch it on"
+    - "power on"
+    - "start"
+    - "open"
+
+"turn_off":
+  es:
+    - "apaga"
+    - "apague"
+    - "apagar"
+    - "desactiva"
+    - "desactivar"
+    - "cierra"
+    - "cerrar"
+  en:
+    - "turn off"
+    - "turn it off"
+    - "turn them off"
+    - "switch off"
+    - "switch it off"
+    - "power off"
+    - "shut off"
+    - "stop"
+    - "close"
+
+"toggle":
+  es:
+    - "alterna"
+    - "alternar"
+    - "toggle"
+  en:
+    - "toggle"
