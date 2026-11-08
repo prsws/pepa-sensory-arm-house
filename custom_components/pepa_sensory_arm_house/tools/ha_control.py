@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 
+from ..action_words import async_get_action_words
 from ..confirmation import CONFIRM_TIMEOUT_DEFAULT, async_get_confirmation_gate
 from ..const import (
     ACTION_SET_VALUE,
@@ -210,6 +211,23 @@ class HomeAssistantControlTool(BaseTool):
             raise ValidationError(
                 f"Invalid action '{action}'. Must be one of: {', '.join(valid_actions)}"
             )
+
+        # A toggle flips the current state, so "turn on" sent as a toggle can
+        # turn a running device off. Run it as the person asked, or refuse it.
+        # See action_words.py.
+        if action == ACTION_TOGGLE:
+            origin = current_origin()
+            resolved = await async_get_action_words(self.hass).async_resolve_toggle(
+                origin.text if origin is not None else None
+            )
+            if resolved is None:
+                raise ValidationError(
+                    "Toggle refused: the person did not ask to toggle. Use 'turn_on' or "
+                    "'turn_off', as the person asked."
+                )
+            if resolved != action:
+                _LOGGER.debug("Toggle for %s runs as %s (the person's words)", entity_id, resolved)
+            action = resolved
 
         # Validate entity ID format
         if "." not in entity_id:
