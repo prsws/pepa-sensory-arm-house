@@ -714,8 +714,10 @@ class HomeAgent(
             aliases = []
             labels = []
             if entity:
-                if entity.aliases:
-                    aliases = list(entity.aliases)
+                # Only plain-text aliases. Home Assistant also stores a
+                # computed-name marker ("use the entity's name"), which is not a
+                # word and must not reach the prompt as Python text.
+                aliases = [a for a in entity.aliases if isinstance(a, str) and a.strip()]
                 if include_labels and entity.labels:
                     labels = list(entity.labels)
 
