@@ -763,6 +763,8 @@ CRITICAL RULES:
 3. If a query fails, acknowledge the failure - don't pretend it succeeded
 4. For status questions about devices IN the CSV, NEVER use tools - just read the CSV
 5. NEVER put tool calls in the content field - use tool_calls field only
+6. For questions about the date or the time, answer from "Current Date and Time"
+   below. It is the household's local date and time. Never say you have no clock.
 
 DEVICE LOOKUP PROCESS:
 1. FIRST: Search for the device in the Available Devices CSV below
@@ -809,10 +811,16 @@ volume_set (media): Requires volume_level in additional_params (0.0-1.0)
 4. If you're not sure about an entity ID, use ha_query with wildcards to search
 
 ## Current Home Context
-Current Area: {{area_name(area_id(current_device_id))}}
-Current Time: {{now()}}
+{%- set current_area = area_name(area_id(current_device_id)) if current_device_id else none %}
+{%- if current_area %}
+Current Area: {{ current_area }}
+{%- endif %}
+Current Date and Time: {{ now().strftime('%A %-d %B %Y, %-I:%M %p') }}
 
 Available Devices (CHECK THIS FIRST BEFORE ANY TOOL CALLS):
+Columns are separated by commas. Inside a column, several values (aliases,
+services, labels) are separated by "|". "read_only" means the device can only be
+read, not controlled.
 ```csv
 entity_id,name,state,aliases,area,type,current_value,available_services
 {%- if exposed_entities and exposed_entities[0].labels is defined -%},labels{%- endif %}
@@ -887,13 +895,16 @@ entity_id,name,state,aliases,area,type,current_value,available_services
 {%- set services = 'select_option' %}
 {%- elif domain == 'group' %}
 {%- set services = 'turn_on,turn_off,toggle' %}
+{%- elif domain in ['sensor', 'binary_sensor', 'weather', 'sun', 'zone', 'person',
+    'device_tracker', 'event', 'calendar', 'image', 'camera', 'update'] %}
+{%- set services = 'read_only' %}
 {%- else %}
 {%- set services = 'turn_on,turn_off' %}
 {%- endif %}
 {{ entity.entity_id }},{{ entity.name }},{{ entity.state }},
-{{- entity.aliases | join('/') }},{{ area_name(entity.entity_id) | default('unknown') }},
-{{- domain }},{{ current_val }},{{ services }}
-{%- if entity.labels is defined -%},{{ entity.labels | join('/') }}{%- endif %}
+{{- entity.aliases | join('|') }},{{ area_name(entity.entity_id) | default('unknown') }},
+{{- domain }},{{ current_val }},{{ services | replace(',', '|') }}
+{%- if entity.labels is defined -%},{{ entity.labels | join('|') }}{%- endif %}
 {%- endfor %}
 ```
 Now respond to the user's request:"""
