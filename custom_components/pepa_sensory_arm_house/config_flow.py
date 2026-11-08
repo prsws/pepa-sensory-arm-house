@@ -108,6 +108,7 @@ from .const import (
     DEFAULT_HISTORY_ENABLED,
     DEFAULT_HISTORY_MAX_MESSAGES,
     DEFAULT_HISTORY_MAX_TOKENS,
+    DEFAULT_LLM_BASE_URL,
     DEFAULT_LLM_KEEP_ALIVE,
     DEFAULT_LLM_MODEL,
     DEFAULT_MAX_CONTEXT_TOKENS,
@@ -301,7 +302,7 @@ class HomeAgentConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ig
                     vol.Required("name", default=DEFAULT_NAME): str,
                     vol.Required(
                         CONF_LLM_BASE_URL,
-                        default=OPENAI_BASE_URL,
+                        default=DEFAULT_LLM_BASE_URL,
                     ): str,
                     vol.Optional(
                         CONF_LLM_API_KEY,
@@ -595,7 +596,7 @@ class HomeAgentOptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Required(
                         CONF_LLM_BASE_URL,
-                        default=current_data.get(CONF_LLM_BASE_URL, OPENAI_BASE_URL),
+                        default=current_data.get(CONF_LLM_BASE_URL, DEFAULT_LLM_BASE_URL),
                     ): str,
                     vol.Optional(
                         CONF_LLM_API_KEY,

@@ -148,11 +148,15 @@ LLM_BACKEND_VLLM: Final = "vllm-server"
 LLM_BACKEND_OLLAMA_GPU: Final = "ollama-gpu"
 
 # Default values - LLM Configuration
-DEFAULT_LLM_MODEL: Final = "gpt-4o-mini"
-DEFAULT_TEMPERATURE: Final = 0.7
+# Local first, no cloud: a new setup points at a local Ollama server with Gemma 4
+# E2B, the small model Pepa is tested against as its worst case. Temperature 0
+# keeps device control deterministic.
+DEFAULT_LLM_BASE_URL: Final = "http://localhost:11434/v1"
+DEFAULT_LLM_MODEL: Final = "gemma4:e2b"
+DEFAULT_TEMPERATURE: Final = 0.0
 DEFAULT_MAX_TOKENS: Final = 500
 DEFAULT_TOP_P: Final = 1.0
-DEFAULT_LLM_KEEP_ALIVE: Final = "5m"
+DEFAULT_LLM_KEEP_ALIVE: Final = "15m"
 DEFAULT_LLM_BACKEND: Final = LLM_BACKEND_DEFAULT
 DEFAULT_THINKING_ENABLED: Final = True  # Default: enabled (no /no_think appended)
 
