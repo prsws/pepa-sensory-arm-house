@@ -40,6 +40,18 @@ This repository is the house scope's front end: voice conversation, the ReAct (r
 - **Only exposed entities.** The conversation sees only the entities exposed to it in Home Assistant.
 - **Loud failures.** When the house scope cannot confirm that an action happened, it says so; it never fails silently.
 
+## Give it its own Home Assistant
+
+Pepa Sensory Arm – House is built for one purpose: to be part of a person's cognitive infrastructure, as described by the Pepa project. It assumes it is the only thing acting on the Home Assistant instance it runs in.
+
+Do not share that instance with other integrations that change the state of the house, especially ones driven by AI: other conversation agents, assistants or remote-control services. The same goes for automations and scripts that were not created through Pepa's setup. The only exception is people using Home Assistant's own dashboards and control panels by hand.
+
+Anything else that acts on the house bypasses Pepa. Pepa can't ask before an action that can't be undone, can't verify that it happened, and can't keep a complete record of what was done and why. Those three guarantees are what Pepa is for; without them, it is just another voice assistant.
+
+Pepa follows the same rule: the person scope, which records human telemetry, runs on its own Home Assistant instance, not alongside the house scope.
+
+A development or test instance may run other agents side by side; that is what it is for. A household may also keep another agent installed as a break-glass fallback for when Pepa is down. While that fallback acts, Pepa's guarantees don't hold.
+
 ## Features
 
 ### Added in this repository
