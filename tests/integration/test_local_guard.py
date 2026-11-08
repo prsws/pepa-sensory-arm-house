@@ -3,6 +3,7 @@
 import pytest
 from homeassistant.components import conversation
 from homeassistant.components.homeassistant.exposed_entities import async_expose_entity
+from homeassistant.const import EVENT_COMPONENT_LOADED
 from homeassistant.core import Context, HomeAssistant
 from homeassistant.helpers import chat_session
 from homeassistant.helpers import entity_registry as er
@@ -13,6 +14,8 @@ from pytest_homeassistant.common import async_mock_service
 from custom_components.pepa_sensory_arm_house.local_guard import (
     READ_INTENTS,
     async_all_reversible,
+    async_disable,
+    async_enable,
     async_get_local_guard,
     async_guard_registered_handlers,
 )
@@ -184,3 +187,67 @@ def test_read_list_names_real_intents() -> None:
     ).read_text()
     for name in READ_INTENTS:
         assert f'"{name}"' in sources, name
+
+
+async def _assist_hass(hass: HomeAssistant) -> HomeAssistant:
+    """Assist and two lights, without the guard."""
+    assert await async_setup_component(hass, "homeassistant", {})
+    assert await async_setup_component(hass, "conversation", {})
+    assert await async_setup_component(hass, "intent", {})
+    _add_light(hass, "lamp", "living room lamp", reverse=True)
+    _add_light(hass, "heater", "bedroom heater", reverse=False)
+    return hass
+
+
+async def test_enable_and_disable_round_trip(hass: HomeAssistant) -> None:
+    """On with the first entry, off and fully restored after the last one."""
+    await _assist_hass(hass)
+    calls = async_mock_service(hass, "light", "turn_on")
+    guard = async_get_local_guard(hass)
+
+    async_enable(hass, PEPA_AGENT_ID)
+    async_enable(hass, "second_entry")
+    assert guard.active
+    assert await _local_attempt(hass, "turn on the bedroom heater") is None
+
+    async_disable(hass, "second_entry")
+    assert guard.active
+    assert await _local_attempt(hass, "turn on the bedroom heater") is None
+
+    async_disable(hass, PEPA_AGENT_ID)
+    assert not guard.active
+    assert guard.wrapped == {}
+    assert guard.unsub_component_loaded is None
+    for handler in intent.async_get(hass):
+        assert "async_handle_states" not in vars(handler)
+        assert "async_handle" not in vars(handler)
+    # Restored: Home Assistant acts by itself again, as without the guard.
+    assert await _local_attempt(hass, "turn on the bedroom heater") is not None
+    assert len(calls) == 1
+
+
+async def test_handlers_added_later_are_wrapped(hass: HomeAssistant) -> None:
+    """A handler registered after the guard started is wrapped when its
+    integration finishes loading."""
+    await _assist_hass(hass)
+    async_enable(hass, PEPA_AGENT_ID)
+
+    class LateIntent(intent.IntentHandler):
+        intent_type = "HassLateArrival"
+
+        async def async_handle(self, intent_obj: intent.Intent) -> intent.IntentResponse:
+            return intent_obj.create_response()
+
+    late = LateIntent()
+    intent.async_register(hass, late)
+    assert "async_handle" not in vars(late)
+
+    hass.bus.async_fire(EVENT_COMPONENT_LOADED, {"component": "late_integration"})
+    await hass.async_block_till_done()
+
+    assert "async_handle" in vars(late)
+    with pytest.raises(intent.MatchFailedError):
+        await intent.async_handle(
+            hass, "test", "HassLateArrival", conversation_agent_id=PEPA_AGENT_ID
+        )
+    async_disable(hass, PEPA_AGENT_ID)

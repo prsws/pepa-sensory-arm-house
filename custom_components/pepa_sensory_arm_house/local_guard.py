@@ -6,30 +6,48 @@ itself when they match. For a pipeline whose agent is this integration, that
 would skip the confirmation gate. The guard sits in Home Assistant's intent
 handlers and, only for requests meant for one of this integration's agents:
 
-- lets an action run locally when every target carries the ``reverse`` label;
-- otherwise refuses before anything is called, by raising
+- Device actions (turn on/off/toggle, light, fan, cover, media, vacuum...):
+  run locally only when every target carries the ``reverse`` label.
+- Other intents: only questions run locally (``READ_INTENTS``).
+- Anything else is refused before anything is called, by raising
   ``intent.MatchFailedError``. Home Assistant then reports "no valid targets",
   drops its own answer and passes the request on to the agent, which holds the
-  action and asks.
-- for intents that are not device actions, lets only questions through
-  (``READ_INTENTS``); every other intent is refused the same way.
+  action and asks. The person hears nothing about the refusal.
 
 Requests meant for any other agent are not touched. The design and the Home
 Assistant hook points it relies on are in docs/LOCAL_HANDLING_GUARD.md; the hook
 points are pinned by tests/integration/test_local_guard_hooks.py.
+
+Lifecycle (called from the integration's setup and unload):
+
+- ``async_enable`` runs when an entry of this integration loads. It adds the
+  entry's agent id to the guard and wraps every intent handler registered so
+  far. The first entry also starts a listener that wraps handlers added later,
+  whenever another integration finishes loading.
+- ``async_disable`` runs when an entry unloads. It removes the entry's agent
+  id. When the last entry is gone, it stops the listener and puts every
+  wrapped handler back exactly as it was.
+
+What it logs: one INFO line when the guard is switched on or off, with how many
+handlers it wraps, and a DEBUG line each time it hands a request to the agent,
+naming the intent and why.
 """
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any, Final
 
-from homeassistant.core import HomeAssistant, State, callback
+from homeassistant.const import EVENT_COMPONENT_LOADED
+from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent
 
 from .house_catalog import LABEL_REVERSE
+
+_LOGGER = logging.getLogger(__name__)
 
 DATA_LOCAL_GUARD: Final = "pepa_local_guard"
 
@@ -61,6 +79,13 @@ class LocalGuard:
     agent_ids: set[str] = field(default_factory=set)
     # handler -> (wrapped method name, original method), kept to restore on removal.
     wrapped: dict[intent.IntentHandler, tuple[str, Handler]] = field(default_factory=dict)
+    # Stops the listener that wraps handlers registered after the guard started.
+    unsub_component_loaded: CALLBACK_TYPE | None = None
+
+    @property
+    def active(self) -> bool:
+        """True while at least one entry of this integration is loaded."""
+        return bool(self.agent_ids)
 
     def is_pepa_request(self, intent_obj: intent.Intent) -> bool:
         """True when the request came through a pipeline for one of our agents."""
@@ -119,6 +144,12 @@ def async_guard_service_handler(
         if guard.is_pepa_request(intent_obj) and not async_all_reversible(
             hass, match_result.states
         ):
+            _LOGGER.debug(
+                "Local handling guard: %s on %s handed to the agent (not every target"
+                " carries the reverse label)",
+                intent_obj.intent_type,
+                [state.entity_id for state in match_result.states],
+            )
             raise intent.MatchFailedError(
                 result=match_result,
                 constraints=match_constraints,
@@ -152,6 +183,11 @@ def async_guard_other_handler(guard: LocalGuard, handler: intent.IntentHandler) 
 
     async def guarded_handle(intent_obj: intent.Intent) -> intent.IntentResponse:
         if guard.is_pepa_request(intent_obj):
+            _LOGGER.debug(
+                "Local handling guard: %s handed to the agent (only questions are"
+                " answered locally)",
+                intent_obj.intent_type,
+            )
             raise intent.MatchFailedError(
                 result=intent.MatchTargetsResult(
                     is_match=False, no_match_reason=intent.MatchFailedReason.ASSISTANT
@@ -176,3 +212,63 @@ def async_guard_registered_handlers(hass: HomeAssistant, guard: LocalGuard) -> i
         else:
             count += async_guard_other_handler(guard, handler)
     return count
+
+
+@callback
+def async_enable(hass: HomeAssistant, agent_id: str) -> None:
+    """Switch the guard on for one of this integration's agents.
+
+    Called on entry setup with the entry id, which is the agent id Home
+    Assistant records on every request through that agent's pipelines.
+    """
+    guard = async_get_local_guard(hass)
+    first = not guard.active
+    guard.agent_ids.add(agent_id)
+    count = async_guard_registered_handlers(hass, guard)
+
+    if first:
+
+        @callback
+        def _wrap_new_handlers(event: Event) -> None:
+            """Another integration finished loading: wrap any handler it added."""
+            if added := async_guard_registered_handlers(hass, guard):
+                _LOGGER.debug(
+                    "Local handling guard: wrapped %d handler(s) added by %s",
+                    added,
+                    event.data.get("component"),
+                )
+
+        guard.unsub_component_loaded = hass.bus.async_listen(
+            EVENT_COMPONENT_LOADED, _wrap_new_handlers
+        )
+        _LOGGER.info(
+            "Local handling guard on: %d intent handler(s) wrapped; Home Assistant"
+            " answers Pepa's pipelines by itself only for questions and for actions"
+            " on entities labelled reverse",
+            count,
+        )
+
+
+@callback
+def async_disable(hass: HomeAssistant, agent_id: str) -> None:
+    """Switch the guard off for one agent; restore everything after the last."""
+    guard = async_get_local_guard(hass)
+    guard.agent_ids.discard(agent_id)
+    if guard.active:
+        return
+
+    if guard.unsub_component_loaded is not None:
+        guard.unsub_component_loaded()
+        guard.unsub_component_loaded = None
+
+    restored = 0
+    for handler, (name, original) in guard.wrapped.items():
+        # The wrapper was set on the instance; removing it brings back the
+        # class's own method. Set the original back only if that is not it.
+        if name in vars(handler):
+            delattr(handler, name)
+        if getattr(handler, name) != original:
+            setattr(handler, name, original)
+        restored += 1
+    guard.wrapped.clear()
+    _LOGGER.info("Local handling guard off: %d intent handler(s) restored", restored)

@@ -37,6 +37,8 @@ def mock_hass():
     hass.services.async_remove = MagicMock()
     hass.config_entries = MagicMock()
     hass.config_entries.async_reload = AsyncMock()
+    # Event bus: setup listens for integrations that finish loading (local guard)
+    hass.bus = MagicMock()
     # Mock config.config_dir for ConversationSessionManager storage
     hass.config = MagicMock()
     hass.config.config_dir = "/tmp/test_config"
@@ -1495,3 +1497,67 @@ class TestServiceErrorHandling:
 
         with pytest.raises(Exception, match="Index error"):
             await reindex_handler(service_call)
+
+
+class TestLocalGuardWiring:
+    """The local handling guard follows the entry's lifecycle."""
+
+    @pytest.fixture(autouse=True)
+    def _no_health_check_network(self):
+        """Stub the health checks setup runs (no sockets in unit tests)."""
+        with (
+            patch(
+                "custom_components.pepa_sensory_arm_house.check_chromadb_health",
+                AsyncMock(return_value=(True, "stubbed")),
+            ),
+            patch(
+                "custom_components.pepa_sensory_arm_house.check_ollama_health",
+                AsyncMock(return_value=(True, "stubbed")),
+            ),
+        ):
+            yield
+
+    @patch("custom_components.pepa_sensory_arm_house.local_guard.async_enable")
+    @patch("custom_components.pepa_sensory_arm_house.ConversationSessionManager")
+    @patch("custom_components.pepa_sensory_arm_house.HomeAgent")
+    @patch("custom_components.pepa_sensory_arm_house.ha_conversation.async_set_agent")
+    @patch("custom_components.pepa_sensory_arm_house.async_setup_services")
+    async def test_setup_switches_the_guard_on_for_this_agent(
+        self,
+        mock_setup_services,
+        mock_set_agent,
+        mock_agent_class,
+        mock_session_manager_class,
+        mock_enable,
+        mock_hass,
+        mock_config_entry,
+        mock_agent,
+        mock_house_catalog,
+    ):
+        """Setup enables the guard with the entry id (the agent id)."""
+        mock_agent_class.return_value = mock_agent
+        mock_session_manager = MagicMock()
+        mock_session_manager.async_load = AsyncMock()
+        mock_session_manager_class.return_value = mock_session_manager
+
+        assert await async_setup_entry(mock_hass, mock_config_entry) is True
+
+        mock_enable.assert_called_once_with(mock_hass, mock_config_entry.entry_id)
+
+    @patch("custom_components.pepa_sensory_arm_house.local_guard.async_disable")
+    @patch("custom_components.pepa_sensory_arm_house.ha_conversation.async_unset_agent")
+    async def test_unload_switches_the_guard_off_for_this_agent(
+        self,
+        mock_unset_agent,
+        mock_disable,
+        mock_hass,
+        mock_config_entry,
+        mock_agent,
+        mock_house_catalog,
+    ):
+        """Unload disables the guard for the entry id."""
+        mock_hass.data[DOMAIN] = {mock_config_entry.entry_id: {"agent": mock_agent}}
+
+        await async_unload_entry(mock_hass, mock_config_entry)
+
+        mock_disable.assert_called_once_with(mock_hass, mock_config_entry.entry_id)
