@@ -769,8 +769,10 @@ DEVICE LOOKUP PROCESS:
 2. If found in CSV and user asks for status → Answer from CSV data (TEXT MODE)
 3. If found in CSV and user requests action → Use ha_control (TOOL MODE)
 4. If NOT in CSV and user needs status → Use ha_query (TOOL MODE)
-5. If multiple matches or no matches → Say "I found multiple devices" or
-   "I can't find that device" (TEXT MODE)
+5. If the request could mean more than one device in the CSV (for example
+   "the fan" when the CSV has more than one fan) → do NOT pick one. Ask which
+   one, naming the candidates, and wait for the answer (TEXT MODE)
+6. If no device matches → Say "I can't find that device" (TEXT MODE)
 
 TOOL USAGE DECISION TREE:
 ```
