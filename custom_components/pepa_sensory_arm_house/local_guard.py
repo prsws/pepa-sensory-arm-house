@@ -31,6 +31,13 @@ Lifecycle (called from the integration's setup and unload):
 What it logs: one INFO line when the guard is switched on or off, with how many
 handlers it wraps, and a DEBUG line each time it hands a request to the agent,
 naming the intent and why.
+
+Startup check (``async_report``): once Home Assistant has started, and again
+whenever another integration loads, the guard checks that the Home Assistant
+pieces it relies on are still there and that every handler is wrapped (or is a
+question). If anything is wrong it raises a Home Assistant repair notice saying
+that local handling is not guarded for Pepa's voice assistants, and logs an
+ERROR; when all is well again the notice is removed. It never fails silently.
 """
 
 from __future__ import annotations
@@ -40,16 +47,21 @@ from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any, Final
 
-from homeassistant.const import EVENT_COMPONENT_LOADED
+from homeassistant.const import EVENT_COMPONENT_LOADED, EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent
+from homeassistant.helpers import issue_registry as ir
 
+from .const import DOMAIN
 from .house_catalog import LABEL_REVERSE
 
 _LOGGER = logging.getLogger(__name__)
 
 DATA_LOCAL_GUARD: Final = "pepa_local_guard"
+
+# Repair notice raised when the guard cannot do its job (see async_report).
+ISSUE_NOT_GUARDING: Final = "local_guard_not_guarding"
 
 # Marks a handler method this module has wrapped, so it is never wrapped twice.
 _GUARDED_MARK: Final = "_pepa_local_guard"
@@ -81,6 +93,8 @@ class LocalGuard:
     wrapped: dict[intent.IntentHandler, tuple[str, Handler]] = field(default_factory=dict)
     # Stops the listener that wraps handlers registered after the guard started.
     unsub_component_loaded: CALLBACK_TYPE | None = None
+    # Stops the one-time check that runs when Home Assistant has started.
+    unsub_started: CALLBACK_TYPE | None = None
 
     @property
     def active(self) -> bool:
@@ -237,10 +251,25 @@ def async_enable(hass: HomeAssistant, agent_id: str) -> None:
                     added,
                     event.data.get("component"),
                 )
+            if hass.is_running:
+                async_report(hass, guard)
+
+        @callback
+        def _check_on_start(_event: Event) -> None:
+            """Home Assistant has started: wrap any stragglers, then check."""
+            guard.unsub_started = None
+            async_guard_registered_handlers(hass, guard)
+            async_report(hass, guard)
 
         guard.unsub_component_loaded = hass.bus.async_listen(
             EVENT_COMPONENT_LOADED, _wrap_new_handlers
         )
+        if hass.is_running:
+            async_report(hass, guard)
+        else:
+            guard.unsub_started = hass.bus.async_listen_once(
+                EVENT_HOMEASSISTANT_STARTED, _check_on_start
+            )
         _LOGGER.info(
             "Local handling guard on: %d intent handler(s) wrapped; Home Assistant"
             " answers Pepa's pipelines by itself only for questions and for actions"
@@ -260,6 +289,10 @@ def async_disable(hass: HomeAssistant, agent_id: str) -> None:
     if guard.unsub_component_loaded is not None:
         guard.unsub_component_loaded()
         guard.unsub_component_loaded = None
+    if guard.unsub_started is not None:
+        guard.unsub_started()
+        guard.unsub_started = None
+    ir.async_delete_issue(hass, DOMAIN, ISSUE_NOT_GUARDING)
 
     restored = 0
     for handler, (name, original) in guard.wrapped.items():
@@ -272,3 +305,61 @@ def async_disable(hass: HomeAssistant, agent_id: str) -> None:
         restored += 1
     guard.wrapped.clear()
     _LOGGER.info("Local handling guard off: %d intent handler(s) restored", restored)
+
+
+@callback
+def async_check(hass: HomeAssistant, guard: LocalGuard) -> list[str]:
+    """Return what keeps the guard from working; an empty list means it works.
+
+    Checks the Home Assistant pieces the guard relies on (also pinned by
+    tests/integration/test_local_guard_hooks.py) and that every registered
+    handler is either wrapped or a question.
+    """
+    problems: list[str] = []
+    if not callable(getattr(intent.DynamicServiceIntentHandler, "async_handle_states", None)):
+        problems.append("service intents no longer show their targets before acting")
+    if "conversation_agent_id" not in getattr(intent.Intent, "__slots__", ()):
+        problems.append("requests no longer say which agent they are for")
+    try:
+        from homeassistant.components.conversation import default_agent
+
+        codes = getattr(default_agent, "_MATCH_ERROR_CODES", None)
+    except ImportError:
+        codes = None
+    if not codes or intent.IntentResponseErrorCode.NO_VALID_TARGETS not in codes:
+        problems.append("a refused request may no longer be handed to the agent")
+
+    unguarded = sorted(
+        handler.intent_type
+        for handler in intent.async_get(hass)
+        if handler not in guard.wrapped and handler.intent_type not in READ_INTENTS
+    )
+    if unguarded:
+        problems.append("not guarded: " + ", ".join(unguarded))
+    return problems
+
+
+@callback
+def async_report(hass: HomeAssistant, guard: LocalGuard) -> bool:
+    """Raise or clear the repair notice. Returns True when the guard works."""
+    problems = async_check(hass, guard)
+    if not problems:
+        ir.async_delete_issue(hass, DOMAIN, ISSUE_NOT_GUARDING)
+        return True
+    summary = "; ".join(problems)
+    _LOGGER.error(
+        "Local handling guard is not guarding Pepa's voice assistants: %s. Until this"
+        " is fixed, turn off 'Prefer handling commands locally' in those assistants",
+        summary,
+    )
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        ISSUE_NOT_GUARDING,
+        is_fixable=False,
+        is_persistent=False,
+        severity=ir.IssueSeverity.ERROR,
+        translation_key=ISSUE_NOT_GUARDING,
+        translation_placeholders={"problems": summary},
+    )
+    return False

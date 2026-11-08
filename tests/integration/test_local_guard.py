@@ -1,5 +1,7 @@
 """Local handling guard against a real Home Assistant: device actions."""
 
+from unittest.mock import patch
+
 import pytest
 from homeassistant.components import conversation
 from homeassistant.components.homeassistant.exposed_entities import async_expose_entity
@@ -8,16 +10,21 @@ from homeassistant.core import Context, HomeAssistant
 from homeassistant.helpers import chat_session
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant.common import async_mock_service
 
+from custom_components.pepa_sensory_arm_house.const import DOMAIN
 from custom_components.pepa_sensory_arm_house.local_guard import (
+    ISSUE_NOT_GUARDING,
     READ_INTENTS,
     async_all_reversible,
+    async_check,
     async_disable,
     async_enable,
     async_get_local_guard,
     async_guard_registered_handlers,
+    async_report,
 )
 
 PEPA_AGENT_ID = "01PEPAAGENTENTRYID0000000"
@@ -251,3 +258,67 @@ async def test_handlers_added_later_are_wrapped(hass: HomeAssistant) -> None:
             hass, "test", "HassLateArrival", conversation_agent_id=PEPA_AGENT_ID
         )
     async_disable(hass, PEPA_AGENT_ID)
+
+
+async def _guarded_and_started(hass: HomeAssistant) -> None:
+    await _assist_hass(hass)
+    async_enable(hass, PEPA_AGENT_ID)
+    await hass.async_block_till_done()
+
+
+async def test_startup_check_finds_nothing_wrong(hass: HomeAssistant) -> None:
+    """With every handler wrapped and the hook points present, no repair notice."""
+    await _guarded_and_started(hass)
+    assert async_check(hass, async_get_local_guard(hass)) == []
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_NOT_GUARDING) is None
+    async_disable(hass, PEPA_AGENT_ID)
+
+
+async def test_unwrapped_handler_raises_a_repair_notice(hass: HomeAssistant) -> None:
+    """A handler the guard missed is reported, then cleared once it is wrapped."""
+    await _guarded_and_started(hass)
+    guard = async_get_local_guard(hass)
+
+    class Sneaky(intent.IntentHandler):
+        intent_type = "HassSneaky"
+
+        async def async_handle(self, intent_obj: intent.Intent) -> intent.IntentResponse:
+            return intent_obj.create_response()
+
+    intent.async_register(hass, Sneaky())
+    assert async_report(hass, guard) is False
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_NOT_GUARDING)
+    assert issue is not None
+    assert issue.severity is ir.IssueSeverity.ERROR
+    assert "HassSneaky" in issue.translation_placeholders["problems"]
+
+    # Another integration loads: the straggler is wrapped and the notice goes away.
+    hass.bus.async_fire(EVENT_COMPONENT_LOADED, {"component": "late_integration"})
+    await hass.async_block_till_done()
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_NOT_GUARDING) is None
+    async_disable(hass, PEPA_AGENT_ID)
+
+
+async def test_missing_hook_point_raises_a_repair_notice(hass: HomeAssistant) -> None:
+    """If Home Assistant stops handing refused requests on, say so loudly."""
+    await _guarded_and_started(hass)
+    with patch(
+        "homeassistant.components.conversation.default_agent._MATCH_ERROR_CODES",
+        frozenset(),
+    ):
+        assert async_report(hass, async_get_local_guard(hass)) is False
+    issue = ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_NOT_GUARDING)
+    assert "handed to the agent" in issue.translation_placeholders["problems"]
+    async_disable(hass, PEPA_AGENT_ID)
+
+
+async def test_switching_off_clears_the_notice(hass: HomeAssistant) -> None:
+    """With the last entry gone there is nothing to guard and nothing to report."""
+    await _guarded_and_started(hass)
+    with patch(
+        "homeassistant.components.conversation.default_agent._MATCH_ERROR_CODES",
+        frozenset(),
+    ):
+        async_report(hass, async_get_local_guard(hass))
+    async_disable(hass, PEPA_AGENT_ID)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, ISSUE_NOT_GUARDING) is None

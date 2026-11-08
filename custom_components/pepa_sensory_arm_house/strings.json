@@ -424,5 +424,11 @@
       "name": "Clear conversation",
       "description": "Clear conversation session and start fresh with no previous context. Allows users to reset voice conversations for a specific user or device, or all conversations at once."
     }
+  },
+  "issues": {
+    "local_guard_not_guarding": {
+      "title": "Pepa can't guard Home Assistant's local handling",
+      "description": "With \"Prefer handling commands locally\" on, Home Assistant can act by itself in the voice assistants that use Pepa, without Pepa asking first for actions that can't be undone.\n\nWhat Pepa found: {problems}.\n\nUntil Pepa is updated for this Home Assistant version, turn off \"Prefer handling commands locally\" in each voice assistant that uses Pepa (Settings → Voice assistants). This notice goes away by itself when the problem is gone."
+    }
   }
 }
