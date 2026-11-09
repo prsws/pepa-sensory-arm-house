@@ -12,10 +12,13 @@ pytest-homeassistant==2026.11.0
 pytest-timeout>=2.1.0
 
 # Code Quality
-black>=23.7.0
-isort>=5.12.0
+# The three CI runs (black, isort, flake8) are pinned so a new release of a tool
+# cannot fail CI or reformat code on its own. Upgrade them on purpose, together,
+# in a pull request that also applies any new formatting.
+black==26.10.1
+isort==9.0.2
 pylint>=2.17.0
-flake8>=6.1.0
+flake8==7.5.0
 mypy>=1.5.0
 
 # Type Stubs
