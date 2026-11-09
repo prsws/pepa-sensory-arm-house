@@ -84,6 +84,7 @@ from ..const import (
     DEFAULT_HISTORY_ENABLED,
     DEFAULT_HISTORY_MAX_MESSAGES,
     DEFAULT_HISTORY_MAX_TOKENS,
+    DEFAULT_LLM_BASE_URL,
     DEFAULT_LLM_KEEP_ALIVE,
     DEFAULT_LLM_MODEL,
     DEFAULT_MAX_TOKENS,
@@ -130,7 +131,7 @@ def get_user_step_schema() -> vol.Schema:
             vol.Required("name", default=DEFAULT_NAME): str,
             vol.Required(
                 CONF_LLM_BASE_URL,
-                default=OPENAI_BASE_URL,
+                default=DEFAULT_LLM_BASE_URL,
             ): str,
             vol.Required(CONF_LLM_API_KEY): selector.TemplateSelector(),
             vol.Required(
@@ -170,7 +171,7 @@ def get_llm_settings_schema(current_data: dict[str, Any]) -> vol.Schema:
         {
             vol.Required(
                 CONF_LLM_BASE_URL,
-                default=current_data.get(CONF_LLM_BASE_URL, OPENAI_BASE_URL),
+                default=current_data.get(CONF_LLM_BASE_URL, DEFAULT_LLM_BASE_URL),
             ): str,
             vol.Required(
                 CONF_LLM_API_KEY,
